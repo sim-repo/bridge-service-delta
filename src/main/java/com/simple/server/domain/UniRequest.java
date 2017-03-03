@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
+import com.simple.server.domain.contract.EventSettingMsg;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.TagRequestMsg;
 
@@ -15,6 +16,17 @@ public class UniRequest implements IRec{
 	
 	protected String responseURI;
 	
+	protected EndpointType senderId;
+	
+	@Override
+	public EndpointType getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(EndpointType senderId) {
+		this.senderId = senderId;
+	}
+
 	public String getQuery() {
 		return query.toString();
 	}
@@ -41,7 +53,13 @@ public class UniRequest implements IRec{
 				this.query.append(pair.getKey()+" = "+pair.getValue()+',');
 			}			
 			this.query.deleteCharAt(this.query.length()-1);
-		}		
+		}
+		else if(msg instanceof EventSettingMsg){
+			EventSettingMsg esm = (EventSettingMsg)msg;
+			if(esm.getEventId()==null)
+				throw new Exception("Error has occured: bridge-serivce, UniRequest, copyFrom, EventSettingMsg");
+			this.setQuery(new StringBuilder(String.format("SELECT * FROM jdb.`bus event settings` WHERE `event_id` LIKE '%s' ;",esm.getEventId())));			
+		}				
 	}
 
 	@Override
@@ -51,8 +69,7 @@ public class UniRequest implements IRec{
 	}
 
 	@Override
-	public EndpointType getEndpoint() throws Exception {
-		// TODO Auto-generated method stub
+	public EndpointType getEndpoint() { 
 		return null;
 	}
 

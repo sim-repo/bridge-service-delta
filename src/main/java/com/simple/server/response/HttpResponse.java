@@ -28,8 +28,7 @@ public class HttpResponse implements Response {
 		else if(ContentType.ApplicationXml.equals(contentType)){
 			sendApplicationXml(msg);
 		}
-		else{sendJsonTextPlain(msg);}
-							
+		else{sendJsonTextPlain(msg);}							
 	}
 	
 	public void sendJsonTextPlain(IContract contract) throws Exception{	

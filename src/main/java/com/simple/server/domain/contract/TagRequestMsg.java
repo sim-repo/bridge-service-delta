@@ -44,6 +44,6 @@ public class TagRequestMsg extends AContract {
 	}
 	@Override
 	public void copyFrom(IRec rec) {
-		//TODO		
+		
 	}		
 }

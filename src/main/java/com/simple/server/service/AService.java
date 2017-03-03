@@ -35,7 +35,7 @@ public abstract class AService implements IService{
 
 	@Override
 	public String readFlatJson(String sql) throws Exception {
-		String res = getDao().readFlatJson(sql);
+		String res = getDao().readFlatJsonArray(sql);
 		return res;
 	}
 
@@ -45,7 +45,8 @@ public abstract class AService implements IService{
 		return res;
 	}
 	
-	@Override
+	@Override	
+	@Transactional()
 	public List<IContract> readAll(IContract msg) throws Exception{
 		
 		IRec rec = getAppConfig().getContractRecFactory().newRec(msg);

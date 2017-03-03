@@ -26,15 +26,20 @@ public class PostInit implements ApplicationListener<ContextRefreshedEvent> {
 	@Value("${queueSizeWrite.int.property :100}")
 	private int queueSizeWrite;
 	  
+	@Value("${queueSizePub.int.property :100}")
+	private int queueSizePub;
   
-	  
+	@Value("${queueSizeSub.int.property :100}")
+	private int queueSizeSub;  
+	
 	@Override
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
 		
 		  appConfig.initQueueDirty(queueSizeDirty);
 		  appConfig.initRead(queueSizeRead);
 		  appConfig.initWrite(queueSizeWrite);
-		  
+		  appConfig.initPub(queueSizePub);
+		  appConfig.initSub(queueSizeSub);
 		  taskRunner.initProcessing();
 	}
 }

@@ -6,14 +6,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.json.JSONObject;
 import org.json.XML;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.simple.server.config.ContentType;
 import com.simple.server.domain.IRec;
 import com.simple.server.domain.UniRequest;
 import com.simple.server.domain.UniResult;
+import com.simple.server.domain.contract.IContract;
 import com.simple.server.util.ObjectConverter;
 
 public abstract class ADao implements IDao{
@@ -40,12 +44,9 @@ public abstract class ADao implements IDao{
 	}
 
 	@Override
-	public String readFlatJson(String sql) throws Exception {
+	public String readFlatJsonArray(String sql) throws Exception {
 		List<Map<String,Object>> list =  currentJDBCTemplate().queryForList(sql);			
-		StringBuilder result = new StringBuilder();
-		result.append(ObjectConverter.ObjectToJson(list));		
-		
-		return result.toString();
+		return ObjectConverter.listMapToJson(list);
 	}
 
 	
@@ -68,7 +69,7 @@ public abstract class ADao implements IDao{
 	
 	
 	
-	protected abstract List<IRec> readbyHQL(IRec rec) throws Exception;	
+	protected abstract List<IRec> readbyPK(IRec rec) throws Exception;	
 		
 	@Override
 	public List<IRec> readAll(IRec rec) throws Exception{
@@ -85,7 +86,7 @@ public abstract class ADao implements IDao{
 			u.setResponseContentType(r.getResponseContentType());
 			u.setResponseURI(r.getResponseURI());
 			if(ContentType.JsonPlainText.equals(r.getResponseContentType())){				 
-				u.setResult(readFlatJson(r.getQuery()));				
+				u.setResult(readFlatJsonArray(r.getQuery()));				
 			}
 			else if(ContentType.XmlPlainText.equals(r.getResponseContentType())){				
 				u.setResult(readFlatXml(r.getQuery()));				
@@ -93,9 +94,21 @@ public abstract class ADao implements IDao{
 			res.add(u);			
 		}
 		else{
-			res.addAll(readbyHQL(rec));
+			res.addAll(readbyPK(rec));
 		}
 		return res;
 	}
+
+	@Override
+	@Transactional()
+	public <T extends IContract> List<T> readbyHQL(Class<T> clazz, String query, Map<String,String> params) throws Exception {		
+		Query q = currentSession().createQuery(query);
+		for(Map.Entry<String,String> pair: params.entrySet()){						
+			q.setParameter(pair.getKey(), pair.getValue());
+		}				
+		List<T> res = q.list();
+		return res;
+	}
+	
 
 }

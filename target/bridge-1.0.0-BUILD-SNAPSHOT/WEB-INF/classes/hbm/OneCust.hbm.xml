@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.simple.server.domain.one">
+						
+	<class name="OneCust" table="[ESB Buffer Customer]">
+		<id name="id" column="[id]">
+			<generator class="native" />
+		</id>					
+		
+		<property name="outerCustomerId" column="[Outer Customer Id]" />
+		<property name="customerId" column="[Customer Id]" />
+		<property name="customerName" column="[Customer Name]" />
+		<property name="phoneNo" column="[Phone No]" />
+		<property name="phoneNo2" column="[Phone No 2]" />
+		<property name="email" column="[Email]" />
+		<property name="address" column="[Address]" />
+	</class>
+</hibernate-mapping>

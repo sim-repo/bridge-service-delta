@@ -4,7 +4,7 @@ import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
 
-public class LogReply implements ILogRec{
+public class LogReply extends ALogRec{
 	
 	protected int id;
 	
@@ -71,7 +71,7 @@ public class LogReply implements ILogRec{
 	}
 
 	@Override
-	public EndpointType getEndpoint() throws Exception {
+	public EndpointType getEndpoint(){
 		return EndpointType.LOG;
 	}
 	

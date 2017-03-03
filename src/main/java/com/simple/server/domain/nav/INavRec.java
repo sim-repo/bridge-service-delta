@@ -7,7 +7,7 @@ public interface INavRec extends IRec{
 	public String getJuuid();
 	
 	@Override
-	default EndpointType getEndpoint() throws Exception {
+	default EndpointType getEndpoint(){
 		return EndpointType.NAV;
 	}
 	

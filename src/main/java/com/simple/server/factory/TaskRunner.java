@@ -24,8 +24,10 @@ import com.simple.server.mediators.ParameterType;
 import com.simple.server.task.ATask;
 import com.simple.server.task.DispatcherTask;
 import com.simple.server.task.ReadTask;
+import com.simple.server.task.SubTask;
 import com.simple.server.task.WriteTask;
 import com.simple.server.task.ITask;
+import com.simple.server.task.PubTask;
 
 @Service("taskRunner")
 @Scope("singleton")
@@ -102,7 +104,8 @@ public class TaskRunner  {
         		newRunTask(appConfig.getMediator(), DispatcherTask.class, 1);
         		newRunTask(appConfig.getMediator(), ReadTask.class, 1);
         		newRunTask(appConfig.getMediator(), WriteTask.class, 1);
-        		
+        		newRunTask(appConfig.getMediator(), PubTask.class, 1);
+        		newRunTask(appConfig.getMediator(), SubTask.class, 1);
         		
         		for(Map.Entry<Class<ATask>, Integer> pair: classToRun.entrySet()){
         			Class<ATask> clazz = pair.getKey();

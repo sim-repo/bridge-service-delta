@@ -30,7 +30,7 @@ public class LogDaoImpl extends ADao implements ILogDao{
 	}
 
 	@Override
-	public List<IRec> readbyHQL(IRec rec) throws Exception {
+	public List<IRec> readbyPK(IRec rec) throws Exception {
 		IRec r = (IRec) currentSession().load(rec.getClass(), rec);		
 		return Arrays.asList(r);
 	}	

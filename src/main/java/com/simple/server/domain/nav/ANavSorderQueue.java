@@ -3,7 +3,7 @@ package com.simple.server.domain.nav;
 import com.simple.server.config.ContentType;
 import com.simple.server.util.DateConvertHelper;
 
-public abstract class ANavSorderQueue implements INavRec {
+public abstract class ANavSorderQueue extends ANavRec {
 
 	protected Integer entryNo;
 

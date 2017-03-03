@@ -1,6 +1,7 @@
 package com.simple.server.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.simple.server.config.AppConfig;
 import com.simple.server.dao.IDao;
@@ -14,5 +15,7 @@ public interface IService {
 	String readFlatJson(String sql) throws Exception;
 	String readFlatXml(String sql) throws Exception;
 	List<IContract> read(IContract msg) throws Exception;
+	<T extends IContract> List<T> read(String sql, Class<T> clazz) throws Exception;
+	<T extends IContract> List<T> readbyHQL(String sql, Class<T> clazz, Map<String,String> params) throws Exception;
 	List<IContract> readAll(IContract msg) throws Exception;
 }

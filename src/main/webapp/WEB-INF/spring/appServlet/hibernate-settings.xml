@@ -12,10 +12,22 @@
 		http://activemq.apache.org/schema/core
 		http://activemq.apache.org/schema/core/activemq-core-5.9.1.xsd">
 
+
+	<!-- *******DS********* -->
+
 	<bean id="navDS"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
 		<property name="url" value="jdbc:sqlserver://MSK10NAV55;databaseName=SimpleERP;" />
+		<property name="username" value="jservice" />
+		<property name="password" value="Larina123" />
+	</bean>
+	
+	
+	<bean id="oneDS"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
+		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=SimpleERPCopyNav;" />
 		<property name="username" value="jservice" />
 		<property name="password" value="Larina123" />
 	</bean>
@@ -43,7 +55,11 @@
 	                <prop key="socketTimeout">100</prop>
 	            </props>
 	        </property>
-	   </bean>
+	</bean>
+
+
+
+	<!-- *******SessionFactory********* -->
 
 	<bean id="navSessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
@@ -56,22 +72,51 @@
 			</props>
 		</property>
 		<property name="mappingResources">
-			<list>
-			<!-- 
-				<value>hbm/NavSorderQueue.hbm.xml</value> -->																		
+			<list>																		
 				<value>hbm/NavSorder.hbm.xml</value>
 				<value>hbm/NavSalesLine.hbm.xml</value>
+				<value>hbm/NavCust.hbm.xml</value>
 			</list>
 		</property>		
 	</bean>
+
 	
 	<bean id="navJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
     		 <property name="dataSource" ref="navDS"/>
 	</bean>
 	
+	
+	
+	
+	
+
+	<bean id="oneSessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="oneDS" />
+				
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2008Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+		<property name="mappingResources">
+			<list>																		
+				<value>hbm/OneCust.hbm.xml</value>
+			</list>
+		</property>		
+	</bean>
+	
+	<bean id="oneJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
+    		 <property name="dataSource" ref="oneDS"/>
+	</bean>
+	
+	
+	
+	
 	<bean id="logSessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="pgDS" />
+		<property name="dataSource" ref="myDS" />
 		<property name="annotatedClasses">
 			<list>									
 				<value>com.simple.server.domain.log.LogReply</value>					
@@ -79,15 +124,18 @@
 		</property>	
 		<property name="hibernateProperties">
 			<props>
-				<!-- <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop> -->
-				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+				 <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop> 
+				<!--<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>-->
 				<prop key="hibernate.show_sql">true</prop>
 				<prop key="hibernate.jdbc.batch_size">50</prop>
 			</props>
 		</property>	
 		<property name="mappingResources">
 			<list>				
-				<value>hbm/LogBusReplyMsg.hbm.xml</value>																		
+				<value>hbm/LogBusReplyMsg.hbm.xml</value>	
+				<value>hbm/LogPub.hbm.xml</value>
+				<value>hbm/LogPubConfirmation.hbm.xml</value>
+				<value>hbm/LogEventSetting.hbm.xml</value>																		
 			</list>
 		</property>		
 	</bean>
@@ -95,6 +143,10 @@
 	<bean id="logJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
     		 <property name="dataSource" ref="myDS"/>
 	</bean>
+	
+	
+	
+	
 	
 	<bean id="txManager"
 		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
@@ -107,8 +159,17 @@
 		<property name="sessionFactory" ref="logSessionFactory" />
 	</bean>
 	
+	
+	<bean id="oneTxManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="oneSessionFactory" />
+	</bean>
+	
+	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 	<tx:annotation-driven transaction-manager="txManager"/> 
+	<tx:annotation-driven transaction-manager="oneTxManager"/> 	 
+	 
 	 
 	<bean id="persistenceExceptionTranslationPostProcessor"
 		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />	

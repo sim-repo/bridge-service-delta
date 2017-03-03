@@ -32,7 +32,7 @@ public class NavDaoImpl extends ADao implements INavDao{
 	}
 
 	@Override
-	public List<IRec> readbyHQL(IRec rec) throws Exception {
+	public List<IRec> readbyPK(IRec rec) throws Exception {
 		if(rec==null)
 			throw new Exception("argument must be not null");
 		if(!(rec instanceof INavRec))

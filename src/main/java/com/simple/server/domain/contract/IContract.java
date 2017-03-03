@@ -21,6 +21,10 @@ public interface IContract extends Serializable {
 	@JsonGetter("clazz")
 	String getClazz();
 	void copyFrom(IRec rec);
+	
+	String getJuuid();
+	String getEventId();
 	EndpointType getEndPointId();
 	OperationType getOperationType();
+	void setResponseURI(String responseURI);
 }

@@ -44,7 +44,8 @@ public class DispatcherTask extends ATask {
     public void task() throws Exception {
         if (getAppConfig().getQueueDirty().drainTo(list, MAX_NUM_ELEMENTS) == 0) {
             list.add(getAppConfig().getQueueDirty().take());
-        }                       
+        }      
+        
         Thread.currentThread().sleep(Timing.getTimeMaxSleep());
         getAppConfig().getQueueDirty().drainTo(list, MAX_NUM_ELEMENTS);        	
         try{

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.simple.server.domain.nav">
+
+	<class name="com.simple.server.domain.nav.NavSalesLine" table="[Bitrix Queue]">
+		<id name="entryNo" column="[Entry No_]">
+			<generator class="native" />
+		</id>	
+			
+		
+		
+		<property name="juuid" column="JUUID" />
+		<property name="btxDate" type="string" column="[Btx Date]" />
+		<property name="btxTime" type="string" column="[Btx Time]" />
+		<property name="btxCustomerNo" column="[Btx Customer No_]" />
+		<property name="btxSorderNo" column="[Btx Sales Order No_]" />
+		<property name="btxLineNo" column="[Btx Line No_]" />
+		<property name="navSorderNo" column="[Sales Order No_]" />
+		<property name="navOfficialAgreementNo" column="[Official Agreement No_]" />
+		<property name="navPrivateAgreementNo" column="[Private Agreement No_]" />
+		<property name="navFreewareAgreementNo" column="[Freeware Agreement No_]" />
+		<property name="navCustomerNo" column="[Customer No_]" />
+		<property name="navCustomerName" column="[Customer Name]" />
+		<property name="navCustomerName2" column="[Customer Name 2]" />
+		<property name="navCustomerName3" column="[Customer Name 3]" />
+		<property name="navSalespersonCode" column="[Salesperson Code]" />
+		<property name="navContact" column="[Contact]" />
+		<property name="navContact2" column="[Contact 2]" />
+		<property name="navPhoneNo" column="[Phone No_]" />
+		<property name="navPhoneNo2" column="[Phone No_ 2]" />
+		<property name="navEmail" column="[E-Mail]" />
+		<property name="navAddress" column="[Address]" />
+		<property name="navAddress2" column="[Address 2]" />
+		<property name="navAddress3" column="[Address 3]" />
+		<property name="navKladrRegion" column="[KLADR Region]" />
+		<property name="navKladrCity" column="[KLADR City]" />
+		<property name="navKladrDistrict" column="[KLADR District]" />
+		<property name="navKladrStreet" column="[KLADR Street]" />
+		<property name="navKladrLocality" column="[KLADR Locality]" />
+		<property name="navKladrHouse" column="[KLADR House]" />
+		<property name="navKladrBuilding" column="[KLADR Building]" />
+		<property name="navKladrFlat" column="[KLADR Flat]" />
+		<property name="navKladrVladenie" column="[KLADR Vladenie]" />
+		<property name="navKladrCorpus" column="[KLADR Corpus]" />
+		<property name="navKladrOffice" column="[KLADR Office]" />
+		<property name="navKladrAdditional" column="[KLADR Additional]" />
+		<property name="navDeliveryTimeFrom" type="string" column="[Delivery Time From]" />
+		<property name="navDeliveryTimeTo" type="string" column="[Delivery Time To]" />
+		<property name="navItemNo" column="[Item No_]" />
+		<property name="navQuantity" column="[Quantity]" />
+		<property name="navVariantCode" column="[Variant Code]" />
+		<property name="navLineDiscountPercent" column="[Line Discount Percent]" />
+		<property name="navLineAmount" column="[Line Amount]" />
+		<property name="navShipmentDate" type="string" column="[Shipment Date]" />
+		<property name="navPreliminaryOrder" column="[Preliminary Order]" />
+		<property name="navSorderSource" column="[Sales Order Source]" />
+		<property name="navSorderDate" type="string" column="[Sales Order Date]" />
+		<property name="navComment1" column="[Comment 1]" />
+		<property name="navComment2" column="[Comment 2]" />
+		<property name="navComment3" column="[Comment 3]" />
+		<property name="navComment4" column="[Comment 4]" />
+		<property name="navShipmentMethodCode" column="[Shipment Method Code]" />
+		<property name="navWineShopCustomerNo" column="[Wine Shop Customer No_]" />
+		<property name="navSimpleWaters" column="[Simple Waters]" />
+		<property name="navState" column="[State]" />
+		<property name="navError" column="[Error]" />
+		<property name="navErrorId" column="[Error Id]" />
+		<property name="navReplyDateTime" type="string" column="[Reply DateTime]" />
+		<property name="btxUserID" column="[User ID]" />
+		<property name="navPaymentTerms" column="[Payment Terms Code]" />
+		<property name="navDeliveryComment1" column="[Delivery Comment 1]" />
+		<property name="navDeliveryComment2" column="[Delivery Comment 2]" />
+		<property name="tableId" column="[Table No_]" />
+		<property name="navCompanyName" column="[Company Name]" />
+		
+		<many-to-one name="sorder"  
+					class="com.simple.server.domain.nav.NavSorder"  
+					unique="true" 
+					not-null="false" 
+					insert="false" 
+					update="false">
+     		<column name="[JUUID]" ></column>
+    	</many-to-one>
+
+	</class>
+</hibernate-mapping>

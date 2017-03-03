@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.simple.server.dao.log.ILogDao;
 import com.simple.server.dao.nav.INavDao;
 import com.simple.server.dao.nav.NavDaoImpl;
+import com.simple.server.dao.one.IOneDao;
+import com.simple.server.dao.one.OneDaoImpl;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.factory.ContractRecFactory;
 import com.simple.server.factory.PhaserRunner;
@@ -26,7 +28,9 @@ public class AppConfig {
 	private LinkedBlockingQueue<String> queueDirty;
 	private LinkedBlockingQueue<IContract> queueRead;
 	private LinkedBlockingQueue<IContract> queueWrite;    
-	    	
+	private LinkedBlockingQueue<IContract> queuePub;      	
+	private LinkedBlockingQueue<IContract> queueSub;
+	
 	private Mediator mediator = new Mediator();   
 	
 	@Autowired
@@ -36,11 +40,17 @@ public class AppConfig {
 	private JdbcTemplate logJdbcTemplate;
 
 	@Autowired
+	private JdbcTemplate oneJdbcTemplate;
+	
+	@Autowired
 	private SessionFactory logSessionFactory;
 		
 	@Autowired
 	private SessionFactory navSessionFactory;
 	
+	@Autowired
+	private SessionFactory oneSessionFactory;
+		
 	@Autowired
 	private ContractRecFactory contractRecFactory;
 	
@@ -55,6 +65,9 @@ public class AppConfig {
 	
 	@Autowired
 	private NavDaoImpl navDao;
+	
+	@Autowired
+	private OneDaoImpl oneDao;
 	
 	@Autowired
 	private IService navService;
@@ -78,6 +91,10 @@ public class AppConfig {
 	public JdbcTemplate getLogJdbcTemplate() {
 		return logJdbcTemplate;
 	}
+	
+	public JdbcTemplate getOneJdbcTemplate() {
+		return oneJdbcTemplate;
+	}
 
 	public SessionFactory getLogSessionFactory() {
 		return logSessionFactory;
@@ -85,6 +102,10 @@ public class AppConfig {
 
 	public SessionFactory getNavSessionFactory() {
 		return navSessionFactory;
+	}	
+
+	public SessionFactory getOneSessionFactory() {
+		return oneSessionFactory;
 	}
 
 	public ILogDao getLogDao() {
@@ -93,6 +114,10 @@ public class AppConfig {
 
 	public INavDao getNavDao() {
 		return navDao;
+	}
+	
+	public IOneDao getOneDao() {
+		return oneDao;
 	}
 
 	public ContractRecFactory getContractRecFactory() {
@@ -133,6 +158,14 @@ public class AppConfig {
 
 	public LinkedBlockingQueue<IContract> getQueueWrite() {
 		return queueWrite;
+	}	
+	
+	public LinkedBlockingQueue<IContract> getQueuePub() {
+		return queuePub;
+	}		
+
+	public LinkedBlockingQueue<IContract> getQueueSub() {
+		return queueSub;
 	}
 
 	public QueueFactory getQueueFactory() {
@@ -153,5 +186,13 @@ public class AppConfig {
 	
 	public void initWrite(int size){
 		this.queueWrite = new LinkedBlockingQueue<>(size);
+	}
+	
+	public void initPub(int size){
+		this.queuePub = new LinkedBlockingQueue<>(size);
+	}
+	
+	public void initSub(int size){
+		this.queueSub = new LinkedBlockingQueue<>(size);
 	}
 }

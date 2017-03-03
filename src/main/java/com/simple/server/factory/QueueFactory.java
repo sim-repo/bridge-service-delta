@@ -14,7 +14,7 @@ public class QueueFactory {
 	AppConfig appConfig;
 	
 	public void put(IContract msg) throws Exception{
-		
+		System.out.println("bridge:::: QueueFactory"+msg.getOperationType());
 		if(OperationType.READ.equals(msg.getOperationType())){
 			appConfig.getQueueRead().put(msg);
 			return;
@@ -23,7 +23,14 @@ public class QueueFactory {
 			appConfig.getQueueWrite().put(msg);
 			return;
 		}
-			
+		else if(OperationType.PUB.equals(msg.getOperationType())){			
+			appConfig.getQueuePub().put(msg);
+			return;
+		}
+		else if(OperationType.SUB.equals(msg.getOperationType())){			
+			appConfig.getQueueSub().put(msg);
+			return;
+		}	
 		throw new Exception("bridge-service: operation type can not be null");
 	}
 }
