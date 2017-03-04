@@ -48,6 +48,7 @@ public class SubTask extends ATask {
 	}
 	
 	
+	@SuppressWarnings("static-access")
 	@Override
 	public void task() throws Exception {
 		
@@ -61,13 +62,11 @@ public class SubTask extends ATask {
     	}     		
                       
         for(IContract msg: list){
-        	IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);  
-        	String q = new String("SELECT * FROM jdb.`bus pub msg` WHERE `uuid` LIKE :Param1 LIMIT 0, 1 ;");        	             	        	        	
+        	IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);          	      	             	        	        	
         	Map<String,String> map = new HashMap();
-        	map.put("Param1",msg.getJuuid());
-        	
-        	
-        	List<PubMsg> res1 = service.<PubMsg>readbyHQL(q,PubMsg.class,map);
+        	map.put("eventId","CHANGE_CUST");
+        	        	
+        	List<PubMsg> res1 = service.<PubMsg>readbyCriteria(PubMsg.class,map);
         	        	        	        	
         	for(IContract contract1: res1){
         		try{
@@ -85,7 +84,7 @@ public class SubTask extends ATask {
         					,pub.getEventId()
         					));
         			
-        			List<PubConfirmationMsg> res2 = service.<PubConfirmationMsg>read(q, PubConfirmationMsg.class);
+        			List<PubConfirmationMsg> res2 = null;//service.<PubConfirmationMsg>read(q, PubConfirmationMsg.class);
         			
         			for(IContract contract2: res2){        				
         				if(!(contract2 instanceof PubConfirmationMsg))

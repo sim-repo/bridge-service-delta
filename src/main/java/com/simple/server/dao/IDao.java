@@ -22,5 +22,7 @@ public interface IDao {
 	String readFlatXml(String sql) throws Exception;
 	List<IRec> read(IRec rec) throws Exception;	
 	<T extends IContract> List<T> readbyHQL(Class<T> clazz, String query, Map<String,String> params) throws Exception;
+	<T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String,String> params) throws Exception;
+	
 	List<IRec> readAll(IRec rec) throws Exception;
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Restrictions;
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import com.simple.server.domain.IRec;
 import com.simple.server.domain.UniRequest;
 import com.simple.server.domain.UniResult;
 import com.simple.server.domain.contract.IContract;
+import com.simple.server.domain.contract.PubMsg;
 import com.simple.server.util.ObjectConverter;
 
 public abstract class ADao implements IDao{
@@ -100,7 +102,6 @@ public abstract class ADao implements IDao{
 	}
 
 	@Override
-	@Transactional()
 	public <T extends IContract> List<T> readbyHQL(Class<T> clazz, String query, Map<String,String> params) throws Exception {		
 		Query q = currentSession().createQuery(query);
 		for(Map.Entry<String,String> pair: params.entrySet()){						
@@ -110,5 +111,17 @@ public abstract class ADao implements IDao{
 		return res;
 	}
 	
+	
+	@Override
+	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String,String> params) throws Exception{
+		
+		Criteria criteria = currentSession().createCriteria(clazz);
+		
+		for(Map.Entry<String,String> pair: params.entrySet()){						
+			criteria.add(Restrictions.like(pair.getKey(), pair.getValue()));			
+		}		
+		List<T> res = criteria.list();	
+		return res;
+	}
 
 }

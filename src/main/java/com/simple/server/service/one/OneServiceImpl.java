@@ -56,4 +56,11 @@ public class OneServiceImpl extends AService implements IOneService{
 		List<T> res = getDao().<T>readbyHQL(clazz, sql, params);
 		return res;
 	}
+	
+	@Override
+	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String, String> params) throws Exception {
+		List<T> res = getDao().<T>readbyCriteria(clazz,params);
+		return res;
+	}
+	
 }
