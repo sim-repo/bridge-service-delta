@@ -41,29 +41,13 @@ public class NavServiceImpl extends AService implements INavService{
 
 	@Override
 	public <T extends IContract> List<T> read(String sql, Class<T> clazz) throws Exception {
-		
-		
-		String json = getDao().readFlatJsonArray(sql);
-		
-		T t = clazz.newInstance();
-		
-		
+				
+		String json = getDao().readFlatJsonArray(sql);		
+		T t = clazz.newInstance();				
 		T t2 = (T)ObjectConverter.JsonToObject(json,t);
 		List<T> res = new ArrayList();
-		res.add(t2);		
-		
+		res.add(t2);				
 		return res;
 	}
 	
-	@Override
-	public <T extends IContract> List<T> readbyHQL(String sql, Class<T> clazz, Map<String,String> params) throws Exception {		
-		List<T> res = getDao().<T>readbyHQL(clazz, sql, params);
-		return res;
-	}
-	
-	@Override
-	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String, String> params) throws Exception {
-		List<T> res = getDao().<T>readbyCriteria(clazz,params);
-		return res;
-	}
 }

@@ -4,11 +4,11 @@ import java.util.Map;
 
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
-import com.simple.server.domain.contract.EventSettingMsg;
+import com.simple.server.domain.contract.SubRouting;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.TagRequestMsg;
 
-public class UniRequest implements IRec{
+public class UniRequest extends ARec implements IRec{
 	
 	private StringBuilder query;
 
@@ -16,15 +16,15 @@ public class UniRequest implements IRec{
 	
 	protected String responseURI;
 	
-	protected EndpointType senderId;
+	protected String senderId;
 	
 	@Override
 	public EndpointType getSenderId() {
-		return senderId;
+		return EndpointType.fromValue(senderId);
 	}
 
 	public void setSenderId(EndpointType senderId) {
-		this.senderId = senderId;
+		this.senderId = senderId.toValue();
 	}
 
 	public String getQuery() {
@@ -54,8 +54,8 @@ public class UniRequest implements IRec{
 			}			
 			this.query.deleteCharAt(this.query.length()-1);
 		}
-		else if(msg instanceof EventSettingMsg){
-			EventSettingMsg esm = (EventSettingMsg)msg;
+		else if(msg instanceof SubRouting){
+			SubRouting esm = (SubRouting)msg;
 			if(esm.getEventId()==null)
 				throw new Exception("Error has occured: bridge-serivce, UniRequest, copyFrom, EventSettingMsg");
 			this.setQuery(new StringBuilder(String.format("SELECT * FROM jdb.`bus event settings` WHERE `event_id` LIKE '%s' ;",esm.getEventId())));			

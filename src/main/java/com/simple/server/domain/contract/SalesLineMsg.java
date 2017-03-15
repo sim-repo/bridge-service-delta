@@ -29,75 +29,75 @@ public class SalesLineMsg extends AContract{
 	
 	protected String unitPrice = null;
 
+	protected String description  = null;
+	
+	protected String unitOfMeasure = null;
+	
+
 	
 	public String getClazz() {
 		return SalesLineMsg.class.getName();
-	}
-	
+	}	
 	public String getOuterSorderId() {
 		return outerSorderId;
 	}
-
 	public void setOuterSorderId(String outerSorderId) {
 		this.outerSorderId = outerSorderId;
 	}
-
 	public String getItemNo() {
 		return itemNo;
 	}
-
 	public void setItemNo(String itemNo) {
 		this.itemNo = itemNo;
 	}
-
 	public String getQuantity() {
 		return quantity;
 	}
-
 	public void setQuantity(String quantity) {
 		this.quantity = quantity;
 	}
-
 	public String getVariantCode() {
 		return variantCode;
 	}
-
 	public void setVariantCode(String variantCode) {
 		this.variantCode = variantCode;
 	}
-
 	public String getLineDiscountPercent() {
 		return lineDiscountPercent;
 	}
-
 	public void setLineDiscountPercent(String lineDiscountPercent) {
 		this.lineDiscountPercent = lineDiscountPercent;
 	}
-
 	public String getLineAmount() {
 		return lineAmount;
 	}
-
 	public void setLineAmount(String lineAmount) {
 		this.lineAmount = lineAmount;
 	}
-
 	public String getUnitPrice() {
 		return unitPrice;
 	}
-
 	public void setUnitPrice(String unitPrice) {
 		this.unitPrice = unitPrice;
 	}
-
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public String getUnitOfMeasure() {
+		return unitOfMeasure;
+	}
+	public void setUnitOfMeasure(String unitOfMeasure) {
+		this.unitOfMeasure = unitOfMeasure;
+	}
 	public String getOuterLineId() {
 		return outerLineId;
 	}
-
 	public void setOuterLineId(String outerLineId) {
 		this.outerLineId = outerLineId;
 	}
-
 	@Override
 	public void copyFrom(IRec rec) {
 		if (rec == null)
@@ -112,6 +112,4 @@ public class SalesLineMsg extends AContract{
 			this.setVariantCode(nsl.getNavVariantCode());
 		}
 	}	
-
-	
 }

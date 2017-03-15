@@ -27,6 +27,7 @@ import com.simple.server.task.ReadTask;
 import com.simple.server.task.SubTask;
 import com.simple.server.task.WriteTask;
 import com.simple.server.task.ITask;
+import com.simple.server.task.LogSenderTask;
 import com.simple.server.task.PubTask;
 
 @Service("taskRunner")
@@ -106,6 +107,7 @@ public class TaskRunner  {
         		newRunTask(appConfig.getMediator(), WriteTask.class, 1);
         		newRunTask(appConfig.getMediator(), PubTask.class, 1);
         		newRunTask(appConfig.getMediator(), SubTask.class, 1);
+        		newRunTask(appConfig.getMediator(), LogSenderTask.class, 1);
         		
         		for(Map.Entry<Class<ATask>, Integer> pair: classToRun.entrySet()){
         			Class<ATask> clazz = pair.getKey();

@@ -4,7 +4,7 @@ import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
 
-public class UniResult implements IRec{
+public class UniResult extends ARec implements IRec{
 	
 	private String result;
 	
@@ -12,7 +12,7 @@ public class UniResult implements IRec{
 	
 	protected String responseURI;
 	
-	protected EndpointType senderId;
+	protected String senderId;
 	
 	public String getResult() {
 		return result;
@@ -24,11 +24,11 @@ public class UniResult implements IRec{
 	
 	@Override
 	public EndpointType getSenderId() {
-		return senderId;
+		return EndpointType.fromValue(senderId);
 	}
 
 	public void setSenderId(EndpointType senderId) {
-		this.senderId = senderId;
+		this.senderId = senderId.toValue();
 	}
 
 	@Override

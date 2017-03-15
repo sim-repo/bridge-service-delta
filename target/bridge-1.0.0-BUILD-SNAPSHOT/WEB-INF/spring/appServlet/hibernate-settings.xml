@@ -27,7 +27,7 @@
 	<bean id="oneDS"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=SimpleERPCopyNav;" />
+		<property name="url" value="jdbc:sqlserver://MSK10NAV55;databaseName=SimpleERP;" />
 		<property name="username" value="jservice" />
 		<property name="password" value="Larina123" />
 	</bean>
@@ -134,7 +134,8 @@
 			<list>				
 				<value>hbm/LogBusReplyMsg.hbm.xml</value>	
 				<value>hbm/LogPub.hbm.xml</value>
-				<value>hbm/LogPubConfirmation.hbm.xml</value>
+				<value>hbm/PubMsg.hbm.xml</value>
+				<value>hbm/ConfirmationMsg.hbm.xml</value>
 				<value>hbm/LogEventSetting.hbm.xml</value>																		
 			</list>
 		</property>		

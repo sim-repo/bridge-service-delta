@@ -7,23 +7,30 @@ import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.json.JSONObject;
 import org.json.XML;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
+import com.simple.server.config.MiscType;
 import com.simple.server.domain.IRec;
 import com.simple.server.domain.UniRequest;
 import com.simple.server.domain.UniResult;
 import com.simple.server.domain.contract.IContract;
-import com.simple.server.domain.contract.PubMsg;
+import com.simple.server.domain.contract.BusPubMsg;
 import com.simple.server.util.ObjectConverter;
 
 public abstract class ADao implements IDao{
 
+	@Autowired
+	protected AppConfig appConfig;
+	
 	@Override
 	public void insert(List<IRec> list) throws Exception {
 		int count=0;
@@ -42,7 +49,12 @@ public abstract class ADao implements IDao{
 	
 	@Override
 	public void insert(IRec rec) throws Exception {
-		currentSession().saveOrUpdate(rec);	
+		currentSession().save(rec);	
+	}
+	
+	@Override
+	public void insertAsIs(IContract msg) throws Exception {
+		currentSession().save(msg);	
 	}
 
 	@Override
@@ -113,14 +125,28 @@ public abstract class ADao implements IDao{
 	
 	
 	@Override
-	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String,String> params) throws Exception{
-		
-		Criteria criteria = currentSession().createCriteria(clazz);
-		
-		for(Map.Entry<String,String> pair: params.entrySet()){						
-			criteria.add(Restrictions.like(pair.getKey(), pair.getValue()));			
+	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String,Object> params, int topNum, Map<String,MiscType> orders) throws Exception{		
+		Criteria criteria = currentSession().createCriteria(clazz);		
+		for(Map.Entry<String,Object> pair: params.entrySet()){						
+			criteria.add(Restrictions.eq(pair.getKey(), pair.getValue()));			
 		}		
+		if(topNum != 0){
+			criteria.setMaxResults(topNum);
+		}
+		if(orders != null && orders.size() != 0){
+			for(Map.Entry<String, MiscType> pair: orders.entrySet()){
+				String fld = pair.getKey();								
+				if(pair.getValue().equals(MiscType.asc))
+					criteria.addOrder(Order.asc(fld));
+				else
+					if(pair.getValue().equals(MiscType.desc))
+						criteria.addOrder(Order.desc(fld));
+			}
+		}
+				
+		
 		List<T> res = criteria.list();	
+		System.out.println(clazz+" res.size():"+res.size());
 		return res;
 	}
 

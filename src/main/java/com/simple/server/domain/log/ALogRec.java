@@ -1,17 +1,6 @@
 package com.simple.server.domain.log;
+import com.simple.server.domain.ARec;
 
-import com.simple.server.config.EndpointType;
-
-public abstract class ALogRec implements ILogRec {
+public abstract class ALogRec extends ARec implements ILogRec {
 	
-	protected EndpointType senderId;
-	
-	@Override
-	public EndpointType getSenderId() {
-		return senderId;
-	}
-
-	public void setSenderId(EndpointType senderId) {
-		this.senderId = senderId;
-	}
 }

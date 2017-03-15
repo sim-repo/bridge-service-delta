@@ -41,9 +41,5 @@ public class TagRequestMsg extends AContract {
 	}
 	public void setParams(Map<String, String> params) {
 		this.params = params;
-	}
-	@Override
-	public void copyFrom(IRec rec) {
-		
-	}		
+	}	
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.simple.server.config.AppConfig;
 import com.simple.server.dao.ADao;
 import com.simple.server.domain.IRec;
-import com.simple.server.domain.nav.INavRec;
+import com.simple.server.domain.one.IOneRec;
 
 @Service("oneDao")
 public class OneDaoImpl extends ADao implements IOneDao{
@@ -28,17 +28,18 @@ public class OneDaoImpl extends ADao implements IOneDao{
 		return appConfig.getOneJdbcTemplate();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<IRec> readbyPK(IRec rec) throws Exception {
+	protected List<IRec> readbyPK(IRec rec) throws Exception {
 		if(rec==null)
-			throw new Exception("argument must be not null");
-		if(!(rec instanceof INavRec))
-			throw new Exception("argument must be instance of INavRec");
+			throw new IllegalArgumentException("OneDaoImpl readbyPK: param cannot be null");
+		if(!(rec instanceof IOneRec))
+			throw new IllegalArgumentException("OneDaoImpl readbyPK: param must be instance of IOneRec");
 		
-		INavRec navRec = (INavRec)rec;		
+		IOneRec oneRec = (IOneRec)rec;		
 		List<IRec> list = currentSession().createCriteria(rec.getClass())
-			    .add( Restrictions.like("JUUID", navRec.getJuuid()) )			    
+			    .add( Restrictions.like("JUUID", oneRec.getJuuid()) )			    
 			    .list();
 		return list;
-	}	
+	}
 }

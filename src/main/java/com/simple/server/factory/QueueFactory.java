@@ -14,7 +14,6 @@ public class QueueFactory {
 	AppConfig appConfig;
 	
 	public void put(IContract msg) throws Exception{
-		System.out.println("bridge:::: QueueFactory"+msg.getOperationType());
 		if(OperationType.READ.equals(msg.getOperationType())){
 			appConfig.getQueueRead().put(msg);
 			return;

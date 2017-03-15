@@ -1,18 +1,6 @@
 package com.simple.server.domain.nav;
 
-import com.simple.server.config.EndpointType;
-import com.simple.server.domain.log.ILogRec;
+import com.simple.server.domain.ARec;
 
-public abstract class ANavRec implements INavRec{
-	
-	protected EndpointType senderId;
-	
-	@Override
-	public EndpointType getSenderId() {
-		return senderId;
-	}
-
-	public void setSendeId(EndpointType senderId) {
-		this.senderId = senderId;
-	}
+public abstract class ANavRec extends ARec implements INavRec{
 }

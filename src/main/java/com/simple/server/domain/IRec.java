@@ -12,4 +12,5 @@ public interface IRec extends Serializable{
 	void setResponseContentType(ContentType ct);
 	EndpointType getEndpoint();	
 	EndpointType getSenderId();	
+	public String getJuuid();
 }

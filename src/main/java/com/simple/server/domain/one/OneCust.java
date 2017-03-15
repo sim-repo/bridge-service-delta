@@ -3,11 +3,9 @@ package com.simple.server.domain.one;
 import com.simple.server.config.ContentType;
 import com.simple.server.domain.contract.CustMsg;
 import com.simple.server.domain.contract.IContract;
-import com.simple.server.domain.nav.INavRec;
 
 public class OneCust extends AOneRec {
-	
-	
+		
 	protected int id;
 	protected String outerCustomerId;	
 	protected String customerId;	
@@ -111,7 +109,6 @@ public class OneCust extends AOneRec {
 			this.setPhoneNo2(cust.getPhoneNo2());		
 	}
 	
-	
 
 	@Override
 	public void format() throws Exception {
@@ -124,11 +121,5 @@ public class OneCust extends AOneRec {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public String getJuuid() {
-		// TODO Auto-generated method stub
-		return null;
-	}	
 
 }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
-import com.simple.server.domain.contract.PubMsg;
+import com.simple.server.domain.contract.BusPubMsg;
 
 @JsonAutoDetect
 @JsonDeserialize(as = LogPub.class)
@@ -150,8 +150,6 @@ public class LogPub extends ALogRec{
 	@Override
 	public void setResponseContentType(ContentType ct) {
 	}
-	
-
 
 	public String getEventId() {
 		return eventId;
@@ -163,10 +161,10 @@ public class LogPub extends ALogRec{
 
 	@Override
 	public void copyFrom(IContract msg) throws Exception {
-		if(!(msg instanceof PubMsg))
+		if(!(msg instanceof BusPubMsg))
 			throw new Exception("msg must be instance of PubMsg");
 		
-		PubMsg pubmsg = (PubMsg)msg;
+		BusPubMsg pubmsg = (BusPubMsg)msg;
 					
 		if (pubmsg.getJuuid() != null)
 			this.setJuuid(pubmsg.getJuuid());

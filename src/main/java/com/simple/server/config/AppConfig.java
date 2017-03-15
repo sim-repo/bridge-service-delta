@@ -6,11 +6,15 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
 
+import com.simple.server.dao.btx.BtxDaoImpl;
+import com.simple.server.dao.crm.CrmDaoImpl;
 import com.simple.server.dao.log.ILogDao;
 import com.simple.server.dao.nav.INavDao;
 import com.simple.server.dao.nav.NavDaoImpl;
+import com.simple.server.dao.oktell.OktellDaoImpl;
 import com.simple.server.dao.one.IOneDao;
 import com.simple.server.dao.one.OneDaoImpl;
 import com.simple.server.domain.contract.IContract;
@@ -25,11 +29,22 @@ import com.simple.server.service.IService;
 @Scope("singleton")
 public class AppConfig {
 	
+	public final static String DATEFORMAT = "dd.MM.yyyy HH:mm:ss";
+	public final static String SERVICE_ID = "bridge"; 
+	public final static String ROLE_ID = "BRIDGE-SERVICE"; 
+	
+	@Autowired
+    private MessageChannel channelBusLog;	
+	@Autowired
+	private MessageChannel channelSrvLog;
+	
 	private LinkedBlockingQueue<String> queueDirty;
 	private LinkedBlockingQueue<IContract> queueRead;
 	private LinkedBlockingQueue<IContract> queueWrite;    
 	private LinkedBlockingQueue<IContract> queuePub;      	
 	private LinkedBlockingQueue<IContract> queueSub;
+	private LinkedBlockingQueue<IContract> queueLog;
+	
 	
 	private Mediator mediator = new Mediator();   
 	
@@ -43,6 +58,16 @@ public class AppConfig {
 	private JdbcTemplate oneJdbcTemplate;
 	
 	@Autowired
+	private JdbcTemplate btxJdbcTemplate;
+	
+	@Autowired
+	private JdbcTemplate crmJdbcTemplate;
+	
+	@Autowired
+	private JdbcTemplate oktellJdbcTemplate;
+	
+	
+	@Autowired
 	private SessionFactory logSessionFactory;
 		
 	@Autowired
@@ -52,6 +77,16 @@ public class AppConfig {
 	private SessionFactory oneSessionFactory;
 		
 	@Autowired
+	private SessionFactory crmSessionFactory;
+	
+	@Autowired
+	private SessionFactory btxSessionFactory;
+	
+	@Autowired
+	private SessionFactory oktellSessionFactory;
+	
+	
+	@Autowired
 	private ContractRecFactory contractRecFactory;
 	
 	@Autowired
@@ -59,6 +94,7 @@ public class AppConfig {
 	
 	@Autowired
 	private QueueFactory queueFactory;
+	
 	
 	@Autowired
 	private ILogDao logDao;	
@@ -70,6 +106,17 @@ public class AppConfig {
 	private OneDaoImpl oneDao;
 	
 	@Autowired
+	private BtxDaoImpl btxDao;
+	
+	@Autowired
+	private CrmDaoImpl crmDao;
+	
+	@Autowired
+	private OktellDaoImpl oktellDao;
+	
+	
+	
+	@Autowired
 	private IService navService;
 	
 	@Autowired
@@ -79,7 +126,15 @@ public class AppConfig {
 	private IService btxService;
 	
 	@Autowired
+	private IService crmService;
+	
+	@Autowired
+	private IService oktellService;
+	
+	@Autowired
 	private IService oneService;
+	
+	
 	
 	@Autowired
 	private PhaserRunner phaserRunner;
@@ -96,6 +151,18 @@ public class AppConfig {
 		return oneJdbcTemplate;
 	}
 
+	public JdbcTemplate getBtxJdbcTemplate() {
+		return btxJdbcTemplate;
+	}
+
+	public JdbcTemplate getCrmJdbcTemplate() {
+		return crmJdbcTemplate;
+	}
+
+	public JdbcTemplate getOktellJdbcTemplate() {
+		return oktellJdbcTemplate;
+	}
+
 	public SessionFactory getLogSessionFactory() {
 		return logSessionFactory;
 	}
@@ -106,6 +173,18 @@ public class AppConfig {
 
 	public SessionFactory getOneSessionFactory() {
 		return oneSessionFactory;
+	}
+
+	public SessionFactory getCrmSessionFactory() {
+		return crmSessionFactory;
+	}
+
+	public SessionFactory getBtxSessionFactory() {
+		return btxSessionFactory;
+	}
+
+	public SessionFactory getOktellSessionFactory() {
+		return oktellSessionFactory;
 	}
 
 	public ILogDao getLogDao() {
@@ -120,6 +199,18 @@ public class AppConfig {
 		return oneDao;
 	}
 
+	public BtxDaoImpl getBtxDao() {
+		return btxDao;
+	}
+
+	public CrmDaoImpl getCrmDao() {
+		return crmDao;
+	}
+
+	public OktellDaoImpl getOktellDao() {
+		return oktellDao;
+	}
+
 	public ContractRecFactory getContractRecFactory() {
 		return contractRecFactory;
 	}
@@ -127,6 +218,7 @@ public class AppConfig {
 	public ServiceFactory getServiceFactory() {
 		return serviceFactory;
 	}
+	
 
 	public IService getNavService() {
 		return navService;
@@ -143,9 +235,25 @@ public class AppConfig {
 	public IService getOneService() {
 		return oneService;
 	}
+	
+	public IService getCrmService() {
+		return crmService;
+	}
+
+	public IService getOktellService() {
+		return oktellService;
+	}
 
 	public Mediator getMediator() {
 		return mediator;
+	}
+	
+	public MessageChannel getChannelBusLog() {
+		return channelBusLog;
+	}
+	
+	public MessageChannel getChannelSrvLog() {
+		return channelSrvLog;
 	}
 
 	public LinkedBlockingQueue<String> getQueueDirty() {
@@ -166,6 +274,10 @@ public class AppConfig {
 
 	public LinkedBlockingQueue<IContract> getQueueSub() {
 		return queueSub;
+	}	
+
+	public LinkedBlockingQueue<IContract> getQueueLog() {
+		return queueLog;
 	}
 
 	public QueueFactory getQueueFactory() {
@@ -194,5 +306,9 @@ public class AppConfig {
 	
 	public void initSub(int size){
 		this.queueSub = new LinkedBlockingQueue<>(size);
+	}
+	
+	public void initLog(int size){
+		this.queueLog = new LinkedBlockingQueue<>(size);
 	}
 }

@@ -83,7 +83,7 @@ public class CustMsg extends AContract{
 	}
 
 	@Override
-	public void copyFrom(IRec rec) {
+	public void copyFrom(IRec rec) throws Exception{
 		if (rec == null)
 			return;
 		if (rec instanceof NavCust) {

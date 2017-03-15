@@ -15,7 +15,7 @@ public class Handler {
 	}	
 	
 	public void handleJsonMsg(String json) throws Exception {		
-		System.out.println("bridge:::::" + json);
+		//System.out.println("bridge:::::" + json);
 		getAppConfig().getQueueDirty().put(json);
 	}	
 }

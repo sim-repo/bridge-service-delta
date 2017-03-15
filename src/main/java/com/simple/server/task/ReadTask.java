@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.server.domain.contract.AContract;
 import com.simple.server.domain.contract.IContract;
+import com.simple.server.http.HttpImpl;
+import com.simple.server.http.IHttp;
 import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
-import com.simple.server.response.HttpResponse;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
 
@@ -59,10 +60,11 @@ public class ReadTask extends ATask {
         		try{
         			AContract a = (AContract)r;        		
 		        	if(a.getResponseURI()==null)
-		        		throw new Exception("TODO");		        		
-        			HttpResponse response = new HttpResponse();
-		    		response.reply(r);
-		    		response = null;
+		        		throw new Exception("TODO");
+		        	
+		        	IHttp http = new HttpImpl();
+        			http.sendHttp(r);
+        			http = null;        		
         		}catch(Exception e){        			
         		}
         	}

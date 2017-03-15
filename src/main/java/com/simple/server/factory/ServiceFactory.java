@@ -24,7 +24,11 @@ public class ServiceFactory {
 		else if(EndpointType.BTX.equals(endpoint))
 			service = appConfig.getBtxService();
 		else if(EndpointType.ONE.equals(endpoint))
-			service = appConfig.getOneService();		
+			service = appConfig.getOneService();	
+		else if(EndpointType.CRM.equals(endpoint))
+			service = appConfig.getCrmService();
+		else if(EndpointType.OKTELL.equals(endpoint))
+			service = appConfig.getOktellService();
 		return service;
 	}
 }

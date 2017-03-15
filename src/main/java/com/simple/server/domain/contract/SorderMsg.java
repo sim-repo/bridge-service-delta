@@ -15,95 +15,117 @@ import com.simple.server.domain.nav.NavSorder;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SorderMsg extends AContract {
 	
-	private static final long serialVersionUID = 1L;
-
-	protected String outerCustomerId;
-
-	protected String outerSorderId;
-
-	protected String outerUserID;
-
+	private static final long serialVersionUID = 1L;	
+	
+	protected String outerCustomerId;	
+	
+	protected String outerSorderId;				
+		
+	protected String outerUserID;	
+	
 	protected String sorderNo;
-
+			
 	protected String officialAgreementId;
-
+			
 	protected String privateAgreementId;
-
+	
 	protected String freewareAgreementId;
-
+			
 	protected String customerId;
-
+		
 	protected String customerName;
-
+	
 	protected String salespersonId;
 
-	protected String contactId;
-
+	protected String contactId;	
+	
 	protected String contact2Id;
-
+	
 	protected String phoneNo;
-
+	
 	protected String phoneNo2;
-
+	
 	protected String email;
-
+	
 	protected String email2;
-
+	
 	protected String address;
-
+	
 	protected String address2;
-
-	protected String address3;
-
-	protected String kladrRegion;
-
-	protected String kladrCity;
-
+	
+	protected String address3;	
+		
+	protected String kladrRegion;	
+	
+	protected String kladrCity;	
+	
 	protected String kladrDistrict;
-
-	protected String kladrStreet;
-
+	
+	protected String kladrStreet;	
+	
 	protected String kladrLocality;
-
+	
 	protected String kladrHouse;
-
+	
 	protected String kladrBuilding;
-
+	
 	protected String kladrFlat;
-
+	
 	protected String kladrVladenie;
-
+	
 	protected String kladrCorpus;
-
+	
 	protected String kladrOffice;
-
+	
 	protected String kladrAdditional;
-
+	
 	protected String deliveryTimeFrom;
-
-	protected String deliveryTimeTo;
-
+		
+	protected String deliveryTimeTo;	
+	
 	protected String shipmentDate;
-
-	protected String shipmentMethodCode;
-
+	
+	protected String shipmentMethodCode;				
+	
 	protected String preliminaryOrder;
-
+	
 	protected String sorderSource;
-
+	
 	protected String sorderDate;
-
+	
+	protected String postingDate;
+	
 	protected String comment;
-
+	
 	protected String wineShopCustomerNo;
-
+	
 	protected String simpleWaters;
-
+		
 	protected String paymentTerms;
-
+	
 	protected String companyName;
-
-	List<SalesLineMsg> slList = new ArrayList();
+		
+	protected String deliveryComment;
+	
+	protected String type;
+	
+	protected String statusNav;
+	
+	protected String sorderAmount;
+	
+	protected String completeDate;
+	
+	protected String unloadPlaceId;
+	
+	protected String shipToCode;
+	
+	protected String activityCompany;
+	
+	protected String customerCardId;
+	
+	protected String sorderAmt;
+	
+	protected List<SalesLineMsg> slList = new ArrayList();
 	
 	@Override
 	public String getClazz() {
@@ -452,6 +474,95 @@ public class SorderMsg extends AContract {
 
 	public void setCompanyName(String companyName) {
 		this.companyName = companyName;
+	}
+	
+
+	public String getPostingDate() {
+		return postingDate;
+	}
+
+	public void setPostingDate(String postingDate) {
+		this.postingDate = postingDate;
+	}
+
+	public String getDeliveryComment() {
+		return deliveryComment;
+	}
+
+	public void setDeliveryComment(String deliveryComment) {
+		this.deliveryComment = deliveryComment;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getStatusNav() {
+		return statusNav;
+	}
+
+	public void setStatusNav(String statusNav) {
+		this.statusNav = statusNav;
+	}
+
+	public String getSorderAmount() {
+		return sorderAmount;
+	}
+
+	public void setSorderAmount(String sorderAmount) {
+		this.sorderAmount = sorderAmount;
+	}
+
+	public String getCompleteDate() {
+		return completeDate;
+	}
+
+	public void setCompleteDate(String completeDate) {
+		this.completeDate = completeDate;
+	}
+
+	public String getUnloadPlaceId() {
+		return unloadPlaceId;
+	}
+
+	public void setUnloadPlaceId(String unloadPlaceId) {
+		this.unloadPlaceId = unloadPlaceId;
+	}
+
+	public String getShipToCode() {
+		return shipToCode;
+	}
+
+	public void setShipToCode(String shipToCode) {
+		this.shipToCode = shipToCode;
+	}
+
+	public String getActivityCompany() {
+		return activityCompany;
+	}
+
+	public void setActivityCompany(String activityCompany) {
+		this.activityCompany = activityCompany;
+	}
+
+	public String getCustomerCardId() {
+		return customerCardId;
+	}
+
+	public void setCustomerCardId(String customerCardId) {
+		this.customerCardId = customerCardId;
+	}
+
+	public String getSorderAmt() {
+		return sorderAmt;
+	}
+
+	public void setSorderAmt(String sorderAmt) {
+		this.sorderAmt = sorderAmt;
 	}
 
 	public List<SalesLineMsg> getSlList() {

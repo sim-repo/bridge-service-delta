@@ -1,16 +1,9 @@
 package com.simple.server.service.log;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.context.annotation.Scope;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.simple.server.config.EndpointType;
 import com.simple.server.dao.IDao;
-import com.simple.server.domain.IRec;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.service.AService;
 import com.simple.server.util.ObjectConverter;
@@ -19,50 +12,15 @@ import com.simple.server.util.ObjectConverter;
 @Scope("singleton")
 public class LogServiceImpl extends AService implements ILogService{
 
+	final private static String LOG_HEADER_NAME = "log"; 	
+	
 	@Override
 	public IDao getDao() throws Exception {
 		return getAppConfig().getLogDao();
 	}
-
-	@Override
-	@Transactional()
-	public List<IContract> read(IContract msg) throws Exception {
-		
-		IRec rec = getAppConfig().getContractRecFactory().newRec(msg); 
-		List<IRec> list = getDao().read(rec);
-		
-		if(list.size()==0)
-			return null;
-		
-		List<IContract> res = new ArrayList<IContract>();
-		
-		for(IRec element: list){			
-			IContract contract = getAppConfig().getContractRecFactory().newContract(element);	
-			res.add(contract);
-		}	
-		return res;
-	}
 	
-	@Override
-	public <T extends IContract> List<T> read(String sql, Class<T> clazz) throws Exception {
-				
-		String json = getDao().readFlatJsonArray(sql);		
-		T t = clazz.newInstance();				
-		List<T> res = ObjectConverter.JsonToObjects(json,clazz);			
-		return res;
+	public void sendAsIs(MessageChannel msgChannel, IContract msg) throws Exception {								
+		String json = ObjectConverter.ObjectToJson(msg);		
+		msgChannel.send( MessageBuilder.withPayload( json ).setHeader(LOG_HEADER_NAME, msg.getClass().getSimpleName()).build() );					
 	}
-	
-	@Override
-	
-	public <T extends IContract> List<T> readbyHQL(String sql, Class<T> clazz, Map<String,String> params) throws Exception {		
-		List<T> res = getDao().<T>readbyHQL(clazz, sql, params);
-		return res;
-	}
-
-	@Override
-	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String, String> params) throws Exception {
-		List<T> res = getDao().<T>readbyCriteria(clazz,params);
-		return res;
-	}
-	
 }

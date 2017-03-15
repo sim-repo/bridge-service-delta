@@ -30,8 +30,8 @@
 		<property name="cacheProducers" value="false"/>
 	</bean>	
 		
-	<int:channel id="businessLogChannel"/>
-	<int:channel id="serviceLogChannel"/>	
+	<int:channel id="channelBusLog"/>
+	<int:channel id="channelSrvLog"/>
 		
 	<bean id="blq" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="business.log.queue"/>
@@ -40,25 +40,17 @@
 	<bean id="slq" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg value="service.log.queue"/>
 	</bean>
-	
-
-	
-	
-
 		
 	<int-jms:outbound-gateway id="businessLogGateway" 
-		request-channel="businessLogChannel"
+		request-channel="channelBusLog"
 		request-destination="blq"
 		connection-factory="outboundConnectionFactory" async="true"
 		requires-reply="false" receive-timeout="1" reply-timeout="1" />
 	
 	<int-jms:outbound-gateway id="serviceLogGateway" 
-		request-channel="serviceLogChannel"
+		request-channel="channelSrvLog"
 		request-destination="slq"
 		connection-factory="outboundConnectionFactory" async="true"
 		requires-reply="false" receive-timeout="1" reply-timeout="1" />
-		
-		
-			
-	
+
 </beans>		

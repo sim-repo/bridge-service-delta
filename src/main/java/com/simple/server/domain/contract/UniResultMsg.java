@@ -17,19 +17,15 @@ public class UniResultMsg extends AContract{
 			
 		}		
 	}
-
 	
 	@Override
 	public String getClazz() {
 		return UniResultMsg.class.getName();
 	}
-	
 	public String getResult() {
 		return result;
 	}
-
 	public void setResult(String result) {
 		this.result = result;
 	}
-
 }

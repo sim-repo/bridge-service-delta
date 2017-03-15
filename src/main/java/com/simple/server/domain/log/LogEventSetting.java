@@ -3,6 +3,7 @@ package com.simple.server.domain.log;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.simple.server.config.EndpointType;
 
 @JsonAutoDetect
 @JsonDeserialize(as = LogEventSetting.class)
@@ -25,11 +26,11 @@ public class LogEventSetting {
 	public void setEventId(String eventId) {
 		this.eventId = eventId;
 	}
-	public String getSubscriberId() {
-		return subscriberId;
+	public EndpointType getSubscriberId() {
+		return EndpointType.fromValue(subscriberId);
 	}
-	public void setSubscriberId(String subscriberId) {
-		this.subscriberId = subscriberId;
+	public void setSubscriberId(EndpointType subscriberId) {
+		this.subscriberId = subscriberId.toString();
 	}
 	public String getSubscriberHandler() {
 		return subscriberHandler;

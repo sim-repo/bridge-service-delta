@@ -10,7 +10,13 @@
 			<generator class="native" />
 		</id>
 		
-		<property name="senderId" column="[publisher_id]" />
+	
+		<property name="senderId" column="[publisher_id]">
+		    <type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.EndpointType</param>
+		    </type>
+		</property>	
+		
 		<property name="eventId" column="[event_id]" />
 		<property name="publisherHandler" column="[publisher_handler]" />								
 	</class>

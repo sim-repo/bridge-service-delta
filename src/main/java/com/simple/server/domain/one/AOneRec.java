@@ -1,17 +1,11 @@
 package com.simple.server.domain.one;
 
-import com.simple.server.config.EndpointType;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-public abstract class AOneRec implements IOneRec{
-	
-	protected EndpointType senderId;
-	
-	@Override
-	public EndpointType getSenderId() {
-		return senderId;
-	}
+import com.simple.server.config.AppConfig;
+import com.simple.server.domain.ARec;
 
-	public void setSendeId(EndpointType senderId) {
-		this.senderId = senderId;
-	}
+public abstract class AOneRec extends ARec implements IOneRec{
+	
 }

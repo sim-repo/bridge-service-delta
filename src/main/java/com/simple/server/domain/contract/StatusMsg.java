@@ -18,46 +18,34 @@ public class StatusMsg extends AContract{
 	private String errorId;
 	private String details;
 	
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public String getDetails() {
-		return details;
-	}
-
-	public void setDetails(String details) {
-		this.details = details;
-	}
-
-	public String getErrorId() {
-		return errorId;
-	}
-
-	public void setErrorId(String errorId) {
-		this.errorId = errorId;
-	}
-
+	
 	@Override
 	public String getClazz() {
 		return this.getClass().getName();
+	}	
+	public String getCode() {
+		return code;
 	}
-
-	@Override
-	public void copyFrom(IRec rec) {
-		// TODO Auto-generated method stub
-		
+	public void setCode(String code) {
+		this.code = code;
 	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public String getDetails() {
+		return details;
+	}
+	public void setDetails(String details) {
+		this.details = details;
+	}
+	public String getErrorId() {
+		return errorId;
+	}
+	public void setErrorId(String errorId) {
+		this.errorId = errorId;
+	}
+	
 }

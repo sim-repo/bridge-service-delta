@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
-import com.simple.server.domain.contract.PubConfirmationMsg;
-import com.simple.server.domain.contract.PubMsg;
+import com.simple.server.domain.contract.RoutingPubConfirmMsg;
+import com.simple.server.domain.contract.BusPubMsg;
 
 
 @JsonAutoDetect
@@ -41,13 +41,13 @@ public class LogPubConfirmation extends ALogRec{
 	@Override
 	public void copyFrom(IContract msg) throws Exception {
 		
-		if(!(msg instanceof PubConfirmationMsg))
+		if(!(msg instanceof RoutingPubConfirmMsg))
 			throw new Exception("msg must be instance of PubConfirmationMsg");
 		
-		PubConfirmationMsg pubmsg = (PubConfirmationMsg)msg;
+		RoutingPubConfirmMsg pubmsg = (RoutingPubConfirmMsg)msg;
 					
 		if(pubmsg.getSenderId()!= null)
-			this.setSenderId(pubmsg.getSenderId());;
+			this.setSenderId(pubmsg.getSenderId());
 		
 		if(pubmsg.getEventId()!= null)
 			this.setEventId(pubmsg.getEventId());
