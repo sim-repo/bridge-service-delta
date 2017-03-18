@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
+import com.simple.server.config.ErrorType;
+import com.simple.server.config.EventType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.IRec;
 import com.simple.server.util.BusMsgJsonDeserializer;
@@ -25,21 +27,39 @@ public interface IContract extends Serializable {
 	void copyFrom(IRec rec) throws Exception;
 	void copyFrom(IContract msg) throws Exception;
 	
-	String getJuuid();	
-	String getEventId();
-	EndpointType getEndPointId();
-	OperationType getOperationType();
-	Boolean getIsDirectInsert();	
-	EndpointType getSenderId();
-	String getResponseURI();
-	ContentType getResponseContentType();
-	String getResponseContractClass();
-	String getMethodHandler();
 	AppConfig getAppConfig() throws Exception;
 	
-	void setEndPointId(EndpointType endPointId);
-	void setResponseURI(String responseURI);
+	String getJuuid();	
 	void setJuuid(String juuid);
+	EventType getEventId();
+	void setEventId(EventType eventId);
+	EndpointType getEndPointId();
+	void setEndPointId(EndpointType endPointId);
+	EndpointType getPublisherId();
+	void setPublisherId(EndpointType publisherId);
+	EndpointType getSubscriberId();
+	void setSubscriberId(EndpointType subscriberId);
+	EndpointType getSenderId();
+	void setSenderId(EndpointType senderId);
+	
+	OperationType getOperationType();
+	void setOperationType(OperationType operationType);
+			
+	Boolean getIsDirectInsert();
 	void setIsDirectInsert(Boolean direct);
+	String getResponseURI();
+	void setResponseURI(String responseURI);
+	ContentType getResponseContentType();
+	void setResponseContentType(ContentType contentType);
+	String getResponseContractClass();
+	String getMethodHandler();
+	
 	void setMessageBodyValue(String body);
+	void setLogDatetime(String logDatetime);
+	
+	void setErrorId(ErrorType errorId);
+	ErrorType getErrorId();
+	String getDetails();
+	void setDetails(String details);
+	
 }

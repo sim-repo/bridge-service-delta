@@ -1,6 +1,9 @@
 package com.simple.server.task;
 
+import java.lang.reflect.Constructor;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +16,15 @@ import org.springframework.stereotype.Service;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
-import com.simple.server.domain.contract.ErrMsg;
+import com.simple.server.domain.contract.AContract;
+import com.simple.server.domain.contract.ErrDefMsg;
+import com.simple.server.domain.contract.ErrPubMsg;
+import com.simple.server.domain.contract.ErrSubMsg;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.PubErrRouting;
+import com.simple.server.domain.contract.SubErrRouting;
+import com.simple.server.domain.contract.SuccessPubMsg;
+import com.simple.server.domain.contract.SuccessSubMsg;
 import com.simple.server.http.HttpImpl;
 import com.simple.server.http.IHttp;
 import com.simple.server.mediators.CommandType;
@@ -31,7 +40,7 @@ public class WriteTask extends ATask {
 	
 	private final static Integer MAX_NUM_ELEMENTS = 100000;
 	private List<IContract> list = new ArrayList<IContract>();
-	
+	private IHttp http = new HttpImpl();
 	
 	@Override
 	public void update(Observable o, Object arg) {
@@ -64,54 +73,210 @@ public class WriteTask extends ATask {
     	//	if(getAppConfig() .getQueueWrite().size()>0)
     			getAppConfig() .getQueueWrite().drainTo(list, MAX_NUM_ELEMENTS);
     	//}  	
-    			
+    		
+		List<ErrPubMsg> errPubList = null;
+		List<SuccessPubMsg> successPubList = null;
+		List<PubErrRouting> pubRoutes = null;
+		
+		
+		List<ErrSubMsg> errSubList = null;
+		List<SuccessSubMsg> successSubList = null;
+		List<SubErrRouting> subRoutes = null;
+		
+		List<ErrDefMsg> errDefList = null;
+		
+		
         for(IContract msg: list){
-        	List<PubErrRouting> pubRoutes = null;
-        	try{
-        		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
-        		Map<String, Object> map = new HashMap();
-				map.put("eventId", msg.getEventId());
-        		pubRoutes = service.<PubErrRouting>readbyCriteria(PubErrRouting.class, map, 0, null);
-				if (pubRoutes == null || pubRoutes.size() == 0)
+        	        	
+        	switch(msg.getOperationType()){
+	        	case PUB: {
+	        				if(errPubList == null)
+	        					errPubList = new ArrayList();
+	        				if(successPubList == null)
+	        					successPubList = new ArrayList();	        				
+	        				setPub( msg, errPubList, pubRoutes );  
+	        				break;	        	
+	        	}
+	        	case SUB: {
+	        				if(errSubList == null)
+	        					errSubList = new ArrayList();
+	        				if(successSubList == null)
+	        					successSubList = new ArrayList();	        				
+	        				setSub( msg, errSubList, subRoutes ); 
+	        				break;   
+	        	}
+	        	default: { 
+			        		if(errDefList == null)
+			        			errDefList = new ArrayList();
+			        		break;
+	        	}	        	
+        	}
+        	        	             
+        	try{        					
+				if(msg.getEndPointId() == null){
 					throw new Exception(
-							String.format("PubTask: [bus PUB routing] - no records found by filter %s: < %s > ",
-									"eventId", msg.getEventId()));
-        		        		
-	        	service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
+							String.format("msg.[juuid]: < %s > - endpoint id is null  < %s > ", msg.getJuuid()));
+				}
+				
+				IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
 	        	if(msg.getIsDirectInsert())
 	        		service.insertAsIs(msg);
 	        	else
 	        		service.insert(msg);       
         	}
-        	catch(Exception e){
-        		ErrMsg err = new ErrMsg();
+        	catch(Exception e){        	
+        		switch(msg.getOperationType()){
+		        	case PUB: putErr(ErrPubMsg.class, msg, errPubList, e, pubRoutes ); break;	
+		        	case SUB: putErr(ErrSubMsg.class, msg, errSubList, e, subRoutes ); break;   
+		        	default:  putErr(ErrDefMsg.class, msg, errDefList, e, null ); break;
+        		}        														
+        	}
+        }  
+        
+        if(errPubList != null && errPubList.size() > 0)
+        	sendError(errPubList);
+        
+        if(errSubList != null && errSubList.size() > 0)
+        	sendError(errSubList);
+        
+        if(errDefList != null && errDefList.size() > 0)
+        	sendError(errDefList);
+        
+        errPubList = null;
+        errSubList = null;
+        errDefList = null;
+        
+        list.clear();                
+	}	      
+	
+	
+	public static <E> E newInstance(Class<E> cls) throws Exception {
+	    E instance = cls.newInstance(); 	    
+	    return instance;
+	}
+	
+	private void setPub(IContract msg, List<ErrPubMsg> errList, List<PubErrRouting> routes) throws Exception{
+		
+		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
+		
+		Map<String, Object> map = new HashMap();
+		map.put("eventId", msg.getEventId());
+		routes = service.<PubErrRouting>readbyCriteria(PubErrRouting.class, map, 1, null);
+		if (routes == null || routes.size() == 0)
+			putErr(ErrPubMsg.class,msg, errList,
+							new Exception(String.format("[routing Pub err] - no records found by filter %s: < %s > ",
+								 		"eventId", msg.getEventId())),
+							null		
+					);
+	}
+	
+	
+	private void setSub(IContract msg, List<ErrSubMsg> errList, List<SubErrRouting> routes) throws Exception{
+		
+		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
+		
+		Map<String, Object> map = new HashMap();
+		map.put("eventId", msg.getEventId());
+		routes = service.<SubErrRouting>readbyCriteria(SubErrRouting.class, map, 1, null);
+		if (routes == null || routes.size() == 0)
+			putErr(ErrSubMsg.class, msg, errList,
+							new Exception(String.format("[routing Sub err] - no records found by filter %s: < %s > ",
+								 		"eventId", msg.getEventId())),
+							null		
+					);	
+	}
+	
+	
+	private <T extends AContract, Z extends AContract> void putErr(Class<T> clazz, IContract msg, List<T> errors, Exception e, List<Z> routes){
+		
+		try{
+			String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
+					
+			if(routes == null || routes.size() == 0){
+				T err = clazz.newInstance();				
 				err.setErrorId(ErrorType.WriteTask);
-				err.setDetails(String.format("WriteTask: %s", e.getMessage()));
+				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
 				err.setEventId(msg.getEventId());
 				err.setJuuid(msg.getJuuid());
 				err.setSenderId(msg.getSenderId());
-				appConfig.getQueueLog().put(err);
-				for (PubErrRouting r : pubRoutes) {
-					if (r.getPublisherHandler() != null && !r.getPublisherHandler().isEmpty()) {
-						IHttp http = new HttpImpl();
-						err.setResponseURI(r.getPublisherHandler());
-						try{
-							http.sendHttp(err);
-						}catch(Exception e2){
-							ErrMsg err2 = new ErrMsg();
-							err2.setErrorId(ErrorType.WriteTask);
-							err2.setDetails(String.format("WriteTask: %s", e2.getMessage()));
-							err2.setEventId(msg.getEventId());
-							err2.setJuuid(msg.getJuuid());
-							err2.setSenderId(msg.getSenderId());
-							appConfig.getQueueLog().put(err2);
-						}
-						http = null;
-					}
-				}
+				err.setEndPointId(msg.getSenderId());		
+				err.setLogDatetime(logDatetime);
+				errors.add(err);	
+			}else{
+				
+				for(Z route: routes){
+					T err = clazz.newInstance();	
+					err.setErrorId(ErrorType.WriteTask);
+					err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					err.setEventId(msg.getEventId());
+					err.setJuuid(msg.getJuuid());
+					err.setSenderId(msg.getSenderId());
+					err.setEndPointId(msg.getSenderId());		
+					err.setLogDatetime(logDatetime);					
+					err.setResponseURI(route.getPublisherHandler());
+					err.setResponseContractClass(route.getPublisherStoreClass());
+					errors.add(err);		
+				}				
+			}
+									
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
+	
+	
 
-        	}
-        }                        
-        list.clear();                
-	}	      
+	
+	private <T extends IContract>void sendError(List<T> errors){
+		
+		for(IContract err: errors){
+			err.getResponseURI();
+			try {
+				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {
+					http.sendHttp(err);
+				} else if (err.getResponseContractClass() != null && !err.getResponseContractClass().isEmpty()) {
+					IContract contract = null;
+					if (err.getClass().getName().equals(err.getResponseContractClass())) {
+						err.setIsDirectInsert(true);
+						contract = err;
+					} else {
+						Class<IContract> clazz = (Class<IContract>) Class.forName(err.getResponseContractClass());
+						Constructor<IContract> ctor = clazz.getConstructor();
+						IContract instance = ctor.newInstance();
+						instance.setEndPointId(err.getSenderId());
+						instance.setIsDirectInsert(false);
+						instance.copyFrom(err);
+						contract = instance;
+					}
+					appConfig.getQueueWrite().put(contract);
+				}
+				appConfig.getQueueLog().put(err);
+			} catch (Exception e) {
+				try {					
+					
+					Class<T> clazz = null;
+					T newErr = null;
+					newErr = clazz.newInstance();																	
+					newErr.setErrorId(ErrorType.WriteTask);
+					newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					newErr.setEventId(err.getEventId());
+					newErr.setJuuid(err.getJuuid());
+					newErr.setSenderId(err.getSenderId());
+					newErr.setEndPointId(err.getSenderId());
+					
+					if(!err.getSubscriberId().equals(EndpointType.UNKNOWN))
+						newErr.setSubscriberId(err.getSubscriberId());
+					if(!err.getPublisherId().equals(EndpointType.UNKNOWN))
+						newErr.setPublisherId(err.getPublisherId());
+					
+					appConfig.getQueueLog().put(err);
+					appConfig.getQueueLog().put(newErr);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+		
+	}
+	
 }

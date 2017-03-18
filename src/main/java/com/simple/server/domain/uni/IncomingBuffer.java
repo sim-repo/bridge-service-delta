@@ -17,7 +17,6 @@ public class IncomingBuffer extends ARec implements IRec{
 	private int id;
 	private String creationDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime()); 
 	private String juuid;
-	private String eventId;
 	private String body;
 
 	
@@ -43,14 +42,6 @@ public class IncomingBuffer extends ARec implements IRec{
 
 	public void setJuuid(String juuid) {
 		this.juuid = juuid;
-	}
-
-	public String getEventId() {
-		return eventId;
-	}
-
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
 	}
 
 	public String getBody() {

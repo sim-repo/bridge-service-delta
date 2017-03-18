@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
+import com.simple.server.config.EventType;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.RoutingPubConfirmMsg;
 import com.simple.server.domain.contract.BusPubMsg;
@@ -15,22 +16,15 @@ import com.simple.server.domain.contract.BusPubMsg;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LogPubConfirmation extends ALogRec{
 
-	int id;	
-	String eventId;
-	String publisherHandler;
+	protected int id;		
+	protected String publisherHandler;
 
 	public int getId() {
 		return id;
 	}
 	public void setId(int id) {
 		this.id = id;
-	}
-	public String getEventId() {
-		return eventId;
-	}
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
-	}
+	}	
 	public String getPublisherHandler() {
 		return publisherHandler;
 	}

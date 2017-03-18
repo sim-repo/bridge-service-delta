@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
+import com.simple.server.config.ErrorType;
+import com.simple.server.config.EventType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.IRec;
 
@@ -21,10 +23,19 @@ public abstract class AContract implements IContract {
 	
 	protected String clazz;
 	protected String juuid;
-	protected String eventId;	
-	protected String senderId;
+	protected String eventId;
+	
+	protected String senderId;		
 	protected String endPointId;
-	protected OperationType operationType;
+	
+	protected String subscriberId;
+	protected String subscriberHandler;
+	protected String subscriberStoreClass;
+	protected String publisherId;
+	protected String publisherHandler;
+	protected String publisherStoreClass;	
+	
+	protected String operationType;
 	protected String serviceIdFrom;
 	protected String serviceIdTo;
 	protected String serviceRoleFrom;
@@ -38,9 +49,13 @@ public abstract class AContract implements IContract {
 	protected String loggerId;	
 	protected String methodHandler;	
 	protected String responseURI;	
-	protected ContentType responseContentType  = ContentType.JsonPlainText; 	
+	protected String responseContentType; 	
 	protected String responseContractClass;
 	protected Boolean isDirectInsert; 
+	
+	protected String errorId;
+	protected String details;
+	
 	
 	@Override
 	public AppConfig getAppConfig() throws Exception {
@@ -58,12 +73,12 @@ public abstract class AContract implements IContract {
 	}
 	
 	@Override
-	public String getEventId() {
-		return eventId;
+	public EventType getEventId() {
+		return EventType.fromValue(eventId);
 	}
 
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
+	public void setEventId(EventType eventId) {
+		this.eventId = eventId.toValue();
 	}
 	
 	@Override
@@ -83,6 +98,54 @@ public abstract class AContract implements IContract {
 	@Override
 	public void setEndPointId(EndpointType endPointId) {
 		this.endPointId = endPointId.toValue();
+	}
+	@Override
+	public EndpointType getSubscriberId() {
+		return EndpointType.fromValue(subscriberId);
+	}
+	@Override
+	public void setSubscriberId(EndpointType subscriberId) {
+		this.subscriberId = subscriberId.toValue();
+	}
+
+	public String getSubscriberHandler() {
+		return subscriberHandler;
+	}
+
+	public void setSubscriberHandler(String subscriberHandler) {
+		this.subscriberHandler = subscriberHandler;
+	}
+
+	public String getSubscriberStoreClass() {
+		return subscriberStoreClass;
+	}
+
+	public void setSubscriberStoreClass(String subscriberStoreClass) {
+		this.subscriberStoreClass = subscriberStoreClass;
+	}
+	@Override
+	public EndpointType getPublisherId() {
+		return EndpointType.fromValue(publisherId);
+	}
+	@Override
+	public void setPublisherId(EndpointType publisherId) {
+		this.publisherId = publisherId.toValue();
+	}
+
+	public String getPublisherHandler() {
+		return publisherHandler;
+	}
+
+	public void setPublisherHandler(String publisherHandler) {
+		this.publisherHandler = publisherHandler;
+	}
+
+	public String getPublisherStoreClass() {
+		return publisherStoreClass;
+	}
+
+	public void setPublisherStoreClass(String publisherStoreClass) {
+		this.publisherStoreClass = publisherStoreClass;
 	}
 
 	public String getServiceIdFrom() {
@@ -196,11 +259,11 @@ public abstract class AContract implements IContract {
 
 	@Override
 	public ContentType getResponseContentType() {
-		return responseContentType;
+		return ContentType.fromValue(responseContentType);
 	}
 
 	public void setResponseContentType(ContentType responseContentType) {
-		this.responseContentType = responseContentType;
+		this.responseContentType = responseContentType.toValue();
 	}
 
 	public void setClazz(String clazz) {
@@ -217,9 +280,14 @@ public abstract class AContract implements IContract {
 
 	@Override
 	public OperationType getOperationType() {
-		return operationType;
+		return OperationType.fromValue(operationType);
 	}
 
+	@Override
+	public void setOperationType(OperationType operationType) {
+		this.operationType = operationType.toValue(); 
+	}
+	
 	@Override
 	public Boolean getIsDirectInsert() {
 		return isDirectInsert;
@@ -229,24 +297,71 @@ public abstract class AContract implements IContract {
 	public void setIsDirectInsert(Boolean isDirectInsert) {
 		this.isDirectInsert = new Boolean(isDirectInsert);
 	}
+	
+	@Override
+	public ErrorType getErrorId() {
+		return ErrorType.fromValue(errorId);
+	}
+	
+	@Override
+	public void setErrorId(ErrorType errorId) {
+		this.errorId = errorId.toValue();
+	}
+	
+	@Override
+	public String getDetails() {
+		return details;
+	}
+	
+	@Override
+	public void setDetails(String details) {
+		this.details = details;
+	}
 
 	@Override
 	public void copyFrom(IContract _msg) throws Exception{
 		AContract msg = (AContract)_msg;
 		
 		this.setServiceOutDatetime(new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime()));		
-		this.setJuuid(msg.getJuuid());
-		this.setEndPointId(msg.getEndPointId());
-		this.setSenderId(msg.getSenderId());
-		this.setEventId(msg.getEventId());
-		this.setResponseURI(msg.getResponseURI());
-		this.setResponseContentType(msg.getResponseContentType());
-		this.setResponseContractClass(msg.getResponseContractClass());				
-		this.setMethodHandler(msg.getMethodHandler());
+		if(this.getJuuid() == null)
+			this.setJuuid(msg.getJuuid());		
+		
+		if(this.getEndPointId().equals(EndpointType.UNKNOWN))
+			this.setEndPointId(msg.getEndPointId());
+		
+		if(this.getSenderId().equals(EndpointType.UNKNOWN))
+			this.setSenderId(msg.getSenderId());
+		
+		if(this.getPublisherId().equals(EndpointType.UNKNOWN))
+			this.setPublisherId(msg.getPublisherId());
+		
+		if(this.getSubscriberId().equals(EndpointType.UNKNOWN))
+			this.setSubscriberId(msg.getSubscriberId());
+		
+		if(this.getEventId().equals(EventType.UNKNOWN))
+			this.setEventId(msg.getEventId());
+		
+		if(this.getResponseURI() == null)
+			this.setResponseURI(msg.getResponseURI());
+		
+		if(this.getResponseContentType() == null)
+			this.setResponseContentType(msg.getResponseContentType());
+		
+		if(this.getResponseContractClass() == null)
+			this.setResponseContractClass(msg.getResponseContractClass());	
+		
+		if(this.getMethodHandler() == null)
+			this.setMethodHandler(msg.getMethodHandler());
+		
+		if(this.getMessageBodyValue() == null)
+			this.setMessageBodyValue(msg.toString());
+		
+		if(this.getLogDatetime() == null){
+			this.setLogDatetime(msg.getLogDatetime());
+		}		
 		this.setServiceRoleFrom(getAppConfig().ROLE_ID);
 		this.setServiceIdFrom(getAppConfig().SERVICE_ID);			
-		this.setMessageHeaderValue(this.getClass().getSimpleName());
-		this.setMessageBodyValue(msg.toString());				
+		this.setMessageHeaderValue(this.getClass().getSimpleName());					
 	}
 	
 	

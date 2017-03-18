@@ -5,15 +5,13 @@
 
 <hibernate-mapping package="com.simple.server.domain.contract">
 						
-	<class name="PubConfirmationMsg" table="[bus pub confirmation]">		
+	<class name="UniMsg" table="[test incoming buffer]">
 		<id name="id" column="[id]">
 			<generator class="native" />
-		</id>		
-	
-		<property name="senderId" column="[publisher_id]"/>
-		     
+		</id>					
 		
-		<property name="eventId" column="[event_id]" />
-		<property name="publisherHandler" column="[publisher_handler]" />								
+		<property name="requestInDatetime" column="[datetime]" />
+		<property name="juuid" column="[guid]" />
+		<property name="body" column="[body]" />		
 	</class>
 </hibernate-mapping>

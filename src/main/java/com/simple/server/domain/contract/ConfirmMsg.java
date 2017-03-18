@@ -3,18 +3,14 @@ package com.simple.server.domain.contract;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.simple.server.config.EndpointType;
 
 @JsonAutoDetect
 @JsonDeserialize(as = ConfirmMsg.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfirmMsg extends AContract{
 	
-	private Integer id;
-	private String subscriberId;
-	private String storeClass;	
-	private String subscriberHandler;
-	private String subscriberStoreClass;	
+	private Integer id;	
+	private String storeClass;		
 	
 	@Override
 	public String getClazz() {
@@ -27,28 +23,32 @@ public class ConfirmMsg extends AContract{
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	public EndpointType getSubscriberId() {
-		return EndpointType.valueOf(subscriberId);
-	}
-	public void setSubscriberId(EndpointType subscriberId) {
-		this.subscriberId = subscriberId.toValue();
-	}
 	public String getStoreClass() {
 		return storeClass;
 	}
 	public void setStoreClass(String storeClass) {
 		this.storeClass = storeClass;
 	}
-	public String getSubscriberHandler() {
-		return subscriberHandler;
-	}
-	public void setSubscriberHandler(String subscriberHandler) {
-		this.subscriberHandler = subscriberHandler;
-	}
-	public String getSubscriberStoreClass() {
-		return subscriberStoreClass;
-	}
-	public void setSubscriberStoreClass(String subscriberStoreClass) {
-		this.subscriberStoreClass = subscriberStoreClass;
+
+	@Override
+	public void copyFrom(IContract _msg) throws Exception {
+		if(_msg==null)
+			throw new Exception("ConfirmMsg, copyFrom, _msg is null");
+		this.setSubscriberId(_msg.getSenderId());
+		
+		if(_msg instanceof StatusMsg){
+			StatusMsg status = (StatusMsg)_msg;
+			this.setErrorId(status.getErrorId());
+			this.setDetails(status.getDetails());
+		}
+		
+		this.setSubscriberHandler(_msg.getMethodHandler());
+		this.setSubscriberStoreClass(_msg.getResponseContractClass());
+		
+		super.copyFrom(_msg);
 	}	
+	
+	
 }
+
+

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
+import com.simple.server.config.EventType;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.BusPubMsg;
 
@@ -38,10 +39,7 @@ public class LogPub extends ALogRec{
 	protected String loggerId;
 
 	protected String methodHandler;
-	
-	protected String eventId;
 
-	
 	
 	public int getId() {
 		return id;
@@ -151,14 +149,7 @@ public class LogPub extends ALogRec{
 	public void setResponseContentType(ContentType ct) {
 	}
 
-	public String getEventId() {
-		return eventId;
-	}
-
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
-	}
-
+	
 	@Override
 	public void copyFrom(IContract msg) throws Exception {
 		if(!(msg instanceof BusPubMsg))

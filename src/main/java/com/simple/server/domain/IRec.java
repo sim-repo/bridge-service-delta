@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
+import com.simple.server.config.EventType;
 import com.simple.server.domain.contract.IContract;
 
 public interface IRec extends Serializable{
@@ -12,5 +13,7 @@ public interface IRec extends Serializable{
 	void setResponseContentType(ContentType ct);
 	EndpointType getEndpoint();	
 	EndpointType getSenderId();	
+	EventType getEventId();
+	void setEventId(EventType eventId);
 	public String getJuuid();
 }

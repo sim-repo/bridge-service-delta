@@ -5,14 +5,20 @@
 
 <hibernate-mapping package="com.simple.server.domain.log">
 						
-	<class name="LogPub" table="[bus pub msg]">		
+	<class name="LogPub" table="[log pub]">		
 		<id name="id" column="[id]">
 			<generator class="native" />
 		</id>
 		
 		<property name="juuid" column="uuid" />
 		<property name="eventId" column="[event_id]" />
-		<property name="senderId" column="[publisher_id]" />
+		
+		<property name="senderId" column="[publisher_id]">
+		    <type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.EndpointType</param>
+		        <param name="useNamed">true</param>
+		    </type>
+		</property>
 						
 		<property name="serviceRoleFrom" column="[service_role_from]" />
 		<property name="serviceRoleTo" column="[service_role_to]" />

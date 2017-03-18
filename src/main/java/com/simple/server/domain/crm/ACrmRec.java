@@ -11,7 +11,7 @@ public abstract class ACrmRec extends ARec implements ICrmRec{
 	private int id;
 	private String creationDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime()); 
 	private String juuid;
-	private String eventId;
+
 	
 	public int getId() {
 		return id;
@@ -24,12 +24,6 @@ public abstract class ACrmRec extends ARec implements ICrmRec{
 	}
 	public void setJuuid(String juuid) {
 		this.juuid = juuid;
-	}
-	public String getEventId() {
-		return eventId;
-	}
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
 	}
 	public String getCreationDatetime() {
 		return creationDatetime;
