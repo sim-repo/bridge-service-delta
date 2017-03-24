@@ -125,11 +125,12 @@ public abstract class ADao implements IDao{
 	
 	
 	@Override
-	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String,Object> params, int topNum, Map<String,MiscType> orders) throws Exception{		
-		Criteria criteria = currentSession().createCriteria(clazz);		
-		for(Map.Entry<String,Object> pair: params.entrySet()){						
-			criteria.add(Restrictions.eq(pair.getKey(), pair.getValue()));			
-		}		
+	public synchronized <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String,Object> params, int topNum, Map<String,MiscType> orders) throws Exception{		
+		Criteria criteria = currentSession().createCriteria(clazz);	
+		if(params != null)
+			for(Map.Entry<String,Object> pair: params.entrySet()){						
+				criteria.add(Restrictions.eq(pair.getKey(), pair.getValue()));			
+			}		
 		if(topNum != 0){
 			criteria.setMaxResults(topNum);
 		}
@@ -147,6 +148,10 @@ public abstract class ADao implements IDao{
 		
 		List<T> res = criteria.list();	
 		System.out.println(clazz+" res.size():"+res.size());
+		StringBuilder er = new StringBuilder();
+		if (res.size()==0){
+			res = criteria.list();	
+		}			
 		return res;
 	}
 

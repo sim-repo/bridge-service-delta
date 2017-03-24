@@ -18,7 +18,7 @@
 	<bean id="navDS"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=TestEndpoint1;" />
+		<property name="url" value="jdbc:sqlserver://MSK10NAV55;databaseName=SimpleERP;" />
 		<property name="username" value="jservice" />
 		<property name="password" value="Larina123" />
 	</bean>
@@ -237,8 +237,11 @@
 				<value>hbm/RoutingSub.hbm.xml</value>				
 				<value>hbm/RoutingSubErr.hbm.xml</value>
 				
+				<value>hbm/HotPubMsg.hbm.xml</value>
+				
 				<value>hbm/LogPub.hbm.xml</value>
 				<value>hbm/LogPubMsg.hbm.xml</value>
+				<value>hbm/LogPubSuccessMsg.hbm.xml</value>
 								
 				<value>hbm/LogBusReplyMsg.hbm.xml</value>	
 				<value>hbm/UniMsg.hbm.xml</value>																		

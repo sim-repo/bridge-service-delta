@@ -85,7 +85,7 @@ public class ContractRecFactory {
 			// TODO
 		}
 		
-		return res;
+		throw new Exception(String.format("ContactRecFactory.newRec: no mapping for class <%s>, endpoint <%s>", msg.getClass(), endpoint));
 	}
 
 	
@@ -148,7 +148,7 @@ public class ContractRecFactory {
 				return res;
 			}
 		}
-		return res;
+		throw new Exception(String.format("ContactRecFactory.newContract: no mapping for class <%s>, endpoint <%s>", rec.getClass(), endpoint));
 	}
 
 	public List<IRec> newRecList(List<IContract> list) throws Exception {

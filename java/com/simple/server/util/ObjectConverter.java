@@ -9,7 +9,9 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.XML;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -28,6 +30,7 @@ public class ObjectConverter {
 	public static String ObjectToJson(Object object){
 		StringWriter writer = new StringWriter();
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(Include.NON_NULL);
 		try {
 			mapper.writeValue(writer, object);
 		} catch (JsonGenerationException e) {
@@ -53,7 +56,7 @@ public class ObjectConverter {
 		return object;
 	}
 	
-	 public static <T> List<T> JsonToObjects(String json, Class<T> clazz){
+	public static <T> List<T> JsonToObjects(String json, Class<T> clazz){
 		ObjectMapper mapper = new ObjectMapper().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		TypeFactory t = TypeFactory.defaultInstance();
 		
@@ -86,6 +89,14 @@ public class ObjectConverter {
 		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);		
 		String xml = xmlMapper.writeValueAsString(map);		
 		return xml;
+	}
+	
+	public static String xmlToJson(String xml) throws Exception{
+		JSONObject jObject = XML.toJSONObject(xml);
+	    ObjectMapper mapper = new ObjectMapper();	   
+	    Object json = mapper.readValue(jObject.toString(), Object.class);
+	    String res = mapper.writeValueAsString(json);
+		return res;
 	}
 	
 	public static String listMapToJson(List<Map<String, Object>> list) throws Exception{       
@@ -124,6 +135,17 @@ public class ObjectConverter {
 	        return json_obj.toString();
 	    }
 	    return null;
+	}
+	
+	public static boolean isValidJSON(final String json) throws IOException {
+	    boolean valid = true;
+	    ObjectMapper mapper = new ObjectMapper();
+	    try{ 
+	    	mapper.readTree(json);
+	    } catch(JsonProcessingException e){
+	        valid = false;
+	    }
+	    return valid;
 	}
 	
 }

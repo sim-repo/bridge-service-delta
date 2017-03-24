@@ -195,7 +195,10 @@ public class WriteTask extends ATask {
 			if(routes == null || routes.size() == 0){
 				T err = clazz.newInstance();				
 				err.setErrorId(ErrorType.WriteTask);
-				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+				if(e.getCause() != null)
+					err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));		
+				else 
+					err.setDetails(String.format("%s", e.getMessage()));				
 				err.setEventId(msg.getEventId());
 				err.setJuuid(msg.getJuuid());
 				err.setSenderId(msg.getSenderId());
@@ -207,7 +210,10 @@ public class WriteTask extends ATask {
 				for(Z route: routes){
 					T err = clazz.newInstance();	
 					err.setErrorId(ErrorType.WriteTask);
-					err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					if(e.getCause() != null)
+						err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					else 
+						err.setDetails(String.format("%s", e.getMessage()));					
 					err.setEventId(msg.getEventId());
 					err.setJuuid(msg.getJuuid());
 					err.setSenderId(msg.getSenderId());

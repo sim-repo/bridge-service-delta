@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.simple.server.domain.contract">
+						
+	<class name="HotPubMsg" table="[hot pub]">		
+		<id name="id" column="[id]">
+			<generator class="native" />
+		</id>
+		
+		<property name="juuid" column="uuid" />
+		<property name="logDatetime" column="[log_datetime]"/>
+		
+		
+		<property name="eventId" column="[event_id]">
+		    <type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.EventType</param>
+		        <param name="useNamed">true</param>
+		    </type>
+		</property>
+								
+		
+		<property name="senderId" column="[sender_id]">
+		    <type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.EndpointType</param>
+		        <param name="useNamed">true</param>
+		    </type>
+		</property>
+		
+	
+	</class>
+</hibernate-mapping>

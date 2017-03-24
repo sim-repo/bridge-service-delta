@@ -20,8 +20,11 @@ import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.contract.ErrPubMsg;
+import com.simple.server.domain.contract.HotPubMsg;
 import com.simple.server.domain.contract.SubRouting;
 import com.simple.server.domain.contract.SuccessPubMsg;
+import com.simple.server.domain.contract.UniMinMsg;
+import com.simple.server.domain.contract.UniMsg;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.PubErrRouting;
 import com.simple.server.domain.contract.PubSuccessRouting;
@@ -75,20 +78,24 @@ public class PubTask extends ATask {
 				getAppConfig().getQueuePub().drainTo(list, MAX_NUM_ELEMENTS);
 		}
 
+		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
 		List<PubErrRouting> pubErrRoutes = null;
 		List<PubSuccessRouting> pubSuccessRoutes = null;
 		List<ErrPubMsg> errList = new ArrayList();
 		List<SuccessPubMsg> successList = new ArrayList();
 		List<SubRouting> subRoutes = null;
-		
+		String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
 		for (IContract msg : list) {
 			try {
 				if(msg.getPublisherId().equals(EndpointType.UNKNOWN)){
 					msg.setPublisherId(msg.getSenderId());
 				}
 				
-				IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
-
+				HotPubMsg hotPubMsg = new HotPubMsg();
+				hotPubMsg.copyFrom(msg);
+				hotPubMsg.setLogDatetime(logDatetime);
+				service.insertAsIs(hotPubMsg);
+				
 				Map<String, Object> map = new HashMap();
 				map.put("eventId", msg.getEventId());
 				map.put("publisherId", msg.getSenderId());
@@ -97,23 +104,28 @@ public class PubTask extends ATask {
 					this.collectError(errList, msg, null,
 							new Exception(String.format(
 									"[routing PUB err] - no records found by filters %s: < %s >, %s: < %s > ",
-									"eventId", msg.getEventId(), "publisherId", msg.getSenderId())),
+									"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId())),
 							null);
-				}
-
+				}																
+				
+				
+				
 				pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(PubSuccessRouting.class, map, 1, null);
 				if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
 					this.collectError(errList, msg, null,
 							new Exception(String.format(
 									"[routing PUB success] - no records by filters %s: < %s >, %s: < %s > ",
-									"eventId", msg.getEventId(), "publisherId", msg.getSenderId()
+									"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId()
 
 							)), null);
 				}
 
+							
 				map = new HashMap();
 				map.put("eventId", msg.getEventId());
 				map.put("senderId", msg.getSenderId());
+				if(msg.getSubscriberId() != null && msg.getSubscriberId() != EndpointType.UNKNOWN)
+					map.put("subscriberId", msg.getSubscriberId());
 				subRoutes = service.<SubRouting>readbyCriteria(SubRouting.class, map, 0, null);
 				if (subRoutes == null || subRoutes.size() == 0) {
 					this.collectError(errList, msg, null,
@@ -122,7 +134,6 @@ public class PubTask extends ATask {
 									"eventId", msg.getEventId(), "senderId", msg.getSenderId())),
 							pubErrRoutes);
 					continue;
-
 				}
 
 				SubRouting subRoute = null;
@@ -144,7 +155,25 @@ public class PubTask extends ATask {
 
 						if (subRoute.getSubscriberHandler() != null && !subRoute.getSubscriberHandler().equals("")) {
 							msg.setResponseURI(subRoute.getSubscriberHandler());
-							http.sendHttp(msg);
+							
+							IContract newMsg = null;							
+							if(msg instanceof UniMsg){
+								UniMinMsg uniMinMsg = new UniMinMsg();								
+									
+								UniMsg oldMsg = (UniMsg)msg;
+								uniMinMsg.setBody(oldMsg.getBody());							
+								uniMinMsg.setEventId(oldMsg.getEventId());
+								uniMinMsg.setJuuid(oldMsg.getJuuid());
+								uniMinMsg.setDatetime(oldMsg.getLogDatetime());	
+								uniMinMsg.setContentType(subRoute.getResponseContentType());
+								uniMinMsg.setUrl(oldMsg.getResponseURI());
+								uniMinMsg.bodyTransform(subRoute.getBodyContentType());
+								http.sendHttp(uniMinMsg);
+							}else{
+								newMsg = msg;
+								http.sendHttp(newMsg);
+							}
+														
 						} else if (subRoute.getSubscriberStoreClass() != null
 								&& !subRoute.getSubscriberStoreClass().equals("")) {
 							Class<IContract> clazz = (Class<IContract>) Class
@@ -207,8 +236,11 @@ public class PubTask extends ATask {
 					ErrPubMsg newErr = new ErrPubMsg();
 					newErr.setErrorId(ErrorType.PubTask);
 					newErr.setOperationType(OperationType.PUB);
-					newErr.setResponseContentType(ContentType.ApplicationJson);
-					newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					newErr.setResponseContentType(ContentType.ApplicationJson);									
+					if(e.getCause() != null)
+						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					else 
+						newErr.setDetails(String.format("%s", e.getMessage()));										
 					newErr.setEventId(err.getEventId());
 					newErr.setJuuid(err.getJuuid());
 					newErr.setSenderId(err.getSenderId());
@@ -253,7 +285,10 @@ public class PubTask extends ATask {
 				try {
 					ErrPubMsg newErr = new ErrPubMsg();
 					newErr.setErrorId(ErrorType.PubTask);
-					newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					if(e.getCause() != null)
+						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					else 
+						newErr.setDetails(String.format("%s", e.getMessage()));	
 					newErr.setEventId(success.getEventId());
 					newErr.setJuuid(success.getJuuid());
 					newErr.setSenderId(success.getSenderId());
@@ -278,7 +313,10 @@ public class PubTask extends ATask {
 			err = new ErrPubMsg();
 			err.setErrorId(ErrorType.PubTask);
 			err.setOperationType(OperationType.PUB);
-			err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+			if(e.getCause() != null)
+				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+			else 
+				err.setDetails(String.format("%s", e.getMessage()));	
 			err.setEventId(msg.getEventId());
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
@@ -288,18 +326,26 @@ public class PubTask extends ATask {
 			}
 			err.setLogDatetime(logDatetime);
 			list.add(err);
+						
 		} else {
 			for (PubErrRouting routing : routings) {
 				err = new ErrPubMsg();
 				err.setErrorId(ErrorType.PubTask);
 				err.setOperationType(OperationType.PUB);
-				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+				if(e.getCause() != null)
+					err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+				else 
+					err.setDetails(String.format("%s", e.getMessage()));	
 				err.setEventId(msg.getEventId());
 				err.setJuuid(msg.getJuuid());
 				err.setSenderId(msg.getSenderId());
 				err.setEndPointId(msg.getSenderId());
-				err.setResponseURI(routing.getPublisherHandler());
-				err.setStoreClass(routing.getPublisherStoreClass());
+				
+				if(routing.getPublisherHandler() != null && routing.getPublisherHandler() != "")
+					err.setResponseURI(routing.getPublisherHandler());
+				if(routing.getPublisherStoreClass() != null && routing.getPublisherStoreClass() != "")
+					err.setStoreClass(routing.getPublisherStoreClass());
+								
 				if (subRouting != null) {
 					err.setSubscriberId(subRouting.getSubscriberId());
 					err.setSubscriberHandler(subRouting.getSubscriberHandler());

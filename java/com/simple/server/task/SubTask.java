@@ -20,11 +20,10 @@ import com.simple.server.config.ErrorType;
 import com.simple.server.config.MiscType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.contract.ErrSubMsg;
+import com.simple.server.domain.contract.HotPubMsg;
 import com.simple.server.domain.contract.IContract;
-import com.simple.server.domain.contract.PubSuccessRouting;
 import com.simple.server.domain.contract.RoutingPubConfirmMsg;
 import com.simple.server.domain.contract.SubErrRouting;
-import com.simple.server.domain.contract.SubRouting;
 import com.simple.server.domain.contract.SuccessPubMsg;
 import com.simple.server.domain.contract.SuccessSubMsg;
 import com.simple.server.domain.contract.BusPubMsg;
@@ -86,12 +85,14 @@ public class SubTask extends ATask {
 		List<ErrSubMsg> errList = new ArrayList();
 		List<SuccessSubMsg> successList = new ArrayList();
 		List<SubErrRouting> subErrRoutesList = null;
-		Map<String, Object> map = null;
+		
 		SubErrRouting subErrRouting = null;
 		BusPubMsg pubLog = null;
-
+		Integer lock=0;
 		for (IContract msg : list) {
+			synchronized(lock){
 			try {
+				Map<String, Object> map = null;
 				String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT)
 						.format(Calendar.getInstance().getTime());
 
@@ -104,17 +105,19 @@ public class SubTask extends ATask {
 				if (subErrRoutesList == null || subErrRoutesList.size() == 0) {
 					this.collectError(errList, msg, null,
 							new Exception(String.format(
-									"[routing sub err] - no records found by filters %s: < %s >, %s: <%s> ", "senderId",
-									msg.getSenderId(), "eventId", msg.getEventId())));
+									"[routing sub err] - no records found by filters %s: < %s >, %s: <%s> ", 
+									"[sender_id]",msg.getSenderId(), 
+									"[event_id]", msg.getEventId())));
 				} else
 					subErrRouting = subErrRoutesList.get(0);
 
 				map = new HashMap();
-				map.put("juuid", msg.getJuuid());
-				List<BusPubMsg> pubLogList = service.<BusPubMsg>readbyCriteria(BusPubMsg.class, map, 1, orderMap);
-				if (pubLogList == null || pubLogList.size() == 0) {
+				map.put("juuid", msg.getJuuid());					
+				List<HotPubMsg> hotPubList = service.<HotPubMsg>readbyCriteria(HotPubMsg.class, map, 1, orderMap);
+				if (hotPubList == null || hotPubList.size() == 0) {
 					this.collectError(errList, msg, subErrRouting, new Exception(String
-							.format("[log pub] - no records found by filter %s: < %s > ", "juuid", msg.getJuuid())));
+							.format("[hot pub] - no records found by filter %s: < %s >", 
+									"[guid]", msg.getJuuid())));
 					continue;
 				}
 
@@ -129,7 +132,7 @@ public class SubTask extends ATask {
 					this.collectError(errList, msg, subErrRouting,
 							new Exception(
 									String.format("[routing pub confirmation] - no records found by filters %s: < %s >",
-											"eventId", msg.getEventId())));
+											"[event_id]", msg.getEventId())));
 					continue;
 				}
 
@@ -143,8 +146,13 @@ public class SubTask extends ATask {
 				}
 					
 				msg.setPublisherId(confirm.getEndPointId());
+				msg.setSubscriberId(msg.getSenderId());
+				
 				try {
 					if (confirm.getPublisherHandler() != null && !confirm.getPublisherHandler().equals("")) {
+						msg.setLogDatetime(logDatetime);
+						msg.setOperationType(OperationType.SUB);
+						msg.setResponseContentType(confirm.getResponseContentType());
 						msg.setResponseURI(confirm.getPublisherHandler());
 						http.sendHttp(msg);
 					} else if (confirm.getPublisherStoreClass() != null
@@ -158,15 +166,14 @@ public class SubTask extends ATask {
 						instance.setOperationType(OperationType.SUB);
 						instance.copyFrom(msg);
 						appConfig.getQueueWrite().put(instance);
-					}
-					
-					this.collectSuccess(successList, msg);
-					
+					}					
+					this.collectSuccess(successList, msg);					
 				} catch (Exception e) {
 					this.collectError(errList, msg, subErrRouting, new Exception(e.getMessage()));
 				}
 			} catch (Exception e) {
 				this.collectError(errList, msg, subErrRouting, new Exception(e.getMessage()));
+			}
 			}
 		}
 		sendErrors(errList);
@@ -180,9 +187,9 @@ public class SubTask extends ATask {
 	private void sendErrors(List<ErrSubMsg> errList) {
 		for (ErrSubMsg err : errList) {
 			try {
-				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {
+				if (err.getResponseURI() != null && err.getResponseURI() != "") {
 					http.sendHttp(err);
-				} else if (err.getStoreClass() != null && !err.getStoreClass().isEmpty()) {
+				} else if (err.getStoreClass() != null && err.getStoreClass() != "") {
 					IContract contract = null;
 					if (err.getClass().getName().equals(err.getStoreClass())) {
 						err.setIsDirectInsert(true);
@@ -205,7 +212,10 @@ public class SubTask extends ATask {
 					ErrSubMsg newErr = new ErrSubMsg();
 					newErr.setErrorId(ErrorType.SubTask);
 					newErr.setOperationType(OperationType.SUB);
-					newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					if(e.getCause() != null)
+						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					else 
+						newErr.setDetails(String.format("%s", e.getMessage()));	
 					newErr.setEventId(err.getEventId());
 					newErr.setJuuid(err.getJuuid());
 					newErr.setSenderId(err.getSenderId());
@@ -232,7 +242,10 @@ public class SubTask extends ATask {
 					ErrSubMsg newErr = new ErrSubMsg();
 					newErr.setErrorId(ErrorType.PubTask);
 					newErr.setOperationType(OperationType.SUB);
-					newErr.setDetails(String.format("SubTask: %s", e.getMessage()));
+					if(e.getCause() != null)
+						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					else 
+						newErr.setDetails(String.format("%s", e.getMessage()));	
 					newErr.setEventId(success.getEventId());
 					newErr.setJuuid(success.getJuuid());
 					newErr.setSenderId(success.getSenderId());
@@ -259,12 +272,15 @@ public class SubTask extends ATask {
 			err = new ErrSubMsg();
 			err.setErrorId(ErrorType.SubTask);
 			err.setOperationType(OperationType.SUB);
-			err.setDetails(String.format("%s", e.getMessage()));
+			if(e.getCause() != null)
+				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+			else 
+				err.setDetails(String.format("%s", e.getMessage()));	
 			err.setEventId(msg.getEventId());
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
 			err.setEndPointId(msg.getSenderId());
-			err.setPublisherId(msg.getPublisherId());
+			err.setPublisherId(msg.getPublisherId());			
 			err.setLogDatetime(logDatetime);
 			
 			list.add(err);
@@ -272,7 +288,10 @@ public class SubTask extends ATask {
 			err = new ErrSubMsg();
 			err.setErrorId(ErrorType.SubTask);
 			err.setOperationType(OperationType.SUB);
-			err.setDetails(String.format("%s", e.getMessage()));
+			if(e.getCause() != null)
+				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+			else 
+				err.setDetails(String.format("%s", e.getMessage()));	
 			err.setEventId(msg.getEventId());
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
@@ -283,6 +302,7 @@ public class SubTask extends ATask {
 				err.setSubscriberId(subErrRouting.getSubscriberId());
 				err.setSubscriberHandler(subErrRouting.getSubscriberHandler());
 				err.setStoreClass(subErrRouting.getSubscriberStoreClass());
+				err.setResponseContentType(subErrRouting.getResponseContentType());
 			}
 			err.setLogDatetime(logDatetime);
 			list.add(err);

@@ -2,16 +2,19 @@ package com.simple.server.domain.contract;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 @JsonAutoDetect
 @JsonDeserialize(as = UniMsg.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+
 public class UniMsg extends AContract{
 	
 	private static final long serialVersionUID = 1L;
 	private int id;
+	
 	private String body;	
 	
 	public int getId() {

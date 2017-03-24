@@ -2,7 +2,11 @@ package com.simple.server.config;
 
 public enum ErrorType {
 		
-	PubTask("PubTask"), SubTask("SubTask"), WriteTask("WriteTask"), UNKNOWN("UNKNOWN");
+	PubTask("PubTask"), 
+	SubTask("SubTask"), 
+	WriteTask("WriteTask"), 
+	Settings("Settings"),
+	UNKNOWN("UNKNOWN");
 	
 	private final String value;
 

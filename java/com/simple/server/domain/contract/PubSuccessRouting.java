@@ -16,14 +16,27 @@ public class PubSuccessRouting extends AContract{
 	@JsonProperty("id")
 	protected int id;
 
+	protected String bodyContentType;
+	
 	@Override
 	public String getClazz() {
 		return PubSuccessRouting.class.getName();
 	}
+	
 	public int getId() {
 		return id;
 	}
+	
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	public EndpointType getBodyContentType() {
+		return EndpointType.fromValue(bodyContentType);
+	}
+	
+	public void setBodyContentType(EndpointType contentType) {
+		this.bodyContentType = contentType.toValue();
+	}
+		
 }

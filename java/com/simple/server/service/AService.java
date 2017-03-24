@@ -70,7 +70,7 @@ public abstract class AService implements IService{
 	}	
 	
 	@Override
-	public <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String, Object> params, int topNum, Map<String,MiscType> orders) throws Exception {
+	public synchronized <T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String, Object> params, int topNum, Map<String,MiscType> orders) throws Exception {
 		List<T> res = getDao().<T>readbyCriteria(clazz,params, topNum, orders);
 		return res;
 	}

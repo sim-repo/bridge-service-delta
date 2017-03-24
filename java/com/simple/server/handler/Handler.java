@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 
 import com.simple.server.config.AppConfig;
 
+
+
 @Component("busMsgHandler")
 public class Handler {
 	@Autowired
@@ -14,12 +16,12 @@ public class Handler {
 		return appConfig;
 	}	
 	
-	public void handleJsonMsg(String json) throws Exception {		
-	System.out.println("bridge:::::" + json);
+	public void handleJsonMsg(String json) throws Exception {						
 		try{
-		getAppConfig().getQueueDirty().put(json);
+			getAppConfig().getQueueDirty().put(json);
 		}catch(Exception ex){
 			ex.printStackTrace();
+			getAppConfig().getLogger().warn("This is warn : " +ex.getMessage());
 		}
 	}	
 }

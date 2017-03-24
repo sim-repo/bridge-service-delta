@@ -33,9 +33,23 @@
 		</property>
 	
 		<property name="subscriberHandler" column="[subscriber_handler]" />		
-		<property name="subscriberStoreClass" column="[subscriber_store_class]" />		
+		<property name="subscriberStoreClass" column="[subscriber_store_class]" />
+		
+		<property name="responseContentType" column="[content_type]">
+		    <type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.ContentType</param>
+		        <param name="useNamed">true</param>
+		    </type>
+		</property>
+					
+				
 		<property name="isDirectInsert" column="[is_direct_insert]" />
 		
-							
+		<property name="bodyContentType" column="[body_content_type]">
+		    <type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.ContentType</param>
+		        <param name="useNamed">true</param>
+		    </type>
+		</property>					
 	</class>
 </hibernate-mapping>

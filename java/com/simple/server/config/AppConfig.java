@@ -2,6 +2,8 @@ package com.simple.server.config;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -45,6 +47,8 @@ public class AppConfig {
 	private LinkedBlockingQueue<IContract> queueSub;
 	private LinkedBlockingQueue<IContract> queueLog;
 	
+	
+	private static final Logger logger = LogManager.getLogger(AppConfig.class);
 	
 	private Mediator mediator = new Mediator();   
 	
@@ -286,6 +290,10 @@ public class AppConfig {
 
 	public PhaserRunner getPhaserRunner() {
 		return phaserRunner;
+	}
+
+	public static Logger getLogger() {
+		return logger;
 	}
 
 	public void initQueueDirty(int size){

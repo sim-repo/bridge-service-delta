@@ -18,7 +18,7 @@
 	<bean id="navDS"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=SimpleERPCopyNav;" />
+		<property name="url" value="jdbc:sqlserver://MSK10NAV55;databaseName=SimpleERP;" />
 		<property name="username" value="jservice" />
 		<property name="password" value="Larina123" />
 	</bean>
@@ -96,9 +96,16 @@
 		</property>
 		<property name="mappingResources">
 			<list>																		
+				<!-- 
 				<value>hbm/NavSorder.hbm.xml</value>
 				<value>hbm/NavSalesLine.hbm.xml</value>
 				<value>hbm/NavCust.hbm.xml</value>
+				 -->
+				<value>hbm/UniIncomingBuffer.hbm.xml</value>
+				<value>hbm/UniPubErrLog.hbm.xml</value>
+				<value>hbm/UniSubErrLog.hbm.xml</value>
+				<value>hbm/UniPubSuccessLog.hbm.xml</value>
+				<value>hbm/UniPubConfirm.hbm.xml</value>
 			</list>
 		</property>		
 	</bean>	
@@ -230,8 +237,11 @@
 				<value>hbm/RoutingSub.hbm.xml</value>				
 				<value>hbm/RoutingSubErr.hbm.xml</value>
 				
+				<value>hbm/HotPubMsg.hbm.xml</value>
+				
 				<value>hbm/LogPub.hbm.xml</value>
 				<value>hbm/LogPubMsg.hbm.xml</value>
+				<value>hbm/LogPubSuccessMsg.hbm.xml</value>
 								
 				<value>hbm/LogBusReplyMsg.hbm.xml</value>	
 				<value>hbm/UniMsg.hbm.xml</value>																		

@@ -6,6 +6,7 @@
 <hibernate-mapping package="com.simple.server.domain.contract">
 						
 	<class name="ErrSubMsg" table="[ESB Subscribe Log]">
+	
 		<id name="id" column="[entry no]">
 			<generator class="native" />
 		</id>					
@@ -29,7 +30,7 @@
 		        <param name="useNamed">true</param>
 		    </type>
 		</property>
-
+												
 		<property name="publisherId" column="[publisher_id]">
 		    <type name="org.hibernate.type.EnumType">
 		        <param name="enumClass">com.simple.server.config.EndpointType</param>
@@ -37,8 +38,8 @@
 		    </type>
 		</property>
 		
-		<property name="publisherHandler" column="[publisher_handler]" />
-				
+		
+													
 		<property name="errorId" column="[error_id]">
 		    <type name="org.hibernate.type.EnumType">
 		        <param name="enumClass">com.simple.server.config.ErrorType</param>
@@ -46,8 +47,8 @@
 		    </type>
 		</property>
 		
+		<property name="publisherHandler" column="[publisher_handler]" />
 		<property name="details" column="[details]" />
-		
-				
+						
 	</class>
 </hibernate-mapping>
