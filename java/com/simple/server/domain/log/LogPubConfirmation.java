@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
-import com.simple.server.config.EventType;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.RoutingPubConfirmMsg;
 import com.simple.server.domain.contract.BusPubMsg;

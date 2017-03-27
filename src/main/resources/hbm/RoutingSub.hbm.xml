@@ -25,13 +25,7 @@
 		</property>
 		
 				
-		<property name="eventId" column="[event_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EventType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-	
+		<property name="eventId" column="[event_id]"/>	
 		<property name="subscriberHandler" column="[subscriber_handler]" />		
 		<property name="subscriberStoreClass" column="[subscriber_store_class]" />
 		

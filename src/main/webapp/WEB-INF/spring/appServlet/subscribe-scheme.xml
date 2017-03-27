@@ -17,6 +17,10 @@
         <property name="brokerURL" value="tcp://localhost:61616"/>
     </bean>                                  
 	    
+	    
+<!-- 	    
+	<int:channel id="serviceCommonTopicChannel" />   	   
+	    
     <int-jms:message-driven-channel-adapter 
     	id="messageDrivenAdapter"
     	channel="serviceCommonTopicChannel" 
@@ -24,25 +28,41 @@
     	pub-sub-domain="true" 
     	receive-timeout="1" />
         
-    <int:channel id="serviceCommonTopicChannel" />
-    
+
 	<int:header-value-router input-channel="serviceCommonTopicChannel" 
 							 header-name="msgType" 
 							 default-output-channel="noTypeMatchChannel">
 	    <int:mapping value="json" channel="jsonChannel" />
 	    <int:mapping value="xml" channel="xmlChannel" />
 	</int:header-value-router>
+ -->        
+   
+    <int:channel id="srvHealthTopicChannel" />
+    <int:channel id="srvPerfomTopicChannel" />	  
+                        
+    <int-jms:message-driven-channel-adapter id="messageDrivenAdapter"
+    	channel="srvHealthTopicChannel" destination-name="srv.health.topic"
+    	pub-sub-domain="true" receive-timeout="1" />
 
-	<int:channel id="jsonChannel" />
+    <int-jms:message-driven-channel-adapter id="messageDrivenAdapter"
+    	channel="srvPerfomTopicChannel"
+    	destination-name="srv.perfomance.topic" pub-sub-domain="true"
+    	receive-timeout="1" auto-startup="true" />
+
+
+    <int:channel id="jsonChannel" />
 	<int:channel id="xmlChannel" />
 
 	<int:service-activator input-channel="jsonChannel"
-    	ref="serviceMessageHandler" method="handleJson" send-timeout="1"
+    	ref="srvMsgHandler" method="handleSrvJsonMsg" send-timeout="1"
     	requires-reply="false" />
 
 	<int:service-activator input-channel="xmlChannel"
-    	ref="serviceMessageHandler" method="handleXml" send-timeout="1"
+    	ref="srvMsgHandler" method="handleSrvJsonMsg" send-timeout="1"
+    	requires-reply="false" />
+    	
+    <int:service-activator input-channel="srvPerfomTopicChannel"
+    	ref="srvMsgHandler" method="handleSrvJsonMsg" send-timeout="1"
     	requires-reply="false" />
         
-
 </beans>

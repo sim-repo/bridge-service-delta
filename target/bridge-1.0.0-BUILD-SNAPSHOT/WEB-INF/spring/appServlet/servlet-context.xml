@@ -23,10 +23,7 @@
 	<context:component-scan base-package="com.simple.server" />
 	<context:property-placeholder location="config/config.properties" />	
 		
-	<!-- 
-	<beans:import resource="subscribe-scheme.xml"/>
-	  
-	  -->
+	<beans:import resource="subscribe-settings.xml"/>
 	<beans:import resource="hibernate-settings.xml"/>
 	<beans:import resource="inbound-gateway-scheme.xml"/> 
 	<beans:import resource="outbound-gateway-scheme.xml"/>

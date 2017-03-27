@@ -11,14 +11,7 @@
 		</id>					
 		
 		<property name="logDatetime" column="[datetime]" />
-				
-		<property name="eventId" column="[event_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EventType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-	
+		<property name="eventId" column="[event_id]"/>	
 		<property name="juuid" column="[guid]" />
 				
 		<property name="senderId" column="[publisher_id]">

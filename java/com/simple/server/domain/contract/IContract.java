@@ -10,7 +10,6 @@ import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
-import com.simple.server.config.EventType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.IRec;
 import com.simple.server.util.BusMsgJsonDeserializer;
@@ -31,8 +30,8 @@ public interface IContract extends Serializable {
 	
 	String getJuuid();	
 	void setJuuid(String juuid);
-	EventType getEventId();
-	void setEventId(EventType eventId);
+	String getEventId();
+	void setEventId(String eventId);
 	EndpointType getEndPointId();
 	void setEndPointId(EndpointType endPointId);
 	EndpointType getPublisherId();

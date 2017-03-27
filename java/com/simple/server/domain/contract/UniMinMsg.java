@@ -1,7 +1,6 @@
 package com.simple.server.domain.contract;
 
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EventType;
 import com.simple.server.util.ObjectConverter;
 
 public class UniMinMsg {
@@ -26,11 +25,11 @@ public class UniMinMsg {
 	public void setJuuid(String juuid) {
 		this.juuid = juuid;
 	}
-	public EventType getEventId() {
-		return EventType.valueOf(eventId);
+	public String getEventId() {
+		return eventId;
 	}
-	public void setEventId(EventType eventId) {
-		this.eventId = eventId.toValue();
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
 	}
 	public String getBody() {
 		return body;

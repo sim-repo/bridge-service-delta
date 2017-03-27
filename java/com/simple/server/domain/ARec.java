@@ -1,7 +1,6 @@
 package com.simple.server.domain;
 
 import com.simple.server.config.EndpointType;
-import com.simple.server.config.EventType;
 
 public abstract class ARec implements IRec{
 	
@@ -23,11 +22,11 @@ public abstract class ARec implements IRec{
 		return juuid;
 	}
 	@Override
-	public EventType getEventId() {
-		return EventType.valueOf(eventId);
+	public String getEventId() {
+		return eventId;
 	}
 	@Override
-	public void setEventId(EventType eventId) {
-		this.eventId = eventId.toString();
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
 	}
 }

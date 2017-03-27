@@ -44,5 +44,4 @@
     	ref="serviceMessageHandler" method="handleXml" send-timeout="1"
     	requires-reply="false" />
         
-
 </beans>

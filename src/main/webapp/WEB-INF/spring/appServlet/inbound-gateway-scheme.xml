@@ -45,7 +45,7 @@
 
 	<int:service-activator id="sorder-activator"
                                          ref="busMsgHandler"
-                                         method="handleJsonMsg"
+                                         method="handleBusJsonMsg"
                                          input-channel="busReaderChannel"/>	                                                                                                                        
                                                                               
                                                                                 		 	
