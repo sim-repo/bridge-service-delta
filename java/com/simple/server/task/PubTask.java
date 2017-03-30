@@ -35,6 +35,7 @@ import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
+import com.simple.server.util.DateConvertHelper;
 
 @Service("PubTask")
 @Scope("prototype")
@@ -84,126 +85,129 @@ public class PubTask extends ATask {
 		List<ErrPubMsg> errList = new ArrayList();
 		List<SuccessPubMsg> successList = new ArrayList();
 		List<SubRouting> subRoutes = null;
-		String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
-		for (IContract msg : list) {
-			try {
-				if(msg.getPublisherId().equals(EndpointType.UNKNOWN)){
-					msg.setPublisherId(msg.getSenderId());
-				}
-				
-				HotPubMsg hotPubMsg = new HotPubMsg();
-				hotPubMsg.copyFrom(msg);
-				hotPubMsg.setLogDatetime(logDatetime);
-				service.insertAsIs(hotPubMsg);
-				
-				Map<String, Object> map = new HashMap();
-				map.put("eventId", msg.getEventId());
-				map.put("publisherId", msg.getSenderId());
-				pubErrRoutes = service.<PubErrRouting>readbyCriteria(PubErrRouting.class, map, 1, null);
-				if (pubErrRoutes == null || pubErrRoutes.size() == 0) {
-					this.collectError(errList, msg, null,
-							new Exception(String.format(
-									"[routing PUB err] - no records found by filters %s: < %s >, %s: < %s > ",
-									"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId())),
-							null);
-				}																
-				
-				
-				
-				pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(PubSuccessRouting.class, map, 1, null);
-				if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
-					this.collectError(errList, msg, null,
-							new Exception(String.format(
-									"[routing PUB success] - no records by filters %s: < %s >, %s: < %s > ",
-									"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId()
-
-							)), null);
-				}
-
-							
-				map = new HashMap();
-				map.put("eventId", msg.getEventId());
-				map.put("senderId", msg.getSenderId());
-				if(msg.getSubscriberId() != null && msg.getSubscriberId() != EndpointType.UNKNOWN)
-					map.put("subscriberId", msg.getSubscriberId());
-				subRoutes = service.<SubRouting>readbyCriteria(SubRouting.class, map, 0, null);
-				if (subRoutes == null || subRoutes.size() == 0) {
-					this.collectError(errList, msg, null,
-							new Exception(String.format(
-									"[routing SUB] - no records found by filters %s: < %s >, %s: < %s > ",
-									"eventId", msg.getEventId(), "senderId", msg.getSenderId())),
-							pubErrRoutes);
-					continue;
-				}
-
-				SubRouting subRoute = null;
-				for (IContract r : subRoutes) {
-					try {
-						subRoute = (SubRouting) r;
-
-						if ((subRoute.getSubscriberStoreClass() == null
-								|| subRoute.getSubscriberStoreClass().equals(""))
-								&& (subRoute.getSubscriberHandler() == null
-										|| subRoute.getSubscriberHandler().equals(""))) {
-							this.collectError(errList, msg, subRoute,
-									new Exception(String.format(
-											"[routing SUB].[id]: %s,  [subscriber_handler] && [subscriber_store_class] both are empty or null",
-											subRoute.getId())),
-									pubErrRoutes);
-							continue;
-						}
-
-						if (subRoute.getSubscriberHandler() != null && !subRoute.getSubscriberHandler().equals("")) {
-							msg.setResponseURI(subRoute.getSubscriberHandler());
-							
-							IContract newMsg = null;							
-							if(msg instanceof UniMsg){
-								UniMinMsg uniMinMsg = new UniMinMsg();								
-									
-								UniMsg oldMsg = (UniMsg)msg;
-								uniMinMsg.setBody(oldMsg.getBody());							
-								uniMinMsg.setEventId(oldMsg.getEventId());
-								uniMinMsg.setJuuid(oldMsg.getJuuid());
-								uniMinMsg.setDatetime(oldMsg.getLogDatetime());	
-								uniMinMsg.setContentType(subRoute.getResponseContentType());
-								uniMinMsg.setUrl(oldMsg.getResponseURI());
-								uniMinMsg.bodyTransform(subRoute.getBodyContentType());
-								http.sendHttp(uniMinMsg);
-							}else{
-								newMsg = msg;
-								http.sendHttp(newMsg);
-							}
-														
-						} else if (subRoute.getSubscriberStoreClass() != null
-								&& !subRoute.getSubscriberStoreClass().equals("")) {
-							Class<IContract> clazz = (Class<IContract>) Class
-									.forName(subRoute.getSubscriberStoreClass());
-							Constructor<IContract> ctor = clazz.getConstructor();
-							IContract instance = ctor.newInstance();
-							instance.setEndPointId(subRoute.getSubscriberId());
-							instance.setIsDirectInsert(subRoute.getIsDirectInsert());
-							instance.copyFrom(msg);
-							appConfig.getQueueWrite().put(instance);
-						}
-
-						this.collectSuccess(successList, msg, subRoute, pubSuccessRoutes);
-
-						BusPubMsg pubMsg = new BusPubMsg();
-						pubMsg.copyFrom(msg);
-						appConfig.getQueueLog().put(pubMsg);
-					} catch (Exception e) {
-						this.collectError(errList, msg, subRoute, new Exception(e.getMessage()),pubErrRoutes);
+		String logDatetime = DateConvertHelper.getCurDate();
+		try {
+			for (IContract msg : list) {
+				try {
+					if (msg.getPublisherId().equals(EndpointType.UNKNOWN)) {
+						msg.setPublisherId(msg.getSenderId());
 					}
+
+					HotPubMsg hotPubMsg = new HotPubMsg();
+					hotPubMsg.copyFrom(msg);
+					hotPubMsg.setLogDatetime(logDatetime);
+					service.insertAsIs(hotPubMsg);
+
+					Map<String, Object> map = new HashMap();
+					map.put("eventId", msg.getEventId());
+					map.put("publisherId", msg.getSenderId());
+					pubErrRoutes = service.<PubErrRouting>readbyCriteria(PubErrRouting.class, map, 1, null);
+					if (pubErrRoutes == null || pubErrRoutes.size() == 0) {
+						this.collectError(errList, msg, null,
+								new Exception(String.format(
+										"[routing PUB err] - no records found by filters %s: < %s >, %s: < %s > ",
+										"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId())),
+								null);
+					}
+
+					pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(PubSuccessRouting.class, map, 1, null);
+					if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
+						this.collectError(errList, msg, null,
+								new Exception(String.format(
+										"[routing PUB success] - no records by filters %s: < %s >, %s: < %s > ",
+										"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId()
+
+								)), null);
+					}
+
+					map = new HashMap();
+					map.put("eventId", msg.getEventId());
+					map.put("senderId", msg.getSenderId());
+					if (msg.getSubscriberId() != null && msg.getSubscriberId() != EndpointType.UNKNOWN)
+						map.put("subscriberId", msg.getSubscriberId());
+					subRoutes = service.<SubRouting>readbyCriteria(SubRouting.class, map, 0, null);
+					if (subRoutes == null || subRoutes.size() == 0) {
+						this.collectError(errList, msg, null,
+								new Exception(String.format(
+										"[routing SUB] - no records found by filters %s: < %s >, %s: < %s > ",
+										"eventId", msg.getEventId(), "senderId", msg.getSenderId())),
+								pubErrRoutes);
+						continue;
+					}
+
+					SubRouting subRoute = null;
+					for (IContract r : subRoutes) {
+						try {
+							subRoute = (SubRouting) r;
+
+							if ((subRoute.getSubscriberStoreClass() == null
+									|| subRoute.getSubscriberStoreClass().equals(""))
+									&& (subRoute.getSubscriberHandler() == null
+											|| subRoute.getSubscriberHandler().equals(""))) {
+								this.collectError(errList, msg, subRoute,
+										new Exception(String.format(
+												"[routing SUB].[id]: %s,  [subscriber_handler] && [subscriber_store_class] both are empty or null",
+												subRoute.getId())),
+										pubErrRoutes);
+								continue;
+							}
+
+							if (subRoute.getSubscriberHandler() != null
+									&& !subRoute.getSubscriberHandler().equals("")) {
+								msg.setResponseURI(subRoute.getSubscriberHandler());
+
+								IContract newMsg = null;
+								if (msg instanceof UniMsg) {
+									UniMinMsg uniMinMsg = new UniMinMsg();
+
+									UniMsg oldMsg = (UniMsg) msg;
+									uniMinMsg.setBody(oldMsg.getBody());
+									uniMinMsg.setEventId(oldMsg.getEventId());
+									uniMinMsg.setJuuid(oldMsg.getJuuid());
+									uniMinMsg.setDatetime(oldMsg.getLogDatetime());
+									uniMinMsg.setContentType(subRoute.getResponseContentType());
+									uniMinMsg.setUrl(oldMsg.getResponseURI());
+									uniMinMsg.bodyTransform(subRoute.getBodyContentType());
+									http.sendHttp(uniMinMsg);
+								} else {
+									newMsg = msg;
+									http.sendHttp(newMsg);
+								}
+
+							} else if (subRoute.getSubscriberStoreClass() != null
+									&& !subRoute.getSubscriberStoreClass().equals("")) {
+								Class<IContract> clazz = (Class<IContract>) Class
+										.forName(subRoute.getSubscriberStoreClass());
+								Constructor<IContract> ctor = clazz.getConstructor();
+								IContract instance = ctor.newInstance();
+								instance.setEndPointId(subRoute.getSubscriberId());
+								instance.setIsDirectInsert(subRoute.getIsDirectInsert());
+								instance.copyFrom(msg);
+								appConfig.getQueueWrite().put(instance);
+							}
+
+							this.collectSuccess(successList, msg, subRoute, pubSuccessRoutes);
+
+							BusPubMsg pubMsg = new BusPubMsg();
+							pubMsg.copyFrom(msg);
+							appConfig.getQueueLog().put(pubMsg);
+						} catch (Exception e) {
+							this.collectError(errList, msg, subRoute, new Exception(e.getMessage()), pubErrRoutes);
+						}
+					}
+				} catch (Exception e) {
+					this.collectError(errList, msg, null, new Exception(e.getMessage()), pubErrRoutes);
 				}
-			} catch (Exception e) {
-				this.collectError(errList, msg, null, new Exception(e.getMessage()), pubErrRoutes);
 			}
+		} catch (Exception e) {
+			//exception in collectError
+			//TODO Exception to log
+		} finally {
+			sendErrors(errList);
+			sendSuccess(successList);
+			this.throwToStatistic(list.size());
+			list.clear();
 		}
-
-		sendErrors(errList);
-		sendSuccess(successList);
-
-		list.clear();
 	}
 
 	private void sendErrors(List<ErrPubMsg> errList) {
@@ -236,11 +240,11 @@ public class PubTask extends ATask {
 					ErrPubMsg newErr = new ErrPubMsg();
 					newErr.setErrorId(ErrorType.PubTask);
 					newErr.setOperationType(OperationType.PUB);
-					newErr.setResponseContentType(ContentType.ApplicationJson);									
-					if(e.getCause() != null)
+					newErr.setResponseContentType(ContentType.ApplicationJson);
+					if (e.getCause() != null)
 						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-					else 
-						newErr.setDetails(String.format("%s", e.getMessage()));										
+					else
+						newErr.setDetails(String.format("%s", e.getMessage()));
 					newErr.setEventId(err.getEventId());
 					newErr.setJuuid(err.getJuuid());
 					newErr.setSenderId(err.getSenderId());
@@ -285,10 +289,10 @@ public class PubTask extends ATask {
 				try {
 					ErrPubMsg newErr = new ErrPubMsg();
 					newErr.setErrorId(ErrorType.PubTask);
-					if(e.getCause() != null)
+					if (e.getCause() != null)
 						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-					else 
-						newErr.setDetails(String.format("%s", e.getMessage()));	
+					else
+						newErr.setDetails(String.format("%s", e.getMessage()));
 					newErr.setEventId(success.getEventId());
 					newErr.setJuuid(success.getJuuid());
 					newErr.setSenderId(success.getSenderId());
@@ -307,16 +311,16 @@ public class PubTask extends ATask {
 	private void collectError(List<ErrPubMsg> list, IContract msg, SubRouting subRouting, Exception e,
 			List<PubErrRouting> routings) {
 		ErrPubMsg err = null;
-		String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
+		String logDatetime = DateConvertHelper.getCurDate();
 
 		if (routings == null) {
 			err = new ErrPubMsg();
 			err.setErrorId(ErrorType.PubTask);
 			err.setOperationType(OperationType.PUB);
-			if(e.getCause() != null)
+			if (e.getCause() != null)
 				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-			else 
-				err.setDetails(String.format("%s", e.getMessage()));	
+			else
+				err.setDetails(String.format("%s", e.getMessage()));
 			err.setEventId(msg.getEventId());
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
@@ -326,26 +330,26 @@ public class PubTask extends ATask {
 			}
 			err.setLogDatetime(logDatetime);
 			list.add(err);
-						
+
 		} else {
 			for (PubErrRouting routing : routings) {
 				err = new ErrPubMsg();
 				err.setErrorId(ErrorType.PubTask);
 				err.setOperationType(OperationType.PUB);
-				if(e.getCause() != null)
+				if (e.getCause() != null)
 					err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-				else 
-					err.setDetails(String.format("%s", e.getMessage()));	
+				else
+					err.setDetails(String.format("%s", e.getMessage()));
 				err.setEventId(msg.getEventId());
 				err.setJuuid(msg.getJuuid());
 				err.setSenderId(msg.getSenderId());
 				err.setEndPointId(msg.getSenderId());
-				
-				if(routing.getPublisherHandler() != null && routing.getPublisherHandler() != "")
+
+				if (routing.getPublisherHandler() != null && routing.getPublisherHandler() != "")
 					err.setResponseURI(routing.getPublisherHandler());
-				if(routing.getPublisherStoreClass() != null && routing.getPublisherStoreClass() != "")
+				if (routing.getPublisherStoreClass() != null && routing.getPublisherStoreClass() != "")
 					err.setStoreClass(routing.getPublisherStoreClass());
-								
+
 				if (subRouting != null) {
 					err.setSubscriberId(subRouting.getSubscriberId());
 					err.setSubscriberHandler(subRouting.getSubscriberHandler());
@@ -360,7 +364,7 @@ public class PubTask extends ATask {
 	private void collectSuccess(List<SuccessPubMsg> list, IContract msg, SubRouting subRouting,
 			List<PubSuccessRouting> routings) {
 		SuccessPubMsg success = null;
-		String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
+		String logDatetime = DateConvertHelper.getCurDate();
 
 		if (routings == null || routings.size() == 0) {
 			success = new SuccessPubMsg();

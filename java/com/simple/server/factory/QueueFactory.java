@@ -30,6 +30,19 @@ public class QueueFactory {
 			appConfig.getQueueSub().put(msg);
 			return;
 		}	
+		else if(OperationType.SUB.equals(msg.getOperationType())){			
+			appConfig.getQueueSub().put(msg);
+			return;
+		}
+		else if(OperationType.MON_START.equals(msg.getOperationType())){
+			appConfig.getQueueMon().put(msg);
+			return;
+		}
+		else if(OperationType.MON_REP.equals(msg.getOperationType())){
+			appConfig.getQueueMon().put(msg);
+			return;
+		}
 		throw new Exception("bridge-service: operation type can not be null");
+		//TODO: Exception to log		
 	}
 }

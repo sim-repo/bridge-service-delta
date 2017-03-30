@@ -11,11 +11,12 @@ import com.simple.server.domain.IRec;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.IncomingBufferMsg;
 import com.simple.server.domain.contract.UniMsg;
+import com.simple.server.util.DateConvertHelper;
 
 public class IncomingBuffer extends ARec implements IRec{
 
 	private int id;
-	private String creationDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime()); 
+	private String creationDatetime =DateConvertHelper.getCurDate(); 
 	private String juuid;
 	private String body;
 

@@ -75,12 +75,17 @@ public abstract class ATask extends Observable implements ITask, Callable, Obser
     public void setIsActive(Boolean flag) {
         isActive = flag;
     }
-
+    
+    @Override
     public void setStatistic(Statistic statistic) {
         this.statistic = statistic;
-    }
+    }        
+    
+    public Statistic getStatistic() {
+		return statistic;
+	}
 
-    public void throwToStatistic(int qty){
+	public void throwToStatistic(int qty){
         if (statistic != null)
             statistic.setCurrUnitSum(qty);
     }
@@ -219,6 +224,7 @@ public abstract class ATask extends Observable implements ITask, Callable, Obser
                 e.printStackTrace(new PrintWriter(errors));
                 state.setMessage(errors.toString());
                 notifyObservers(state);
+                //TODO Exception to log
             }
         }
 

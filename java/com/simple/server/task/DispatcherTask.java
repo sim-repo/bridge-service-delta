@@ -47,7 +47,9 @@ public class DispatcherTask extends ATask {
         }      
         
         Thread.currentThread().sleep(Timing.getTimeMaxSleep());
-        getAppConfig().getQueueDirty().drainTo(list, MAX_NUM_ELEMENTS);        	
+        getAppConfig().getQueueDirty().drainTo(list, MAX_NUM_ELEMENTS);
+        
+                
         try{
 	        for(String json: list) {  	        	
 	        	IContract msg = mapper.readValue(json, IContract.class);

@@ -9,8 +9,8 @@
         <property name="trustAllPackages" value="true"/>	
     </bean>
 
-    <bean id="syncQueue" class="org.apache.activemq.command.ActiveMQQueue">
-        <constructor-arg value="mmm2"/>
+     <bean id="syncQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="amq.bridge.sync.queue"/>
     </bean>
 
 
@@ -28,7 +28,6 @@
         <property name="concurrentConsumers" value="3"/>
         <property name="messageListener" ref="remoteService"/>
     </bean>
-	
 	
 
 </beans>

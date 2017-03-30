@@ -30,6 +30,7 @@ import com.simple.server.http.IHttp;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
+import com.simple.server.util.DateConvertHelper;
 
 @Service("WriteTask")
 @Scope("prototype")
@@ -68,21 +69,17 @@ public class WriteTask extends ATask {
         }
                        
     	Thread.currentThread().sleep(Timing.getTimeMaxSleep());
-                     
-        //while (basePhaser.getCurrNumPhase() != HqlStepsType.START.ordinal()) {
-    	//	if(getAppConfig() .getQueueWrite().size()>0)
-    			getAppConfig() .getQueueWrite().drainTo(list, MAX_NUM_ELEMENTS);
-    	//}  	
+                             
+    	getAppConfig() .getQueueWrite().drainTo(list, MAX_NUM_ELEMENTS);
+    	 	
     		
 		List<ErrPubMsg> errPubList = null;
 		List<SuccessPubMsg> successPubList = null;
 		List<PubErrRouting> pubRoutes = null;
-		
-		
+				
 		List<ErrSubMsg> errSubList = null;
 		List<SuccessSubMsg> successSubList = null;
-		List<SubErrRouting> subRoutes = null;
-		
+		List<SubErrRouting> subRoutes = null;		
 		List<ErrDefMsg> errDefList = null;
 		
 		
@@ -190,7 +187,7 @@ public class WriteTask extends ATask {
 	private <T extends AContract, Z extends AContract> void putErr(Class<T> clazz, IContract msg, List<T> errors, Exception e, List<Z> routes){
 		
 		try{
-			String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
+			String logDatetime = DateConvertHelper.getCurDate();
 					
 			if(routes == null || routes.size() == 0){
 				T err = clazz.newInstance();				

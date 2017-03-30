@@ -93,7 +93,7 @@ public abstract class AService implements IService{
 	public <T extends IContract> List<T> read(String sql, Class<T> clazz) throws Exception {				
 		String json = getDao().readFlatJsonArray(sql);		
 		T t = clazz.newInstance();				
-		List<T> res = ObjectConverter.JsonToObjects(json,clazz);			
+		List<T> res = ObjectConverter.jsonToObjects(json,clazz);			
 		return res;
 	}
 	

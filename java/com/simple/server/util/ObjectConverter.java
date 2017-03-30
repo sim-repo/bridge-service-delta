@@ -17,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -27,7 +26,7 @@ import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 public class ObjectConverter {
 	private ObjectConverter(){}
 		
-	public static String ObjectToJson(Object object){
+	public static String objectToJson(Object object){
 		StringWriter writer = new StringWriter();
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(Include.NON_NULL);
@@ -43,7 +42,7 @@ public class ObjectConverter {
 		return writer.toString();
 	}
 	
-	public static Object JsonToObject(String json, Object object){
+	public static Object jsonToObject(String json, Object object){
 		ObjectMapper mapper = new ObjectMapper();
 		final ObjectReader reader = mapper.reader();
 		try {
@@ -56,7 +55,7 @@ public class ObjectConverter {
 		return object;
 	}
 	
-	public static <T> List<T> JsonToObjects(String json, Class<T> clazz){
+	public static <T> List<T> jsonToObjects(String json, Class<T> clazz){
 		ObjectMapper mapper = new ObjectMapper().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		TypeFactory t = TypeFactory.defaultInstance();
 		
@@ -74,7 +73,7 @@ public class ObjectConverter {
 		return res;
 	}
 		
-	public static String ObjectToXml(Object object) throws Exception{
+	public static String objectToXml(Object object) throws Exception{
 		XmlMapper xmlMapper = new XmlMapper();
 		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
 		String xml = xmlMapper.writeValueAsString(object);		
@@ -82,7 +81,7 @@ public class ObjectConverter {
 	}
 	
 	
-	public static String JsonToXml(String json) throws Exception{
+	public static String jsonToXml(String json) throws Exception{
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> map = mapper.readValue(json, new TypeReference<Map<String,Object>>(){});
 		XmlMapper xmlMapper = new XmlMapper();

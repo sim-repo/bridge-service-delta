@@ -15,68 +15,97 @@ public class HttpImpl implements IHttp {
 	@Override
 	public void sendHttp(IContract contract) throws Exception{
 		AContract msg = (AContract)contract;
-		try{						
-			ContentType contentType = msg.getResponseContentType();
-			String body = null;
-			String sContentType = null;
-			
+		ContentType contentType = msg.getResponseContentType();
+		String body = null;
+		String sContentType = null;
+		
+		try{									
+						
 			if(ContentType.XmlPlainText.equals(contentType)){
-				body = ObjectConverter.ObjectToXml(msg);
+				body = ObjectConverter.objectToXml(msg);
 				sContentType = "text/plain;charset=utf-8";								
 				send(msg, body, sContentType);
 			}
 			else if(ContentType.ApplicationJson.equals(contentType)){
-				body = ObjectConverter.ObjectToJson(msg);
+				body = ObjectConverter.objectToJson(msg);				
 				sContentType = "application/json;charset=utf-8";								
 				send(msg, body, sContentType);
 			}
 			else if(ContentType.ApplicationXml.equals(contentType)){
-				body = ObjectConverter.ObjectToXml(msg);
+				body = ObjectConverter.objectToXml(msg);
 				sContentType = "application/xml;charset=utf-8";								
 				send(msg, body, sContentType);
 			}
-			else{
-				body = ObjectConverter.ObjectToJson(msg);
+			else{				
+				body = ObjectConverter.objectToJson(msg);
 				sContentType = "text/plain;charset=utf-8";
 				send(msg, body, sContentType);							
 			}
+			//System.out.println("bridge:::::sendHttp(IContract) "+body);
 		}
 		catch(RestClientException ex){
-			throw new Exception(String.format("HttpResponse: sendJsonTextPlain, url: <%s>. %s", msg.getResponseURI(), ex.getMessage()));
+			//System.out.println("bridge:::::sendHttp(IContract) "+body);
+			if(ex.getCause()==null){
+				throw new Exception(String.format("HttpImpl(IContract) url: < %s >, content-type: < %s >, < %s >", 
+						msg.getResponseURI(), 
+						contentType, 
+						ex.getMessage()));
+			}else{
+				throw new Exception(String.format("HttpImpl(IContract) url: < %s >, content-type: < %s >, < %s >, < %s >", 
+						msg.getResponseURI(), 
+						contentType, 
+						ex.getMessage(),
+						ex.getCause()
+						));
+			}		
 		}
 	}
 	
 	@Override
 	public void sendHttp(UniMinMsg msg) throws Exception{	
-		try{						
-			ContentType contentType = msg.getContentType();
-			String body = null;
-			String sContentType = null;
-			
+		ContentType contentType = msg.getContentType();
+		String body = null;
+		String sContentType = null;
+		try{									
+					
 			if(ContentType.XmlPlainText.equals(contentType)){
-				body = ObjectConverter.ObjectToXml(msg);
+				body = ObjectConverter.objectToXml(msg);
 				sContentType = "text/plain;charset=utf-8";								
 				send(msg, body, sContentType);
 			}
 			else if(ContentType.ApplicationJson.equals(contentType)){
-				body = ObjectConverter.ObjectToJson(msg);
+				body = ObjectConverter.objectToJson(msg);
 				sContentType = "application/json;charset=utf-8";								
 				send(msg, body, sContentType);
 			}
 			else if(ContentType.ApplicationXml.equals(contentType)){
-				body = ObjectConverter.ObjectToXml(msg);
+				body = ObjectConverter.objectToXml(msg);
 				sContentType = "application/xml;charset=utf-8";								
 				send(msg, body, sContentType);
 			}
 			else{
-				body = ObjectConverter.ObjectToJson(msg);
+				body = ObjectConverter.objectToJson(msg);
 				sContentType = "text/plain;charset=utf-8";
 				send(msg, body, sContentType);							
 			}
-		}
+			//System.out.println("bridge:::::sendHttp(UniMinMsg) "+body);
+		}				
 		catch(RestClientException ex){
-			throw new Exception(String.format("HttpResponse: sendJsonTextPlain, url: <%s>. %s", msg.getUrl(), ex.getMessage()));
-		}
+			//System.out.println("bridge:::::error Http(UniMinMsg) "+body);
+			if(ex.getCause()==null){
+				throw new Exception(String.format("HttpImpl(UniMinMsg) url: < %s >, content-type: < %s >, < %s >", 
+						msg.getUrl(), 
+						contentType, 
+						ex.getMessage()));
+			}else{
+				throw new Exception(String.format("HttpImpl(UniMinMsg) url: <%s>, content-type: < %s >, < %s >, < %s >", 
+						msg.getUrl(), 
+						contentType, 
+						ex.getMessage(),
+						ex.getCause()
+						));
+			}		
+		}		
 	}
 	
 	

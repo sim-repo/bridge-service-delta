@@ -77,7 +77,7 @@ public class UniMinMsg {
 		 	case XmlPlainText:
 		 	case ApplicationXml: 
 		 		if(isJson){
-		 			this.setBody(ObjectConverter.JsonToXml(body));
+		 			this.setBody(ObjectConverter.jsonToXml(body));
 		 		}
 		 		break;
 		 	default: 

@@ -26,6 +26,7 @@ import com.simple.server.factory.QueueFactory;
 import com.simple.server.factory.ServiceFactory;
 import com.simple.server.mediators.Mediator;
 import com.simple.server.service.IService;
+import com.simple.server.service.sender.Sender;
 
 @Service("appConfig")
 @Scope("singleton")
@@ -34,11 +35,15 @@ public class AppConfig {
 	public final static String DATEFORMAT = "dd.MM.yyyy HH:mm:ss";
 	public final static String SERVICE_ID = "bridge"; 
 	public final static String ROLE_ID = "BRIDGE-SERVICE"; 
+	public final static String LOG_HEADER_NAME = "clazz";
 	
 	@Autowired
     private MessageChannel channelBusLog;	
 	@Autowired
-	private MessageChannel channelSrvLog;
+	private MessageChannel channelSrvLog;	
+	@Autowired
+	private MessageChannel channelMonRep;
+	
 	
 	private LinkedBlockingQueue<String> queueDirty;
 	private LinkedBlockingQueue<IContract> queueRead;
@@ -46,7 +51,7 @@ public class AppConfig {
 	private LinkedBlockingQueue<IContract> queuePub;      	
 	private LinkedBlockingQueue<IContract> queueSub;
 	private LinkedBlockingQueue<IContract> queueLog;
-	
+	private LinkedBlockingQueue<IContract> queueMon;
 	
 	private static final Logger logger = LogManager.getLogger(AppConfig.class);
 	
@@ -142,7 +147,14 @@ public class AppConfig {
 	
 	@Autowired
 	private PhaserRunner phaserRunner;
-	
+		
+	@Autowired 
+	private Sender sender;
+		
+	public Sender getSender() {
+		return sender;
+	}
+
 	public JdbcTemplate getNavJdbcTemplate() {
 		return navJdbcTemplate;
 	}
@@ -259,6 +271,10 @@ public class AppConfig {
 	public MessageChannel getChannelSrvLog() {
 		return channelSrvLog;
 	}
+	
+	public MessageChannel getChannelMonRep() {
+		return channelMonRep;
+	}
 
 	public LinkedBlockingQueue<String> getQueueDirty() {
 		return queueDirty;
@@ -282,6 +298,10 @@ public class AppConfig {
 
 	public LinkedBlockingQueue<IContract> getQueueLog() {
 		return queueLog;
+	}		
+
+	public LinkedBlockingQueue<IContract> getQueueMon() {
+		return queueMon;
 	}
 
 	public QueueFactory getQueueFactory() {
@@ -294,7 +314,7 @@ public class AppConfig {
 
 	public static Logger getLogger() {
 		return logger;
-	}
+	}		
 
 	public void initQueueDirty(int size){
 		this.queueDirty = new LinkedBlockingQueue<>(size);
@@ -318,5 +338,9 @@ public class AppConfig {
 	
 	public void initLog(int size){
 		this.queueLog = new LinkedBlockingQueue<>(size);
+	}
+	
+	public void initMon(int size){
+		this.queueMon= new LinkedBlockingQueue<>(size);
 	}
 }

@@ -11,6 +11,7 @@ import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.IRec;
+import com.simple.server.util.DateConvertHelper;
 
 @SuppressWarnings("serial")
 public abstract class AContract implements IContract {
@@ -316,12 +317,15 @@ public abstract class AContract implements IContract {
 	public void setDetails(String details) {
 		this.details = details;
 	}
+	
+	
+	
 
 	@Override
 	public void copyFrom(IContract _msg) throws Exception{
 		AContract msg = (AContract)_msg;
 		
-		this.setServiceOutDatetime(new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime()));		
+		this.setServiceOutDatetime(DateConvertHelper.getCurDate());		
 		if(this.getJuuid() == null)
 			this.setJuuid(msg.getJuuid());		
 		

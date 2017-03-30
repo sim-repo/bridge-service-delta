@@ -60,5 +60,7 @@ public interface IContract extends Serializable {
 	ErrorType getErrorId();
 	String getDetails();
 	void setDetails(String details);
+	void setServiceOutDatetime(String string);
+	void setServiceIdFrom(String serviceId);
 	
 }

@@ -7,7 +7,8 @@ public class BusMsgHandler extends AbstractMsgHandler{
 	
 	
 	public void handleBusJsonMsg(String json) throws Exception {				
-		System.out.println("bridge-service::::: handleBusJsonMsg"+ json);		
+		System.out.println("bridge-service::::: handleBusJsonMsg"+ json);	
+		getAppConfig().getQueueDirty().put(json);
 	}
 
 	public void handleBusXmlMsg(String xml) throws Exception {

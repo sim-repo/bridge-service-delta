@@ -1,17 +1,34 @@
 package com.simple.server.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import org.hibernate.type.CalendarDateType;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 import org.joda.time.format.DateTimeParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+import com.simple.server.config.AppConfig;
+
+
 
 public class DateConvertHelper {
 	
 	public final static String NAV_DEFAULT_DATE = "1753-01-01 00:00:00";
 	public final static String NAV_DEFAULT_TIME = "000000";
+	
+	@Autowired
+	private AppConfig appConfig;
 	
 	private static final DateTimeFormatter DATE_FORMATTER =  
 		    new DateTimeFormatterBuilder()
@@ -35,6 +52,24 @@ public class DateConvertHelper {
 		        .toFormatter();
 	
 		
+	
+	public static String getCurDate(){
+		return new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
+	}
+	
+	public static Date parse(String sDate){
+		LocalDateTime localDateTime = DATE_FORMATTER.parseLocalDateTime(sDate);
+		return localDateTime.toDate();
+	}
+	
+	public static String format(DateTime date){
+		return new SimpleDateFormat(AppConfig.DATEFORMAT).format(date);
+	}
+	
+	public static String format(Date date){
+		return new SimpleDateFormat(AppConfig.DATEFORMAT).format(date);
+	}
+	
 	public static String dateToNavFormat(String sDate){
 		LocalDate localDate = DATE_FORMATTER.parseLocalDate(sDate);
 		DateTime dateTime = new DateTime(localDate.getYear(),localDate.getMonthOfYear(),localDate.getDayOfMonth(),0,0,0);		

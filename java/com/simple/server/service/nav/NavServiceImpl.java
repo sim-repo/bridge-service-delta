@@ -44,7 +44,7 @@ public class NavServiceImpl extends AService implements INavService{
 				
 		String json = getDao().readFlatJsonArray(sql);		
 		T t = clazz.newInstance();				
-		T t2 = (T)ObjectConverter.JsonToObject(json,t);
+		T t2 = (T)ObjectConverter.jsonToObject(json,t);
 		List<T> res = new ArrayList();
 		res.add(t2);				
 		return res;

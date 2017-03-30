@@ -21,9 +21,11 @@ import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.mediators.Mediator;
 import com.simple.server.mediators.ParameterType;
+import com.simple.server.statistics.PerfomancerStat;
 import com.simple.server.task.ATask;
 import com.simple.server.task.DispatcherTask;
 import com.simple.server.task.ReadTask;
+import com.simple.server.task.StatTask;
 import com.simple.server.task.SubTask;
 import com.simple.server.task.WriteTask;
 import com.simple.server.task.ITask;
@@ -42,6 +44,7 @@ public class TaskRunner  {
 		
     CopyOnWriteArrayList<ExecutorService> executors = new CopyOnWriteArrayList<>();
     ConcurrentHashMap<Object, List<ITask>> tasks = new ConcurrentHashMap<>();
+    CopyOnWriteArrayList<ITask> ltasks = new CopyOnWriteArrayList();
     ConcurrentHashMap<Class<ATask>, Integer> classToRun = new ConcurrentHashMap<>();
     
     
@@ -75,6 +78,7 @@ public class TaskRunner  {
         }
         list.add(t);
         tasks.put(o,list);
+        ltasks.add(t);
     }
 
    
@@ -84,6 +88,9 @@ public class TaskRunner  {
         return null;
     }
 
+    public List<ITask> getAllTasks(){    	
+    	return ltasks;
+    }
     
     public void setParam(ParameterType parameterType, Class clazz, Object object){
         if(tasks.containsKey(clazz)){
@@ -108,6 +115,7 @@ public class TaskRunner  {
         		newRunTask(appConfig.getMediator(), PubTask.class, 1);
         		newRunTask(appConfig.getMediator(), SubTask.class, 1);
         		newRunTask(appConfig.getMediator(), LogSenderTask.class, 1);
+        		newRunTask(appConfig.getMediator(), StatTask.class, 1);        	        		
         		
         		for(Map.Entry<Class<ATask>, Integer> pair: classToRun.entrySet()){
         			Class<ATask> clazz = pair.getKey();
@@ -117,6 +125,8 @@ public class TaskRunner  {
         		
         		BasePhaser hqlPhaser = appConfig.getPhaserRunner().newRunPhaser(appConfig.getMediator(), BasePhaser.class, HqlStepsType.FINISH.ordinal());                        		 	
             	appConfig.getMediator().wakeupAll();
+                     
+            	
         	} catch (Exception e) {
     			e.printStackTrace();
     		}           		

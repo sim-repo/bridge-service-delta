@@ -21,4 +21,5 @@ public interface ITask {
 	    void setOnRuntimeError(CommandType onRuntimeError);
 	    void setDeactivateMySelfAfterTaskDone(Boolean deactivateMySelfAfterTaskDone);
 	    void setSubscriber(Subscriber subscriber);
+	    Statistic getStatistic();
 }

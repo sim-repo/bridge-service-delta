@@ -24,7 +24,6 @@ import com.simple.server.domain.contract.HotPubMsg;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.RoutingPubConfirmMsg;
 import com.simple.server.domain.contract.SubErrRouting;
-import com.simple.server.domain.contract.SuccessPubMsg;
 import com.simple.server.domain.contract.SuccessSubMsg;
 import com.simple.server.domain.contract.BusPubMsg;
 import com.simple.server.http.HttpImpl;
@@ -33,6 +32,7 @@ import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
+import com.simple.server.util.DateConvertHelper;
 
 @Service("SubTask")
 @Scope("prototype")
@@ -85,16 +85,15 @@ public class SubTask extends ATask {
 		List<ErrSubMsg> errList = new ArrayList();
 		List<SuccessSubMsg> successList = new ArrayList();
 		List<SubErrRouting> subErrRoutesList = null;
-		
+
 		SubErrRouting subErrRouting = null;
 		BusPubMsg pubLog = null;
-		Integer lock=0;
+		Integer lock = 0;
 		for (IContract msg : list) {
-			synchronized(lock){
+
 			try {
 				Map<String, Object> map = null;
-				String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT)
-						.format(Calendar.getInstance().getTime());
+				String logDatetime = DateConvertHelper.getCurDate();
 
 				IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
 				map = new HashMap();
@@ -105,23 +104,19 @@ public class SubTask extends ATask {
 				if (subErrRoutesList == null || subErrRoutesList.size() == 0) {
 					this.collectError(errList, msg, null,
 							new Exception(String.format(
-									"[routing sub err] - no records found by filters %s: < %s >, %s: <%s> ", 
-									"[sender_id]",msg.getSenderId(), 
-									"[event_id]", msg.getEventId())));
+									"[routing sub err] - no records found by filters %s: < %s >, %s: <%s> ",
+									"[sender_id]", msg.getSenderId(), "[event_id]", msg.getEventId())));
 				} else
 					subErrRouting = subErrRoutesList.get(0);
 
 				map = new HashMap();
-				map.put("juuid", msg.getJuuid());					
+				map.put("juuid", msg.getJuuid());
 				List<HotPubMsg> hotPubList = service.<HotPubMsg>readbyCriteria(HotPubMsg.class, map, 1, orderMap);
 				if (hotPubList == null || hotPubList.size() == 0) {
 					this.collectError(errList, msg, subErrRouting, new Exception(String
-							.format("[hot pub] - no records found by filter %s: < %s >", 
-									"[guid]", msg.getJuuid())));
+							.format("[hot pub] - no records found by filter %s: < %s >", "[guid]", msg.getJuuid())));
 					continue;
 				}
-
-				
 
 				map = new HashMap();
 				map.put("eventId", msg.getEventId());
@@ -140,14 +135,15 @@ public class SubTask extends ATask {
 
 				if ((confirm.getPublisherHandler() == null || confirm.getPublisherHandler().equals(""))
 						&& (confirm.getPublisherStoreClass() == null || confirm.getPublisherStoreClass().equals(""))) {
-					this.collectError(errList, msg, subErrRouting, 
-							new Exception(
-									String.format("[routing pub confirmation].[id]: %s,  [subscriber_handler] && [subscriber_store_class] both are empty or null",confirm.getId())));
+					this.collectError(errList, msg, subErrRouting,
+							new Exception(String.format(
+									"[routing pub confirmation].[id]: %s,  [subscriber_handler] && [subscriber_store_class] both are empty or null",
+									confirm.getId())));
 				}
-					
+
 				msg.setPublisherId(confirm.getEndPointId());
 				msg.setSubscriberId(msg.getSenderId());
-				
+
 				try {
 					if (confirm.getPublisherHandler() != null && !confirm.getPublisherHandler().equals("")) {
 						msg.setLogDatetime(logDatetime);
@@ -166,23 +162,20 @@ public class SubTask extends ATask {
 						instance.setOperationType(OperationType.SUB);
 						instance.copyFrom(msg);
 						appConfig.getQueueWrite().put(instance);
-					}					
-					this.collectSuccess(successList, msg);					
+					}
+					this.collectSuccess(successList, msg);
 				} catch (Exception e) {
 					this.collectError(errList, msg, subErrRouting, new Exception(e.getMessage()));
 				}
 			} catch (Exception e) {
 				this.collectError(errList, msg, subErrRouting, new Exception(e.getMessage()));
 			}
-			}
 		}
+
 		sendErrors(errList);
 		sendSuccess(successList);
 		list.clear();
 	}
-	
-	
-	
 
 	private void sendErrors(List<ErrSubMsg> errList) {
 		for (ErrSubMsg err : errList) {
@@ -212,16 +205,16 @@ public class SubTask extends ATask {
 					ErrSubMsg newErr = new ErrSubMsg();
 					newErr.setErrorId(ErrorType.SubTask);
 					newErr.setOperationType(OperationType.SUB);
-					if(e.getCause() != null)
+					if (e.getCause() != null)
 						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-					else 
-						newErr.setDetails(String.format("%s", e.getMessage()));	
+					else
+						newErr.setDetails(String.format("%s", e.getMessage()));
 					newErr.setEventId(err.getEventId());
 					newErr.setJuuid(err.getJuuid());
 					newErr.setSenderId(err.getSenderId());
 					newErr.setEndPointId(err.getSenderId());
 					newErr.setSubscriberId(err.getSubscriberId());
-					newErr.setPublisherId(err.getPublisherId());					
+					newErr.setPublisherId(err.getPublisherId());
 					appConfig.getQueueLog().put(err);
 					appConfig.getQueueLog().put(newErr);
 				} catch (InterruptedException e1) {
@@ -232,20 +225,19 @@ public class SubTask extends ATask {
 		errList = null;
 	}
 
-	
 	private void sendSuccess(List<SuccessSubMsg> list) {
-		for(SuccessSubMsg success: list){
+		for (SuccessSubMsg success : list) {
 			try {
-				appConfig.getQueueLog().put(success);			
+				appConfig.getQueueLog().put(success);
 			} catch (Exception e) {
 				try {
 					ErrSubMsg newErr = new ErrSubMsg();
 					newErr.setErrorId(ErrorType.PubTask);
 					newErr.setOperationType(OperationType.SUB);
-					if(e.getCause() != null)
+					if (e.getCause() != null)
 						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-					else 
-						newErr.setDetails(String.format("%s", e.getMessage()));	
+					else
+						newErr.setDetails(String.format("%s", e.getMessage()));
 					newErr.setEventId(success.getEventId());
 					newErr.setJuuid(success.getJuuid());
 					newErr.setSenderId(success.getSenderId());
@@ -257,46 +249,44 @@ public class SubTask extends ATask {
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
-			}		
+			}
 		}
 	}
-	
-	
-	
+
 	private void collectError(List<ErrSubMsg> list, IContract msg, SubErrRouting subErrRouting, Exception e) {
-		
+
 		ErrSubMsg err = null;
-		String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
+		String logDatetime = DateConvertHelper.getCurDate();
 
 		if (subErrRouting == null) {
 			err = new ErrSubMsg();
 			err.setErrorId(ErrorType.SubTask);
 			err.setOperationType(OperationType.SUB);
-			if(e.getCause() != null)
+			if (e.getCause() != null)
 				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-			else 
-				err.setDetails(String.format("%s", e.getMessage()));	
+			else
+				err.setDetails(String.format("%s", e.getMessage()));
 			err.setEventId(msg.getEventId());
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
 			err.setEndPointId(msg.getSenderId());
-			err.setPublisherId(msg.getPublisherId());			
+			err.setPublisherId(msg.getPublisherId());
 			err.setLogDatetime(logDatetime);
-			
+
 			list.add(err);
 		} else {
 			err = new ErrSubMsg();
 			err.setErrorId(ErrorType.SubTask);
 			err.setOperationType(OperationType.SUB);
-			if(e.getCause() != null)
+			if (e.getCause() != null)
 				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
-			else 
-				err.setDetails(String.format("%s", e.getMessage()));	
+			else
+				err.setDetails(String.format("%s", e.getMessage()));
 			err.setEventId(msg.getEventId());
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
 			err.setEndPointId(msg.getSenderId());
-			err.setPublisherId(msg.getPublisherId());			
+			err.setPublisherId(msg.getPublisherId());
 			if (subErrRouting != null) {
 				err.setResponseURI(subErrRouting.getSubscriberHandler());
 				err.setSubscriberId(subErrRouting.getSubscriberId());
@@ -308,18 +298,17 @@ public class SubTask extends ATask {
 			list.add(err);
 		}
 	}
-	
-	
+
 	private void collectSuccess(List<SuccessSubMsg> list, IContract msg) {
-				
-		String logDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime());
+
+		String logDatetime = DateConvertHelper.getCurDate();
 		SuccessSubMsg success = new SuccessSubMsg();
 		success.setEventId(msg.getEventId());
 		success.setJuuid(msg.getJuuid());
 		success.setSenderId(msg.getSenderId());
 		success.setEndPointId(msg.getSenderId());
 		success.setPublisherId(msg.getPublisherId());
-		success.setLogDatetime(logDatetime);	
+		success.setLogDatetime(logDatetime);
 		success.setOperationType(OperationType.SUB);
 		list.add(success);
 	}

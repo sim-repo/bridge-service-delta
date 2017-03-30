@@ -5,11 +5,12 @@ import java.util.Calendar;
 
 import com.simple.server.config.AppConfig;
 import com.simple.server.domain.ARec;
+import com.simple.server.util.DateConvertHelper;
 
 public abstract class ACrmRec extends ARec implements ICrmRec{
 	
 	private int id;
-	private String creationDatetime = new SimpleDateFormat(AppConfig.DATEFORMAT).format(Calendar.getInstance().getTime()); 
+	private String creationDatetime = DateConvertHelper.getCurDate(); 
 	private String juuid;
 
 	

@@ -37,30 +37,18 @@
 	</int:header-value-router>
  -->        
    
-    <int:channel id="srvHealthTopicChannel" />
+  <int:channel id="srvHealthTopicChannel" />
     <int:channel id="srvPerfomTopicChannel" />	  
                         
     <int-jms:message-driven-channel-adapter id="messageDrivenAdapter"
-    	channel="srvHealthTopicChannel" destination-name="srv.health.topic"
+    	channel="srvHealthTopicChannel" destination-name="amq.health.topic"
     	pub-sub-domain="true" receive-timeout="1" />
 
     <int-jms:message-driven-channel-adapter id="messageDrivenAdapter"
     	channel="srvPerfomTopicChannel"
-    	destination-name="srv.perfomance.topic" pub-sub-domain="true"
+    	destination-name="amq.perfomance.topic" pub-sub-domain="true"
     	receive-timeout="1" auto-startup="true" />
-
-
-    <int:channel id="jsonChannel" />
-	<int:channel id="xmlChannel" />
-
-	<int:service-activator input-channel="jsonChannel"
-    	ref="srvMsgHandler" method="handleSrvJsonMsg" send-timeout="1"
-    	requires-reply="false" />
-
-	<int:service-activator input-channel="xmlChannel"
-    	ref="srvMsgHandler" method="handleSrvJsonMsg" send-timeout="1"
-    	requires-reply="false" />
-    	
+	
     <int:service-activator input-channel="srvPerfomTopicChannel"
     	ref="srvMsgHandler" method="handleSrvJsonMsg" send-timeout="1"
     	requires-reply="false" />

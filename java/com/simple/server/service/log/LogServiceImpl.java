@@ -20,7 +20,7 @@ public class LogServiceImpl extends AService implements ILogService{
 	}
 	
 	public void sendAsIs(MessageChannel msgChannel, IContract msg) throws Exception {								
-		String json = ObjectConverter.ObjectToJson(msg);		
+		String json = ObjectConverter.objectToJson(msg);		
 		msgChannel.send( MessageBuilder.withPayload( json ).setHeader(LOG_HEADER_NAME, msg.getClass().getSimpleName()).build() );					
 	}
 }
