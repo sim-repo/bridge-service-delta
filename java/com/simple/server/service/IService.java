@@ -18,9 +18,17 @@ public interface IService {
 	@Transactional
 	void insert(IContract msg) throws Exception;
 	@Transactional
+	void insert(String sql) throws Exception;
+	@Transactional
 	void insertAsIs(IContract msg) throws Exception;
+	@Transactional
 	String readFlatJson(String sql) throws Exception;
+	@Transactional
+	String readComlexJson(String sql) throws Exception;
+	@Transactional
 	String readFlatXml(String sql) throws Exception;
+	@Transactional
+	String getFlatJsonFirstObj(String sql) throws Exception;
 	@Transactional
 	List<IContract> read(IContract msg) throws Exception;
 	@Transactional
@@ -31,4 +39,8 @@ public interface IService {
 	<T extends IContract> List<T> readbyCriteria(Class<T> clazz, Map<String,Object> params, int topNum, Map<String,MiscType> orders) throws Exception;
 	@Transactional()
 	List<IContract> readAll(IContract msg) throws Exception;
+	@Transactional()
+	void deleteAsIs(IContract msg) throws Exception;
+	@Transactional()
+	List<Map<String, Object>> getListMap(String sql) throws Exception;
 }

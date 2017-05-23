@@ -1,6 +1,7 @@
 package com.simple.server.service.remote;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,12 +34,38 @@ public class RemoteServiceImpl implements IRemoteService{
 	}
 
 	@Override
-	public String getFlatJson(String sql, EndpointType endpoint) throws Exception {
+	public void insert(String sql, EndpointType endpoint) throws Exception {
+		IService service = getAppConfig().getServiceFactory().getService(endpoint);
+		service.insert(sql);		
+	}
+	
+	@Override
+	public void delete(IContract msg) throws Exception {
+		IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
+		service.deleteAsIs(msg);
+	}
+	
+	@Override
+	public String getFlatJson(String sql, EndpointType endpoint) throws Exception {	
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
 		String res = service.readFlatJson(sql);
 		return res;
 	}
 
+	@Override
+	public String getFlatJsonFirstObj(String sql, EndpointType endpoint) throws Exception {
+		IService service = getAppConfig().getServiceFactory().getService(endpoint);
+		String res = service.getFlatJsonFirstObj(sql);
+		return res;
+	}
+
+	@Override
+	public String getComplexJson(String sql, EndpointType endpoint) throws Exception {
+		IService service = getAppConfig().getServiceFactory().getService(endpoint);
+		String res = service.readFlatJson(sql);
+		return res;
+	}
+	
 	@Override
 	public String getFlatXml(String sql, EndpointType endpoint) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
@@ -59,7 +86,12 @@ public class RemoteServiceImpl implements IRemoteService{
 		List<IContract> res = service.readAll(msg);
 		return res;
 	}
-	
-	
+
+	@Override
+	public List<Map<String, Object>> getListMap(String sql, EndpointType endpoint) throws Exception {
+		IService service = getAppConfig().getServiceFactory().getService(endpoint);
+		return service.getListMap(sql);		
+	}
+
 	
 }

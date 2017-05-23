@@ -244,7 +244,8 @@
 				<value>hbm/LogPubSuccessMsg.hbm.xml</value>
 								
 				<value>hbm/LogBusReplyMsg.hbm.xml</value>	
-				<value>hbm/UniMsg.hbm.xml</value>																		
+				<value>hbm/UniMsg.hbm.xml</value>	
+				<value>hbm/LogApiItem.hbm.xml</value>																	
 			</list>
 		</property>		
 	</bean>	

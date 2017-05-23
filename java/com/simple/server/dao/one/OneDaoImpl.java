@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.simple.server.config.AppConfig;
 import com.simple.server.dao.ADao;
 import com.simple.server.domain.IRec;
+import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.one.IOneRec;
 
 @Service("oneDao")
@@ -42,4 +43,6 @@ public class OneDaoImpl extends ADao implements IOneDao{
 			    .list();
 		return list;
 	}
+
+
 }

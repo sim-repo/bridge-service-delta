@@ -34,7 +34,7 @@
 	<int:channel id="channelBus"/>	
 	
 	<bean id="brq" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="amq.bridge.async.bus.queue"/>
+		<constructor-arg value="amq.bridge.async.bus.queue"/> <!-- temporary changed -->
 	</bean>
 	
 	<int-jms:inbound-gateway request-channel="channelBus"
@@ -44,7 +44,7 @@
 	
 
 	<int:service-activator id="sorder-activator"
-                                         ref="busMsgHandler"
+                                         ref="busMsgHandler1"
                                          method="handleBusJsonMsg"
                                          input-channel="channelBus"/>	                                                                                                                        
                                                                                                                                                                                                                                                                                 

@@ -31,22 +31,22 @@
 	</bean>	
 		
 	
-	<int:channel id="busReaderChannel"/>	
+	<int:channel id="channelBus"/>	
 	
 	<bean id="brq" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="business.writer.queue"/>
+		<constructor-arg value="amq.bridge.async.bus.queue"/> <!-- temporary changed -->
 	</bean>
 	
-	<int-jms:inbound-gateway request-channel="busReaderChannel"
+	<int-jms:inbound-gateway request-channel="channelBus"
 		request-destination="brq" connection-factory="inboundConnectionFactory"
 		recovery-interval="5" receive-timeout="1" reply-timeout="1"
 		request-timeout="1" />
 	
 
 	<int:service-activator id="sorder-activator"
-                                         ref="busMsgHandler"
+                                         ref="busMsgHandler1"
                                          method="handleBusJsonMsg"
-                                         input-channel="busReaderChannel"/>	                                                                                                                        
-                                                                              
+                                         input-channel="channelBus"/>	                                                                                                                        
+                                                                                                                                                                                                                                                                                
                                                                                 		 	
 </beans>			

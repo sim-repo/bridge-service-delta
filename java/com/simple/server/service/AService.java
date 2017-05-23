@@ -22,8 +22,17 @@ public abstract class AService implements IService{
 
 	@Override	
 	public void insert(IContract msg) throws Exception {
-		IRec rec = getAppConfig().getContractRecFactory().newRec(msg);				
-		getDao().insert(rec);
+		if(msg.getIsDirectInsert())
+			insertAsIs(msg);
+		else{
+			IRec rec = getAppConfig().getContractRecFactory().newRec(msg);				
+			getDao().insert(rec);
+		}
+	}
+	
+	@Override	
+	public void insert(String sql) throws Exception {
+		getDao().insert(sql);					
 	}
 
 	@Override
@@ -36,13 +45,31 @@ public abstract class AService implements IService{
 	public void insertAsIs(IContract msg) throws Exception {
 		getDao().insertAsIs(msg);
 	}
+	
+	@Override
+	public void deleteAsIs(IContract msg) throws Exception {
+		getDao().deleteAsIs(msg);
+	}
+
 
 	@Override
 	public String readFlatJson(String sql) throws Exception {
 		String res = getDao().readFlatJsonArray(sql);
 		return res;
 	}
+	
+	@Override
+	public String readComlexJson(String sql) throws Exception {
+		String res = getDao().readComplexJsonArray(sql);
+		return res;
+	}
 
+	@Override
+	public String getFlatJsonFirstObj(String sql) throws Exception {
+		String res = getDao().getFlatJsonFirstObj(sql);
+		return res;
+	}
+	
 	@Override
 	public String readFlatXml(String sql) throws Exception {
 		String res = getDao().readFlatXml(sql);
@@ -96,6 +123,12 @@ public abstract class AService implements IService{
 		List<T> res = ObjectConverter.jsonToObjects(json,clazz);			
 		return res;
 	}
+
+	@Override
+	public List<Map<String, Object>> getListMap(String sql) throws Exception {
+		return getDao().getListMap(sql);		
+	}
+	
 	
 }
 

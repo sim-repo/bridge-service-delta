@@ -2,7 +2,7 @@ package com.simple.server.handler;
 
 import org.springframework.stereotype.Service;
 
-@Service("busMsgHandler")
+@Service("busMsgHandler1")
 public class BusMsgHandler extends AbstractMsgHandler{
 	
 	
