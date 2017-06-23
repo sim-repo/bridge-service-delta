@@ -23,40 +23,6 @@
 		<property name="password" value="Larina123" />
 	</bean>
 	
-	
-	<bean id="oneDS"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=TestEndpoint1;" />
-		<property name="username" value="jservice" />
-		<property name="password" value="Larina123" />
-	</bean>
-	
-	<bean id="btxDS"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=TestEndpoint2;" />
-		<property name="username" value="jservice" />
-		<property name="password" value="Larina123" />
-	</bean>
-	
-	<bean id="oktellDS"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=TestEndpoint3;" />
-		<property name="username" value="jservice" />
-		<property name="password" value="Larina123" />
-	</bean>
-	
-	<bean id="crmDS"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=TestEndpoint3;" />
-		<property name="username" value="jservice" />
-		<property name="password" value="Larina123" />
-	</bean>
-	
-	
 	<bean id="myDS"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
@@ -96,11 +62,6 @@
 		</property>
 		<property name="mappingResources">
 			<list>																		
-				<!-- 
-				<value>hbm/NavSorder.hbm.xml</value>
-				<value>hbm/NavSalesLine.hbm.xml</value>
-				<value>hbm/NavCust.hbm.xml</value>
-				 -->
 				<value>hbm/UniIncomingBuffer.hbm.xml</value>
 				<value>hbm/UniPubErrLog.hbm.xml</value>
 				<value>hbm/UniSubErrLog.hbm.xml</value>
@@ -109,110 +70,12 @@
 			</list>
 		</property>		
 	</bean>	
+	
 	<bean id="navJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
     		 <property name="dataSource" ref="navDS"/>
 	</bean>
 	
 
-	<bean id="oneSessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="oneDS" />				
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2008Dialect</prop>
-				<prop key="hibernate.show_sql">true</prop>
-			</props>
-		</property>
-		<property name="mappingResources">
-			<list>																		
-				<value>hbm/UniIncomingBuffer.hbm.xml</value>
-				<value>hbm/UniPubErrLog.hbm.xml</value>
-				<value>hbm/UniSubErrLog.hbm.xml</value>
-				<value>hbm/UniPubSuccessLog.hbm.xml</value>
-				<value>hbm/UniPubConfirm.hbm.xml</value>
-			</list>
-		</property>		
-	</bean>	
-	<bean id="oneJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
-    		 <property name="dataSource" ref="oneDS"/>
-	</bean>
-	
-	
-	
-	<bean id="btxSessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="btxDS" />				
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2008Dialect</prop>
-				<prop key="hibernate.show_sql">true</prop>
-			</props>
-		</property>
-		<property name="mappingResources">
-			<list>																		
-				<value>hbm/UniIncomingBuffer.hbm.xml</value>
-				<value>hbm/UniPubErrLog.hbm.xml</value>
-				<value>hbm/UniSubErrLog.hbm.xml</value>
-				<value>hbm/UniPubSuccessLog.hbm.xml</value>
-				<value>hbm/UniPubConfirm.hbm.xml</value>
-			</list>
-		</property>		
-	</bean>	
-	<bean id="btxJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
-    		 <property name="dataSource" ref="btxDS"/>
-	</bean>
-	
-	
-	
-	<bean id="oktellSessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="oktellDS" />				
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2008Dialect</prop>
-				<prop key="hibernate.show_sql">true</prop>
-			</props>
-		</property>
-		<property name="mappingResources">
-			<list>																		
-				<value>hbm/UniIncomingBuffer.hbm.xml</value>
-				<value>hbm/UniPubErrLog.hbm.xml</value>
-				<value>hbm/UniSubErrLog.hbm.xml</value>
-				<value>hbm/UniPubSuccessLog.hbm.xml</value>
-				<value>hbm/UniPubConfirm.hbm.xml</value>
-			</list>
-		</property>		
-	</bean>	
-	<bean id="oktellJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
-    		 <property name="dataSource" ref="oktellDS"/>
-	</bean>
-	
-	
-	<bean id="crmSessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="crmDS" />				
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2008Dialect</prop>
-				<prop key="hibernate.show_sql">true</prop>
-			</props>
-		</property>
-		<property name="mappingResources">
-			<list>																		
-				<value>hbm/UniIncomingBuffer.hbm.xml</value>
-				<value>hbm/UniPubErrLog.hbm.xml</value>
-				<value>hbm/UniSubErrLog.hbm.xml</value>
-				<value>hbm/UniPubSuccessLog.hbm.xml</value>
-				<value>hbm/UniPubConfirm.hbm.xml</value>
-			</list>
-		</property>		
-	</bean>	
-	<bean id="crmJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
-    		 <property name="dataSource" ref="crmDS"/>
-	</bean>
-	
-	
-	
 	<bean id="logSessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="myDS" />
@@ -236,6 +99,7 @@
 				<value>hbm/RoutingPubSuccess.hbm.xml</value>
 				<value>hbm/RoutingSub.hbm.xml</value>				
 				<value>hbm/RoutingSubErr.hbm.xml</value>
+				<value>hbm/RoutingRedirect.hbm.xml</value>
 				
 				<value>hbm/HotPubMsg.hbm.xml</value>
 				
@@ -249,6 +113,8 @@
 			</list>
 		</property>		
 	</bean>	
+	
+	
 	<bean id="logJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">	
     		 <property name="dataSource" ref="myDS"/>
 	</bean>
@@ -266,35 +132,9 @@
 	</bean>
 	
 	
-	<bean id="oneTxManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="oneSessionFactory" />
-	</bean>
-	
-	
-	<bean id="btxTxManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="btxSessionFactory" />
-	</bean>
-	
-	
-	<bean id="oktellTxManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="oktellSessionFactory" />
-	</bean>
-	
-	<bean id="crmTxManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="crmSessionFactory" />
-	</bean>
-	
-	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 	<tx:annotation-driven transaction-manager="txManager"/> 
-	<tx:annotation-driven transaction-manager="oneTxManager"/> 	 
-	<tx:annotation-driven transaction-manager="btxTxManager"/> 	
-	<tx:annotation-driven transaction-manager="oktellTxManager"/> 	
-	<tx:annotation-driven transaction-manager="crmTxManager"/> 	 
+	
 	 
 	<bean id="persistenceExceptionTranslationPostProcessor"
 		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />	

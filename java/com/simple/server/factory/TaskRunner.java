@@ -21,7 +21,6 @@ import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.mediators.Mediator;
 import com.simple.server.mediators.ParameterType;
-import com.simple.server.statistics.PerfomancerStat;
 import com.simple.server.task.ATask;
 import com.simple.server.task.DispatcherTask;
 import com.simple.server.task.ReadTask;
@@ -44,7 +43,7 @@ public class TaskRunner  {
 		
     CopyOnWriteArrayList<ExecutorService> executors = new CopyOnWriteArrayList<>();
     ConcurrentHashMap<Object, List<ITask>> tasks = new ConcurrentHashMap<>();
-    CopyOnWriteArrayList<ITask> ltasks = new CopyOnWriteArrayList();
+    CopyOnWriteArrayList<ITask> ltasks = new CopyOnWriteArrayList<ITask>();
     ConcurrentHashMap<Class<ATask>, Integer> classToRun = new ConcurrentHashMap<>();
     
     
@@ -111,8 +110,8 @@ public class TaskRunner  {
         	try {		        		 
         		newRunTask(appConfig.getMediator(), DispatcherTask.class, 1);
         		newRunTask(appConfig.getMediator(), ReadTask.class, 1);
-        		newRunTask(appConfig.getMediator(), WriteTask.class, 1);
-        		newRunTask(appConfig.getMediator(), PubTask.class, 1);
+        		newRunTask(appConfig.getMediator(), WriteTask.class, 4);
+        		newRunTask(appConfig.getMediator(), PubTask.class, 4);
         		newRunTask(appConfig.getMediator(), SubTask.class, 1);
         		newRunTask(appConfig.getMediator(), LogSenderTask.class, 1);
         		newRunTask(appConfig.getMediator(), StatTask.class, 1);        	        		
@@ -124,8 +123,7 @@ public class TaskRunner  {
         		}
         		
         		BasePhaser hqlPhaser = appConfig.getPhaserRunner().newRunPhaser(appConfig.getMediator(), BasePhaser.class, HqlStepsType.FINISH.ordinal());                        		 	
-            	appConfig.getMediator().wakeupAll();
-                     
+            	appConfig.getMediator().wakeupAll();                     
             	
         	} catch (Exception e) {
     			e.printStackTrace();

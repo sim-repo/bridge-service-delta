@@ -26,8 +26,7 @@ public class Sender {
 		
 		msg.setServiceOutDatetime(new Date().toString());
 		msg.setServiceIdFrom(appConfig.SERVICE_ID);		
-		String json = ObjectConverter.objectToJson(msg);		
-		System.out.println("bridge::::: "+json);
+		String json = ObjectConverter.objectToJson(msg);				
 		msgChannel.send(MessageBuilder.withPayload( json ).setHeader(appConfig.LOG_HEADER_NAME, msg.getClass().getSimpleName()).build());
 	}
 }

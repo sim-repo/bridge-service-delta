@@ -27,7 +27,7 @@ public class Timing extends TimerTask {
 	private AppConfig appConfig;
 	
 	public static final Long TIME_MAX_SLEEP = 5l;
-	public static final Long PHASE_TIME_SLEEP = 5l;
+	public static final Long PHASE_TIME_SLEEP = 2000l;
 	private static final ConcurrentHashMap<Class<ITask>, TimerTask> TIMING_REGISTER= new ConcurrentHashMap<>();
 	
 	Timer timer = null;

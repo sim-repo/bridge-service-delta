@@ -1,8 +1,5 @@
 package com.simple.server.domain.contract;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.simple.server.config.AppConfig;
@@ -12,6 +9,7 @@ import com.simple.server.config.ErrorType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.IRec;
 import com.simple.server.util.DateConvertHelper;
+import com.simple.server.util.ObjectConverter;
 
 @SuppressWarnings("serial")
 public abstract class AContract implements IContract {
@@ -44,7 +42,7 @@ public abstract class AContract implements IContract {
 	protected String serviceInDatetime;	
 	protected String requestInDatetime;	
 	protected String messageHeaderValue;
-	protected String messageBodyValue;	
+	protected String messageBodyValue;		
 	protected String logDatetime;	
 	protected String loggerId;	
 	protected String methodHandler;	
@@ -196,7 +194,7 @@ public abstract class AContract implements IContract {
 	public void setMessageBodyValue(String messageBodyValue) {
 		this.messageBodyValue = messageBodyValue;
 	}
-
+	
 	public String getLogDatetime() {
 		return logDatetime;
 	}
@@ -367,6 +365,26 @@ public abstract class AContract implements IContract {
 		this.setMessageHeaderValue(this.getClass().getSimpleName());					
 	}
 	
+	
+	public void bodyTransform(ContentType contentType) throws Exception{
+		
+		boolean isJson = false;
+		isJson = ObjectConverter.isValidJSON(this.messageBodyValue);			
+		
+		switch(contentType){		
+		 	case XmlPlainText:
+		 	case ApplicationXml: 
+		 		if(isJson){
+		 			this.setMessageBodyValue(ObjectConverter.jsonToXml(this.messageBodyValue,false));
+		 		}
+		 		break;
+		 	default:
+		 		if(!isJson){		 			
+		 			this.setMessageBodyValue(ObjectConverter.xmlToJson(this.messageBodyValue));
+		 		}		 		
+		 	break;
+		}
+	}
 	
 	@Override
 	public void copyFrom(IRec rec) throws Exception{

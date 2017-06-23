@@ -22,6 +22,8 @@ public interface IService {
 	@Transactional
 	void insertAsIs(IContract msg) throws Exception;
 	@Transactional
+	void insertAsIs(List<IContract> list) throws Exception;
+	@Transactional
 	String readFlatJson(String sql) throws Exception;
 	@Transactional
 	String readComlexJson(String sql) throws Exception;

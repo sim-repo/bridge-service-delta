@@ -1,9 +1,5 @@
 package com.simple.server.domain.uni;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.EndpointType;
 import com.simple.server.domain.ARec;
@@ -12,6 +8,7 @@ import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.IncomingBufferMsg;
 import com.simple.server.domain.contract.UniMsg;
 import com.simple.server.util.DateConvertHelper;
+import com.simple.server.util.ObjectConverter;
 
 public class IncomingBuffer extends ARec implements IRec{
 
@@ -69,13 +66,14 @@ public class IncomingBuffer extends ARec implements IRec{
 			this.setEventId(u.getEventId());
 			this.setJuuid(u.getJuuid());
 			this.setSenderId(u.getSenderId());
-			this.setBody(u.getMessageBodyValue());
+			this.setBody(u.getMessageBodyValue());		
 			return;
-		}	
-				
+		}					
 		throw new IllegalArgumentException(String.format("IncomingBuffer, copyFrom: wrong passed param: %s", msg.getClass().getName()));
 	}
 
+	
+	
 
 	@Override
 	public void format() throws Exception {

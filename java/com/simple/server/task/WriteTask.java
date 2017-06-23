@@ -1,9 +1,7 @@
 package com.simple.server.task;
 
 import java.lang.reflect.Constructor;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +25,7 @@ import com.simple.server.domain.contract.SuccessPubMsg;
 import com.simple.server.domain.contract.SuccessSubMsg;
 import com.simple.server.http.HttpImpl;
 import com.simple.server.http.IHttp;
+import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
@@ -69,9 +68,14 @@ public class WriteTask extends ATask {
         }
                        
     	Thread.currentThread().sleep(Timing.getTimeMaxSleep());
-                             
-    	getAppConfig() .getQueueWrite().drainTo(list, MAX_NUM_ELEMENTS);
-    	 	
+                                 	    	 	
+    	
+		IService service = getAppConfig().getServiceFactory().getService(EndpointType.NAV);  //add
+    	
+    	while (basePhaser.getCurrNumPhase() != HqlStepsType.START.ordinal()) {
+			if (getAppConfig().getQueueWrite().size() > 0)
+				getAppConfig().getQueueWrite().drainTo(list, MAX_NUM_ELEMENTS);
+		}
     		
 		List<ErrPubMsg> errPubList = null;
 		List<SuccessPubMsg> successPubList = null;
@@ -83,6 +87,9 @@ public class WriteTask extends ATask {
 		List<ErrDefMsg> errDefList = null;
 		
 		
+		service.insert(list); //add
+		
+		/*
         for(IContract msg: list){
         	        	
         	switch(msg.getOperationType()){
@@ -115,7 +122,7 @@ public class WriteTask extends ATask {
 							String.format("msg.[juuid]: < %s > - endpoint id is null  < %s > ", msg.getJuuid()));
 				}
 				
-				IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
+				//IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
 	        	if(msg.getIsDirectInsert())
 	        		service.insertAsIs(msg);
 	        	else
@@ -142,7 +149,7 @@ public class WriteTask extends ATask {
         errPubList = null;
         errSubList = null;
         errDefList = null;
-        
+        */
         list.clear();                
 	}	      
 	
@@ -236,7 +243,7 @@ public class WriteTask extends ATask {
 			err.getResponseURI();
 			try {
 				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {
-					http.sendHttp(err);
+					http.sendHttp(err, err.getResponseURI(), err.getResponseContentType(), false);
 				} else if (err.getResponseContractClass() != null && !err.getResponseContractClass().isEmpty()) {
 					IContract contract = null;
 					if (err.getClass().getName().equals(err.getResponseContractClass())) {

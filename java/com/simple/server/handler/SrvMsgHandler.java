@@ -7,8 +7,7 @@ public class SrvMsgHandler extends AbstractMsgHandler{
 	
 
 	public void handleSrvJsonMsg(String json) throws Exception {
-		getAppConfig().getQueueDirty().put(json);
-		System.out.println("bridge::::handleSrvJsonMsg "+json);
+		getAppConfig().getQueueDirty().put(json);		
 	}
 
 

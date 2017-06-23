@@ -13,10 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.MiscType;
@@ -24,7 +22,6 @@ import com.simple.server.domain.IRec;
 import com.simple.server.domain.UniRequest;
 import com.simple.server.domain.UniResult;
 import com.simple.server.domain.contract.IContract;
-import com.simple.server.domain.contract.BusPubMsg;
 import com.simple.server.util.ObjectConverter;
 
 public abstract class ADao implements IDao{
@@ -58,6 +55,22 @@ public abstract class ADao implements IDao{
 		currentSession().saveOrUpdate(msg);	
 	}
 
+	@Override
+	public void insertAsIs(List<IContract> list) throws Exception {
+		int count=0;
+		for(IContract msg: list){
+			try{							
+				currentSession().saveOrUpdate(msg);	
+			}catch(SQLException e){
+				e.printStackTrace();
+			}			
+			if (++count % 50 == 0 ) {
+				currentSession().flush();
+				currentSession().clear();
+			}
+		}	
+	}
+	
 	@Override
 	public void insert(String sql) throws Exception {
 		Query query = currentSession().createQuery(sql);
@@ -184,8 +197,7 @@ public abstract class ADao implements IDao{
 						criteria.addOrder(Order.desc(fld));
 			}
 		}
-				
-		
+						
 		List<T> res = criteria.list();	
 		System.out.println(clazz+" res.size():"+res.size());
 		StringBuilder er = new StringBuilder();

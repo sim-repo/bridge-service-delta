@@ -43,7 +43,7 @@ public class BasePhaser extends ATask {
     }
 
     public void nextPhase(){
-    	System.out.println("bridge:"+currNumPhase);
+    	//System.out.println("bridge:"+currNumPhase);
         phaser.arrive();
         currNumPhase.getAndIncrement();
         super.setChanged();

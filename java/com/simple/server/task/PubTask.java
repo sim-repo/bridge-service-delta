@@ -1,9 +1,7 @@
 package com.simple.server.task;
 
 import java.lang.reflect.Constructor;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +29,6 @@ import com.simple.server.domain.contract.PubSuccessRouting;
 import com.simple.server.domain.contract.BusPubMsg;
 import com.simple.server.http.HttpImpl;
 import com.simple.server.http.IHttp;
-import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
@@ -46,25 +43,25 @@ public class PubTask extends ATask {
 
 	private final static Integer MAX_NUM_ELEMENTS = 100000;
 	private List<IContract> list = new ArrayList<IContract>();
-	private ObjectMapper mapper = new ObjectMapper();
+
 	private IHttp http = new HttpImpl();
 
 	@Override
 	public void update(Observable o, Object arg) {
 		if (arg != null && arg.getClass() == CommandType.class) {
 			switch ((CommandType) arg) {
-			case WAKEUP_CONSUMER:
-			case WAKEUP_ALL:
-				arg = CommandType.WAKEUP_ALLOW;
-				super.update(o, arg);
-				break;
-			case AWAIT_CONSUMER:
-			case AWAIT_ALL:
-				arg = CommandType.AWAIT_ALLOW;
-				super.update(o, arg);
-				break;
+				case WAKEUP_CONSUMER:
+				case WAKEUP_ALL:
+					arg = CommandType.WAKEUP_ALLOW;
+					super.update(o, arg);
+					break;
+				case AWAIT_CONSUMER:
+				case AWAIT_ALL:
+					arg = CommandType.AWAIT_ALLOW;
+					super.update(o, arg);
+					break;
+				}
 			}
-		}
 	}
 
 	@SuppressWarnings("static-access")
@@ -74,10 +71,11 @@ public class PubTask extends ATask {
 			list.add(getAppConfig().getQueuePub().take());
 		}
 		Thread.currentThread().sleep(Timing.getTimeMaxSleep());
-		while (basePhaser.getCurrNumPhase() != HqlStepsType.START.ordinal()) {
-			if (getAppConfig().getQueuePub().size() > 0)
-				getAppConfig().getQueuePub().drainTo(list, MAX_NUM_ELEMENTS);
-		}
+		// while (basePhaser.getCurrNumPhase() != HqlStepsType.START.ordinal())
+		// {
+		// if (getAppConfig().getQueuePub().size() > 0)
+		// getAppConfig().getQueuePub().drainTo(list, MAX_NUM_ELEMENTS);
+		// }
 
 		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
 		List<PubErrRouting> pubErrRoutes = null;
@@ -168,10 +166,12 @@ public class PubTask extends ATask {
 									uniMinMsg.setContentType(subRoute.getResponseContentType());
 									uniMinMsg.setUrl(oldMsg.getResponseURI());
 									uniMinMsg.bodyTransform(subRoute.getBodyContentType());
-									http.sendHttp(uniMinMsg);
+									http.sendHttp(uniMinMsg, uniMinMsg.getUrl(), uniMinMsg.getContentType(),
+											subRoute.getUseAuth());
 								} else {
 									newMsg = msg;
-									http.sendHttp(newMsg);
+									http.sendHttp(newMsg, newMsg.getResponseURI(), newMsg.getResponseContentType(),
+											subRoute.getUseAuth());
 								}
 
 							} else if (subRoute.getSubscriberStoreClass() != null
@@ -183,6 +183,7 @@ public class PubTask extends ATask {
 								instance.setEndPointId(subRoute.getSubscriberId());
 								instance.setIsDirectInsert(subRoute.getIsDirectInsert());
 								instance.copyFrom(msg);
+								instance.bodyTransform(subRoute.getBodyContentType());
 								appConfig.getQueueWrite().put(instance);
 							}
 
@@ -200,8 +201,8 @@ public class PubTask extends ATask {
 				}
 			}
 		} catch (Exception e) {
-			//exception in collectError
-			//TODO Exception to log
+			// exception in collectError
+			// TODO Exception to log
 		} finally {
 			sendErrors(errList);
 			sendSuccess(successList);
@@ -215,7 +216,7 @@ public class PubTask extends ATask {
 			try {
 				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {
 					err.setResponseContentType(ContentType.ApplicationJson);
-					http.sendHttp(err);
+					http.sendHttp(err, err.getResponseURI(), err.getResponseContentType(), false);
 				} else if (err.getStoreClass() != null && !err.getStoreClass().isEmpty()) {
 					IContract contract = null;
 					if (err.getClass().getName().equals(err.getStoreClass())) {
@@ -265,7 +266,7 @@ public class PubTask extends ATask {
 			try {
 				if (success.getResponseURI() != null && !success.getResponseURI().isEmpty()) {
 					success.setResponseContentType(ContentType.ApplicationJson);
-					http.sendHttp(success);
+					http.sendHttp(success, success.getResponseURI(), success.getResponseContentType(), false);
 				} else if (success.getStoreClass() != null && !success.getStoreClass().isEmpty()) {
 					IContract contract = null;
 					if (success.getClass().getName().equals(success.getStoreClass())) {

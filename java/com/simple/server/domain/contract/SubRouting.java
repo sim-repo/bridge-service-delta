@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.domain.IRec;
 import com.simple.server.domain.log.LogEventSetting;
 
@@ -17,6 +16,7 @@ public class SubRouting extends AContract{
 	@JsonProperty("id")
 	protected int id;
 	protected String bodyContentType;
+	protected Boolean useAuth;
 		
 	@Override
 	public String getClazz() {
@@ -33,8 +33,13 @@ public class SubRouting extends AContract{
 	}
 	public void setBodyContentType(ContentType bodyContentType) {
 		this.bodyContentType = bodyContentType.toValue();
+	}		
+	public Boolean getUseAuth() {
+		return useAuth;
 	}
-	
+	public void setUseAuth(Boolean useAuth) {
+		this.useAuth = useAuth;
+	}
 	@Override
 	public void copyFrom(IRec rec) throws Exception{
 		if (rec == null)

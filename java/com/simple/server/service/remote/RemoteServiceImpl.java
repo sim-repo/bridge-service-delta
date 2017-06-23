@@ -81,7 +81,7 @@ public class RemoteServiceImpl implements IRemoteService{
 	}
 
 	@Override
-	public List<IContract> getAllMsg(IContract msg) throws Exception {
+	public List<IContract> getAllMsg(IContract msg) throws Exception {		
 		IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
 		List<IContract> res = service.readAll(msg);
 		return res;

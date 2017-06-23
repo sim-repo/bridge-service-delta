@@ -58,8 +58,7 @@ public class ObjectConverter {
 	public static <T> List<T> jsonToObjects(String json, Class<T> clazz){
 		ObjectMapper mapper = new ObjectMapper().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		TypeFactory t = TypeFactory.defaultInstance();
-		
-		
+				
 		//final ObjectReader reader = mapper.reader();
 		List<T> res = null;
 		try {
@@ -81,11 +80,11 @@ public class ObjectConverter {
 	}
 	
 	
-	public static String jsonToXml(String json) throws Exception{
+	public static String jsonToXml(String json, Boolean useDeclaration) throws Exception{
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> map = mapper.readValue(json, new TypeReference<Map<String,Object>>(){});
 		XmlMapper xmlMapper = new XmlMapper();
-		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);		
+		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, useDeclaration);		
 		String xml = xmlMapper.writeValueAsString(map);		
 		return xml;
 	}

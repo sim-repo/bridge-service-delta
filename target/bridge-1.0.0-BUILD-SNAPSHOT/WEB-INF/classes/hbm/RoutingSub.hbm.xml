@@ -39,6 +39,8 @@
 				
 		<property name="isDirectInsert" column="[is_direct_insert]" />
 		
+		<property name="useAuth" column="[use_auth]" />
+		
 		<property name="bodyContentType" column="[body_content_type]">
 		    <type name="org.hibernate.type.EnumType">
 		        <param name="enumClass">com.simple.server.config.ContentType</param>

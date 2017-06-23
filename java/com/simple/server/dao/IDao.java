@@ -19,7 +19,10 @@ public interface IDao {
 	void insert(List<IRec> list) throws Exception;
 	void insert(IRec rec) throws Exception;
 	void insertAsIs(IContract msg) throws Exception;
+	void insertAsIs(List<IContract> list) throws Exception;	
 	void insert(String sql) throws Exception;
+	
+	
 	
 	String readFlatJsonArray(String sql) throws Exception;
 	String readComplexJsonArray(String sql) throws Exception;

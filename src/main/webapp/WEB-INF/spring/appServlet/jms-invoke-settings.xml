@@ -28,6 +28,4 @@
         <property name="concurrentConsumers" value="1"/>
         <property name="messageListener" ref="remoteService"/>
     </bean>
-	
-
 </beans>

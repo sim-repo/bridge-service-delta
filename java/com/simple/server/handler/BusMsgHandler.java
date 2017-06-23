@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 public class BusMsgHandler extends AbstractMsgHandler{
 	
 	
-	public void handleBusJsonMsg(String json) throws Exception {				
-		System.out.println("bridge-service::::: handleBusJsonMsg"+ json);	
+	public void handleBusJsonMsg(String json) throws Exception {						
 		getAppConfig().getQueueDirty().put(json);
 	}
 

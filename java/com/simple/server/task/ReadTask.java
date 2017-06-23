@@ -7,7 +7,6 @@ import java.util.Observable;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.server.domain.contract.AContract;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.http.HttpImpl;
@@ -23,7 +22,6 @@ public class ReadTask extends ATask {
 	
 	private final static Integer MAX_NUM_ELEMENTS = 100000;
 	private List<IContract> list = new ArrayList<IContract>();
-	private ObjectMapper mapper = new ObjectMapper();   
 		
 	@Override
 	public void update(Observable o, Object arg) {
@@ -63,7 +61,7 @@ public class ReadTask extends ATask {
 		        		throw new Exception("TODO");
 		        	
 		        	IHttp http = new HttpImpl();
-        			http.sendHttp(r);
+        			http.sendHttp(r, r.getResponseURI(), r.getResponseContentType(), false);
         			http = null;        		
         		}catch(Exception e){        			
         		}

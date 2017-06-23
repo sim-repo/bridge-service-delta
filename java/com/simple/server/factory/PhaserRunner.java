@@ -9,6 +9,13 @@ import org.springframework.stereotype.Service;
 import com.simple.server.lifecycle.BasePhaser;
 import com.simple.server.mediators.Mediator;
 
+/**
+ * Класс для работы с фазерами
+ * 
+ * @author Ivanov Igor
+ * @version 1.0
+ * @since 1.0
+ */
 
 @Service("phaserRunner")
 @Scope("singleton")

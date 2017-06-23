@@ -14,21 +14,16 @@ public class ServiceFactory {
 	@Autowired
 	AppConfig appConfig;
 	
-	public IService getService(EndpointType endpoint){
+	public IService getService(EndpointType endpoint) throws Exception{
+		
+		if(endpoint == null)
+			throw new Exception("[bridge-service].[getService]: argument 'endpoint' is null!");
 		
 		IService service = null;
 		if(EndpointType.LOG.equals(endpoint))
 			service =appConfig.getLogService();
 		else if(EndpointType.NAV.equals(endpoint))
-			service =appConfig.getNavService();
-		else if(EndpointType.BTX.equals(endpoint))
-			service = appConfig.getBtxService();
-		else if(EndpointType.ONE.equals(endpoint))
-			service = appConfig.getOneService();	
-		else if(EndpointType.CRM.equals(endpoint))
-			service = appConfig.getCrmService();
-		else if(EndpointType.OKTELL.equals(endpoint))
-			service = appConfig.getOktellService();
+			service =appConfig.getNavService();		
 		return service;
 	}
 }
