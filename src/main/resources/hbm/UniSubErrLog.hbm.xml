@@ -32,12 +32,7 @@
 		
 		
 													
-		<property name="errorId" column="[error_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.ErrorType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
+		<property name="errorId" column="[error_id]"/>		    
 		
 		<property name="publisherHandler" column="[publisher_handler]" />
 		<property name="details" column="[details]" />

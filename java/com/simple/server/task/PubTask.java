@@ -239,7 +239,7 @@ public class PubTask extends ATask {
 			} catch (Exception e) {
 				try {
 					ErrPubMsg newErr = new ErrPubMsg();
-					newErr.setErrorId(ErrorType.PubTask);
+					newErr.setErrorId(ErrorType.PubTask.toValue());
 					newErr.setOperationType(OperationType.PUB);
 					newErr.setResponseContentType(ContentType.ApplicationJson);
 					if (e.getCause() != null)
@@ -289,7 +289,7 @@ public class PubTask extends ATask {
 			} catch (Exception e) {
 				try {
 					ErrPubMsg newErr = new ErrPubMsg();
-					newErr.setErrorId(ErrorType.PubTask);
+					newErr.setErrorId(ErrorType.PubTask.toString());
 					if (e.getCause() != null)
 						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
 					else
@@ -316,7 +316,7 @@ public class PubTask extends ATask {
 
 		if (routings == null) {
 			err = new ErrPubMsg();
-			err.setErrorId(ErrorType.PubTask);
+			err.setErrorId(ErrorType.PubTask.toValue());
 			err.setOperationType(OperationType.PUB);
 			if (e.getCause() != null)
 				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
@@ -335,7 +335,7 @@ public class PubTask extends ATask {
 		} else {
 			for (PubErrRouting routing : routings) {
 				err = new ErrPubMsg();
-				err.setErrorId(ErrorType.PubTask);
+				err.setErrorId(ErrorType.PubTask.toValue());
 				err.setOperationType(OperationType.PUB);
 				if (e.getCause() != null)
 					err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));

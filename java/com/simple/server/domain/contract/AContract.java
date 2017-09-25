@@ -297,13 +297,13 @@ public abstract class AContract implements IContract {
 	}
 	
 	@Override
-	public ErrorType getErrorId() {
-		return ErrorType.fromValue(errorId);
+	public String getErrorId() {
+		return errorId;
 	}
 	
 	@Override
-	public void setErrorId(ErrorType errorId) {
-		this.errorId = errorId.toValue();
+	public void setErrorId(String errorId) {
+		this.errorId = errorId;
 	}
 	
 	@Override

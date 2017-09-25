@@ -198,7 +198,7 @@ public class WriteTask extends ATask {
 					
 			if(routes == null || routes.size() == 0){
 				T err = clazz.newInstance();				
-				err.setErrorId(ErrorType.WriteTask);
+				err.setErrorId(ErrorType.WriteTask.toValue());
 				if(e.getCause() != null)
 					err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));		
 				else 
@@ -213,7 +213,7 @@ public class WriteTask extends ATask {
 				
 				for(Z route: routes){
 					T err = clazz.newInstance();	
-					err.setErrorId(ErrorType.WriteTask);
+					err.setErrorId(ErrorType.WriteTask.toValue());
 					if(e.getCause() != null)
 						err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
 					else 
@@ -267,7 +267,7 @@ public class WriteTask extends ATask {
 					Class<T> clazz = null;
 					T newErr = null;
 					newErr = clazz.newInstance();																	
-					newErr.setErrorId(ErrorType.WriteTask);
+					newErr.setErrorId(ErrorType.WriteTask.toValue());
 					newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
 					newErr.setEventId(err.getEventId());
 					newErr.setJuuid(err.getJuuid());

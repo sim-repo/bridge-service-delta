@@ -59,8 +59,8 @@ public interface IContract extends Serializable {
 	
 	void setLogDatetime(String logDatetime);
 	
-	void setErrorId(ErrorType errorId);
-	ErrorType getErrorId();
+	void setErrorId(String errorId);
+	String getErrorId();
 	String getDetails();
 	void setDetails(String details);
 	void setServiceOutDatetime(String string);

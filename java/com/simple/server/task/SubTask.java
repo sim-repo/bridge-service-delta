@@ -203,7 +203,7 @@ public class SubTask extends ATask {
 			} catch (Exception e) {
 				try {
 					ErrSubMsg newErr = new ErrSubMsg();
-					newErr.setErrorId(ErrorType.SubTask);
+					newErr.setErrorId(ErrorType.SubTask.toValue());
 					newErr.setOperationType(OperationType.SUB);
 					if (e.getCause() != null)
 						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
@@ -232,7 +232,7 @@ public class SubTask extends ATask {
 			} catch (Exception e) {
 				try {
 					ErrSubMsg newErr = new ErrSubMsg();
-					newErr.setErrorId(ErrorType.PubTask);
+					newErr.setErrorId(ErrorType.PubTask.toValue());
 					newErr.setOperationType(OperationType.SUB);
 					if (e.getCause() != null)
 						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
@@ -260,7 +260,7 @@ public class SubTask extends ATask {
 
 		if (subErrRouting == null) {
 			err = new ErrSubMsg();
-			err.setErrorId(ErrorType.SubTask);
+			err.setErrorId(ErrorType.SubTask.toValue());
 			err.setOperationType(OperationType.SUB);
 			if (e.getCause() != null)
 				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
@@ -276,7 +276,7 @@ public class SubTask extends ATask {
 			list.add(err);
 		} else {
 			err = new ErrSubMsg();
-			err.setErrorId(ErrorType.SubTask);
+			err.setErrorId(ErrorType.SubTask.toValue());
 			err.setOperationType(OperationType.SUB);
 			if (e.getCause() != null)
 				err.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
