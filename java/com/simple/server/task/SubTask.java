@@ -106,8 +106,12 @@ public class SubTask extends ATask {
 							new Exception(String.format(
 									"[routing sub err] - no records found by filters %s: < %s >, %s: <%s> ",
 									"[sender_id]", msg.getSenderId(), "[event_id]", msg.getEventId())));
-				} else
+				} else{
+					//TODO: маршрутов может быть много - реализовать, предусмотреть проверку enabled
 					subErrRouting = subErrRoutesList.get(0);
+				}
+				
+				
 
 				map = new HashMap();
 				map.put("juuid", msg.getJuuid());

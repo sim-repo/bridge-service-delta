@@ -29,6 +29,7 @@ import com.simple.server.domain.contract.PubSuccessRouting;
 import com.simple.server.domain.contract.BusPubMsg;
 import com.simple.server.http.HttpImpl;
 import com.simple.server.http.IHttp;
+import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
@@ -70,12 +71,12 @@ public class PubTask extends ATask {
 		if (getAppConfig().getQueuePub().drainTo(list, MAX_NUM_ELEMENTS) == 0) {
 			list.add(getAppConfig().getQueuePub().take());
 		}
+		
+			
 		Thread.currentThread().sleep(Timing.getTimeMaxSleep());
-		// while (basePhaser.getCurrNumPhase() != HqlStepsType.START.ordinal())
-		// {
-		// if (getAppConfig().getQueuePub().size() > 0)
-		// getAppConfig().getQueuePub().drainTo(list, MAX_NUM_ELEMENTS);
-		// }
+	    getAppConfig().getQueuePub().drainTo(list, MAX_NUM_ELEMENTS);
+	        
+		
 
 		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
 		List<PubErrRouting> pubErrRoutes = null;
@@ -326,6 +327,8 @@ public class PubTask extends ATask {
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
 			err.setEndPointId(msg.getSenderId());
+			//err.setPublisherId(msg.getSenderId());
+			
 			if (subRouting != null) {
 				err.setSubscriberId(subRouting.getSubscriberId());
 			}
@@ -344,8 +347,9 @@ public class PubTask extends ATask {
 				err.setEventId(msg.getEventId());
 				err.setJuuid(msg.getJuuid());
 				err.setSenderId(msg.getSenderId());
+				//err.setPublisherId(msg.getSenderId());
 				err.setEndPointId(msg.getSenderId());
-
+				
 				if (routing.getPublisherHandler() != null && routing.getPublisherHandler() != "")
 					err.setResponseURI(routing.getPublisherHandler());
 				if (routing.getPublisherStoreClass() != null && routing.getPublisherStoreClass() != "")
@@ -373,6 +377,8 @@ public class PubTask extends ATask {
 			success.setJuuid(msg.getJuuid());
 			success.setSenderId(msg.getSenderId());
 			success.setEndPointId(msg.getSenderId());
+			success.setOperationType(OperationType.PUB);
+			//success.setPublisherId(msg.getSenderId());
 			success.setResponseContentType(ContentType.ApplicationJson);
 			if (subRouting != null) {
 				success.setSubscriberHandler(subRouting.getSubscriberHandler());
@@ -387,7 +393,9 @@ public class PubTask extends ATask {
 				success.setResponseContentType(ContentType.ApplicationJson);
 				success.setEventId(msg.getEventId());
 				success.setJuuid(msg.getJuuid());
-				success.setSenderId(msg.getSenderId());
+				success.setOperationType(OperationType.PUB);
+				//success.setPublisherId(msg.getSenderId());
+				success.setSenderId(msg.getSenderId());				
 				success.setEndPointId(msg.getSenderId());
 				success.setResponseURI(routing.getPublisherHandler());
 				success.setStoreClass(routing.getPublisherStoreClass());

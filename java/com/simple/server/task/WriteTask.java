@@ -68,14 +68,9 @@ public class WriteTask extends ATask {
         }
                        
     	Thread.currentThread().sleep(Timing.getTimeMaxSleep());
-                                 	    	 	
-    	
-		IService service = getAppConfig().getServiceFactory().getService(EndpointType.NAV);  //add
-    	
-    	while (basePhaser.getCurrNumPhase() != HqlStepsType.START.ordinal()) {
-			if (getAppConfig().getQueueWrite().size() > 0)
-				getAppConfig().getQueueWrite().drainTo(list, MAX_NUM_ELEMENTS);
-		}
+                             
+    	getAppConfig() .getQueueWrite().drainTo(list, MAX_NUM_ELEMENTS);
+    	 	
     		
 		List<ErrPubMsg> errPubList = null;
 		List<SuccessPubMsg> successPubList = null;
@@ -87,9 +82,6 @@ public class WriteTask extends ATask {
 		List<ErrDefMsg> errDefList = null;
 		
 		
-		service.insert(list); //add
-		
-		/*
         for(IContract msg: list){
         	        	
         	switch(msg.getOperationType()){
@@ -122,7 +114,10 @@ public class WriteTask extends ATask {
 							String.format("msg.[juuid]: < %s > - endpoint id is null  < %s > ", msg.getJuuid()));
 				}
 				
-				//IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
+				IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
+				if (service == null)
+					throw new Exception(
+							String.format("NullPointerException, check settings [routing pub success/error]. IService can't initilialized for %s", msg.getEndPointId()));
 	        	if(msg.getIsDirectInsert())
 	        		service.insertAsIs(msg);
 	        	else
@@ -149,9 +144,9 @@ public class WriteTask extends ATask {
         errPubList = null;
         errSubList = null;
         errDefList = null;
-        */
+        
         list.clear();                
-	}	      
+	}      
 	
 	
 	public static <E> E newInstance(Class<E> cls) throws Exception {
@@ -208,6 +203,7 @@ public class WriteTask extends ATask {
 				err.setSenderId(msg.getSenderId());
 				err.setEndPointId(msg.getSenderId());		
 				err.setLogDatetime(logDatetime);
+				err.setSubscriberId(msg.getSubscriberId());
 				errors.add(err);	
 			}else{
 				
@@ -225,6 +221,7 @@ public class WriteTask extends ATask {
 					err.setLogDatetime(logDatetime);					
 					err.setResponseURI(route.getPublisherHandler());
 					err.setResponseContractClass(route.getPublisherStoreClass());
+					err.setSubscriberId(msg.getSubscriberId());
 					errors.add(err);		
 				}				
 			}
@@ -286,7 +283,6 @@ public class WriteTask extends ATask {
 				}
 			}
 		}
-		
 	}
 	
 }

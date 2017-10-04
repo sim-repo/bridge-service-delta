@@ -18,7 +18,7 @@
 	<bean id="navDS"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />											
-		<property name="url" value="jdbc:sqlserver://MSK10NAV55;databaseName=SimpleERP;" />
+		<property name="url" value="jdbc:sqlserver://MSK10NAV52\MIRROR;databaseName=SimpleERPforLK;" />
 		<property name="username" value="jservice" />
 		<property name="password" value="Larina123" />
 	</bean>

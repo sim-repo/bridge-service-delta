@@ -21,5 +21,8 @@ public class IncomingBufferMsg extends AContract{
 		}
 		this.setEventId(_msg.getEventId());
 		this.setJuuid(_msg.getJuuid());
+		this.setOperationType(_msg.getOperationType());
+		this.setSenderId(_msg.getSenderId());
+		this.setSubscriberId(_msg.getSubscriberId());
 	}
 }

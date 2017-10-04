@@ -1,86 +1,149 @@
+
 package com.simple.server.http;
 
-import java.nio.charset.Charset;
-
-import org.apache.commons.net.util.Base64;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.util.ObjectConverter;
 
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.net.util.Base64;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.auth.params.AuthPNames;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.AuthPolicy;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.*;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+
 public class HttpImpl implements IHttp {
-		
-		
+
 	@Override
-	public void sendHttp(Object msg, String url, ContentType contentType, Boolean useAuth) throws Exception{	
-	
-		try{														
-			prepareAndSend(msg, url , contentType, useAuth);
-		}				
-		catch(RestClientException ex){
-			if(ex.getCause()==null){
-				throw new Exception(String.format("HttpImpl(UniMinMsg) url: < %s >, content-type: < %s >, < %s >", 
-						url, 
-						contentType, 
-						ex.getMessage()));
-			}else{
-				throw new Exception(String.format("HttpImpl(UniMinMsg) url: <%s>, content-type: < %s >, < %s >, < %s >", 
-						url, 
-						contentType, 
-						ex.getMessage(),
-						ex.getCause()
-						));
-			}		
-		}		
+	public void sendHttp(Object msg, String url, ContentType contentType, Boolean useAuth) throws Exception {
+		try {
+			prepareAndSend(msg, url, contentType, useAuth);
+		} catch (RestClientException ex) {
+			if (ex.getCause() == null) {
+				throw new Exception(String.format("HttpImpl(UniMinMsg) url: < %s >, content-type: < %s >, < %s >", url,
+						contentType, ex.getMessage()));
+			} else {
+				throw new Exception(String.format("HttpImpl(UniMinMsg) url: <%s>, content-type: < %s >, < %s >, < %s >",
+						url, contentType, ex.getMessage(), ex.getCause()));
+			}
+		}
 	}
-	
-	
-	public void prepareAndSend(Object msg, String url, ContentType contentType, Boolean useAuth) throws Exception{
-		
+
+	public void prepareAndSend(Object msg, String url, ContentType contentType, Boolean useAuth) throws Exception {
+
 		String converted = null;
 		String sContentType = null;
-		
-		if(ContentType.XmlPlainText.equals(contentType)){
-			converted = ObjectConverter.objectToXml(msg);
-			sContentType = "text/plain;charset=utf-8";								
-		}
-		else if(ContentType.ApplicationJson.equals(contentType)){
+
+		if (ContentType.XmlPlainText.equals(contentType)) {
+			converted = ObjectConverter.objectToXml(msg, false);
+			sContentType = "text/plain;charset=utf-8";
+		} else if (ContentType.ApplicationJson.equals(contentType)) {
 			converted = ObjectConverter.objectToJson(msg);
-			sContentType = "application/json;charset=utf-8";								
-		}
-		else if(ContentType.ApplicationXml.equals(contentType)){
-			converted = ObjectConverter.objectToXml(msg);
-			sContentType = "application/xml;charset=utf-8";								
-		}
-		else{
+			sContentType = "application/json;charset=utf-8";
+		} else if (ContentType.ApplicationXml.equals(contentType)) {
+			converted = ObjectConverter.objectToXml(msg, false);
+			sContentType = "application/xml;charset=utf-8";
+		} else {
 			converted = ObjectConverter.objectToJson(msg);
-			sContentType = "text/plain;charset=utf-8";									
+			sContentType = "text/plain;charset=utf-8";
 		}
-		post(converted, sContentType, url, useAuth);	
+		post(converted, url, sContentType, useAuth);
 	}
-	
+
+	public void post(String body, String url, String contentType, Boolean useAuth) throws Exception {
 		
-	public void post(String body, String url, String contentType, Boolean useAuth) throws Exception{		
-		RestTemplate restTemplate = new RestTemplate();
-		if(useAuth){			
-			HttpEntity<String> entity = null;			
-			entity = new HttpEntity<String>("", createHeaders(AppConfig.ACC, AppConfig.PSW));
-			restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-		}{
-			HttpHeaders headers = new HttpHeaders();	
-			headers.add("Content-Type",contentType);
-			HttpEntity<String> entity = new HttpEntity<String>(body,headers);		
-			restTemplate.postForLocation(url, entity);
+		if (useAuth) {
+			postNTLM(body, url, contentType);
+		} else {
+			URI uri = new URI(url);
+			RestTemplate restTemplate = new RestTemplate();			
+			HttpEntity<String> entity = null;
+			entity = new HttpEntity<String>(body, createHeaders());
+			restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 		}
 	}
-		
-	
+
+	@SuppressWarnings("all")
+	public void postNTLM(String body, String url, String contentType) throws Exception {
+
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+		try {
+			httpclient.addRequestInterceptor(new HttpRequestInterceptor() {
+				public void process(final HttpRequest request, final HttpContext context)
+						throws HttpException, IOException {
+					request.addHeader("Accept-Encoding", "gzip, deflate");
+					request.addHeader("Accept", "*/*");
+					request.addHeader("Accept-Language", " ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3");
+					request.addHeader("Content-Type", contentType);
+				}
+			});
+
+			HttpContext localContext = new BasicHttpContext();
+			HttpPost httpPost = new HttpPost(url);
+
+			httpPost.addHeader("Content-Type", contentType);
+
+			final RequestConfig params = RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(5000).build();
+			httpPost.setConfig(params);
+
+			StringEntity entity = new StringEntity(body);
+
+			httpPost.setEntity(entity);
+			CredentialsProvider credsProvider = new BasicCredentialsProvider();
+			credsProvider.setCredentials(AuthScope.ANY,
+					new NTCredentials(AppConfig.ACC, AppConfig.PSW, AppConfig.WORKSTATION, AppConfig.DOMEN));
+
+			List<String> authtypes = new ArrayList<String>();
+			authtypes.add(AuthPolicy.NTLM);
+			httpclient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, authtypes);
+
+			localContext.setAttribute(ClientContext.CREDS_PROVIDER, credsProvider);
+			HttpResponse response = httpclient.execute(httpPost, localContext);
+
+			if (response.getEntity() != null) {
+				response.getEntity().consumeContent();
+
+			}
+		} catch (Exception e) {
+			throw new Exception(String.format("HttpImpl: %s",e.getMessage()));
+		} finally {
+			httpclient.getConnectionManager().shutdown();
+		}
+	}
+
+	public static HttpHeaders createHeaders() {
+		return new HttpHeaders() {
+			{
+				setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+			}
+		};
+	}
+
 	public static HttpHeaders createHeaders(String username, String password) {
 		return new HttpHeaders() {
 			{
@@ -93,3 +156,6 @@ public class HttpImpl implements IHttp {
 		};
 	}
 }
+
+
+

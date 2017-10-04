@@ -21,7 +21,7 @@
 		<property name="eventId" column="[event_id]"/>	
 		<property name="subscriberHandler" column="[subscriber_handler]" />
 		<property name="subscriberStoreClass" column="[subscriber_store_class]" />	
-		
+		<property name="enabled" column="[enabled]" />
 		
 		<property name="responseContentType" column="[content_type]">
 		    <type name="org.hibernate.type.EnumType">

@@ -72,12 +72,12 @@ public class ObjectConverter {
 		return res;
 	}
 		
-	public static String objectToXml(Object object) throws Exception{
+	public static String objectToXml(Object object, Boolean useDeclaration) throws Exception{
 		XmlMapper xmlMapper = new XmlMapper();
-		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
+		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, useDeclaration);
 		String xml = xmlMapper.writeValueAsString(object);		
 		return xml;
-	}
+}
 	
 	
 	public static String jsonToXml(String json, Boolean useDeclaration) throws Exception{

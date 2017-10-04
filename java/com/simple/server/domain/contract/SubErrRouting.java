@@ -14,6 +14,7 @@ public class SubErrRouting extends AContract{
 
 	@JsonProperty("id")
 	int id;
+	Boolean enabled;
 	
 	@Override
 	public String getClazz() {
@@ -25,4 +26,11 @@ public class SubErrRouting extends AContract{
 	public void setId(int id) {
 		this.id = id;
 	}
+	public Boolean getEnabled() {
+		return enabled;
+	}
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
+	
 }

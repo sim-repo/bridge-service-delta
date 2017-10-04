@@ -198,8 +198,7 @@ public abstract class ADao implements IDao{
 			}
 		}
 						
-		List<T> res = criteria.list();	
-		System.out.println(clazz+" res.size():"+res.size());
+		List<T> res = criteria.list();		
 		StringBuilder er = new StringBuilder();
 		if (res.size()==0){
 			res = criteria.list();	

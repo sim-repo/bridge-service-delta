@@ -26,7 +26,7 @@ public class UniMsg extends AContract{
 		return body;
 	}
 	public void setBody(String body) {
-		this.body = body;
+		this.body = body;		
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -35,4 +35,15 @@ public class UniMsg extends AContract{
 	public String getClazz() {
 		return UniMsg.class.getName();
 	}
+	
+	
+	/**
+	 * necessary for logging in [mysql].[hot pub].[msg] !!! 
+	 */	
+	@Override
+	public String toString() {
+		return "domain.contract.UniMsg: " + body;
+	}
+	
+	
 }
