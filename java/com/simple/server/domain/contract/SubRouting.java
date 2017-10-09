@@ -17,7 +17,8 @@ public class SubRouting extends AContract{
 	protected int id;
 	protected String bodyContentType;
 	protected Boolean useAuth;
-		
+	protected String bodyFldSeparator;	
+	
 	@Override
 	public String getClazz() {
 		return SubRouting.class.getName();
@@ -31,7 +32,7 @@ public class SubRouting extends AContract{
 	public ContentType getBodyContentType() {
 		return ContentType.fromValue(bodyContentType);
 	}
-	public void setBodyContentType(ContentType bodyContentType) {
+	public void setBodyContentType(ContentType bodyContentType) {				
 		this.bodyContentType = bodyContentType.toValue();
 	}		
 	public Boolean getUseAuth() {
@@ -39,6 +40,12 @@ public class SubRouting extends AContract{
 	}
 	public void setUseAuth(Boolean useAuth) {
 		this.useAuth = useAuth;
+	}		
+	public String getBodyFldSeparator() {
+		return bodyFldSeparator;
+	}
+	public void setBodyFldSeparator(String bodyFldSeparator) {
+		this.bodyFldSeparator = bodyFldSeparator;
 	}
 	@Override
 	public void copyFrom(IRec rec) throws Exception{

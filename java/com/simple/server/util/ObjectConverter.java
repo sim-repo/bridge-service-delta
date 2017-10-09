@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
+import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -22,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import com.simple.server.config.ContentType;
 
 public class ObjectConverter {
 	private ObjectConverter(){}
@@ -144,6 +149,52 @@ public class ObjectConverter {
 	        valid = false;
 	    }
 	    return valid;
+	}
+	
+	public static boolean isValidXML(final String xml) throws Exception{
+		 boolean valid = true;
+		 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		 try {
+			 Document doc = dBuilder.parse(xml);
+		 }catch(Exception e) {
+			 valid = false;
+		 }
+		 return valid;
+	}
+	
+	
+	private static String prepareJSON(String original, String fldSeparator) {
+		if(fldSeparator != null)
+			return original.replaceAll(fldSeparator, "\"");
+		return original;
+	}
+	
+	
+	public static String bodyTransform(String original, ContentType contentType, String fldSeparator) throws Exception{
+		
+		String converted = original;
+		String temp = "";
+		
+		switch(contentType){		
+		 	case XmlPlainText:
+		 	case ApplicationXml: 
+		 		if(fldSeparator != null)
+		 			original = prepareJSON(original, fldSeparator);
+		 		boolean isJson = ObjectConverter.isValidJSON(original);
+		 		if(isJson){
+		 			converted = ObjectConverter.jsonToXml(original,false);
+		 		}
+		 		break;
+		 	case JsonPlainText:
+		 	case ApplicationJson:
+		 		boolean isXml = ObjectConverter.isValidXML(original);
+		 		if(isXml){		 			
+		 			converted = ObjectConverter.xmlToJson(original);
+		 		}		 		
+		 		break;
+		}
+		return converted;
 	}
 	
 }

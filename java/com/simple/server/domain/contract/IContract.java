@@ -54,7 +54,7 @@ public interface IContract extends Serializable {
 	String getMethodHandler();
 	
 	void setMessageBodyValue(String body);
-	void bodyTransform(ContentType contentType) throws Exception;
+	void bodyTransform(ContentType contentType, String fldSeparator) throws Exception;
 	
 	
 	void setLogDatetime(String logDatetime);

@@ -260,7 +260,7 @@ public abstract class AContract implements IContract {
 		return ContentType.fromValue(responseContentType);
 	}
 
-	public void setResponseContentType(ContentType responseContentType) {
+	public void setResponseContentType(ContentType responseContentType) {	
 		this.responseContentType = responseContentType.toValue();
 	}
 
@@ -365,25 +365,11 @@ public abstract class AContract implements IContract {
 		this.setMessageHeaderValue(this.getClass().getSimpleName());					
 	}
 	
-	
-	public void bodyTransform(ContentType contentType) throws Exception{
-		
-		boolean isJson = false;
-		isJson = ObjectConverter.isValidJSON(this.messageBodyValue);			
-		
-		switch(contentType){		
-		 	case XmlPlainText:
-		 	case ApplicationXml: 
-		 		if(isJson){
-		 			this.setMessageBodyValue(ObjectConverter.jsonToXml(this.messageBodyValue,false));
-		 		}
-		 		break;
-		 	default:
-		 		if(!isJson){		 			
-		 			this.setMessageBodyValue(ObjectConverter.xmlToJson(this.messageBodyValue));
-		 		}		 		
-		 	break;
-		}
+	@Override
+	public void bodyTransform(ContentType contentType, String fldSeparator) throws Exception{
+				
+		String temp = ObjectConverter.bodyTransform(this.messageBodyValue, contentType, fldSeparator);
+		this.setMessageBodyValue(temp);
 	}
 	
 	@Override

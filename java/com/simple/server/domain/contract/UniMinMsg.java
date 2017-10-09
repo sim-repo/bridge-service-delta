@@ -67,24 +67,10 @@ public class UniMinMsg {
 		}
 	}
 	
-	public void bodyTransform(ContentType contentType) throws Exception{
-		
-		boolean isJson = false;		
-		isJson = ObjectConverter.isValidJSON(body);			
-		
-		switch(contentType){		
-		 	case XmlPlainText:
-		 	case ApplicationXml: 
-		 		if(isJson){
-		 			this.setBody(ObjectConverter.jsonToXml(body,true));
-		 		}
-		 		break;
-		 	default: 
-		 		if(!isJson){		 			
-		 			this.setBody(ObjectConverter.xmlToJson(body));
-		 		}		 		
-		 		break;
-		}
+	public void bodyTransform(ContentType contentType, String fldSeparator) throws Exception{
+				
+		String temp = ObjectConverter.bodyTransform(this.body, contentType, fldSeparator);
+		this.setBody(temp);		
 	}
 	
 }

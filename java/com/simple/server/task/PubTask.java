@@ -166,7 +166,7 @@ public class PubTask extends ATask {
 									uniMinMsg.setDatetime(oldMsg.getLogDatetime());
 									uniMinMsg.setContentType(subRoute.getResponseContentType());
 									uniMinMsg.setUrl(oldMsg.getResponseURI());
-									uniMinMsg.bodyTransform(subRoute.getBodyContentType());
+									uniMinMsg.bodyTransform(subRoute.getBodyContentType(), subRoute.getBodyFldSeparator());
 									http.sendHttp(uniMinMsg, uniMinMsg.getUrl(), uniMinMsg.getContentType(),
 											subRoute.getUseAuth());
 								} else {
@@ -184,7 +184,7 @@ public class PubTask extends ATask {
 								instance.setEndPointId(subRoute.getSubscriberId());
 								instance.setIsDirectInsert(subRoute.getIsDirectInsert());
 								instance.copyFrom(msg);
-								instance.bodyTransform(subRoute.getBodyContentType());
+								instance.bodyTransform(subRoute.getBodyContentType(), subRoute.getBodyFldSeparator());
 								appConfig.getQueueWrite().put(instance);
 							}
 
