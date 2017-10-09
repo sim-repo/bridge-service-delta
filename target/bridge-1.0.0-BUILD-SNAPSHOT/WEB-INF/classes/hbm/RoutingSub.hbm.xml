@@ -29,23 +29,29 @@
 		<property name="subscriberHandler" column="[subscriber_handler]" />		
 		<property name="subscriberStoreClass" column="[subscriber_store_class]" />
 		
-		<property name="responseContentType" column="[content_type]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.ContentType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-					
+			 
 				
 		<property name="isDirectInsert" column="[is_direct_insert]" />
 		
 		<property name="useAuth" column="[use_auth]" />
 		
-		<property name="bodyContentType" column="[body_content_type]">
-		    <type name="org.hibernate.type.EnumType">
+		<property name="bodyFldSeparator" column="[body_field_separator]"/>	
+		
+		<property name="bodyContentType" column="[body_content_type]" >
+		  <type name="org.hibernate.type.EnumType">
 		        <param name="enumClass">com.simple.server.config.ContentType</param>
-		        <param name="useNamed">true</param>
+		         <param name="useNamed">true</param>
 		    </type>
-		</property>					
+		</property>
+		
+		
+		<property name="responseContentType" column="[content_type]">
+		<type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.ContentType</param>
+		         <param name="useNamed">true</param>
+		    </type>
+		</property>
+		
+		   				
 	</class>
 </hibernate-mapping>
