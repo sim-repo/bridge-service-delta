@@ -6,7 +6,7 @@
 <hibernate-mapping package="com.simple.server.domain.uni">
 						
 	<class name="IncomingBuffer" table="[ESB Incoming Buffer]">
-		<id name="id" column="[entry no]">
+		<id name="id" column="[entry_no]">
 			<generator class="native" />
 		</id>					
 		

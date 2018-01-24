@@ -25,8 +25,8 @@ public class Sender {
 			return;
 		
 		msg.setServiceOutDatetime(new Date().toString());
-		msg.setServiceIdFrom(appConfig.SERVICE_ID);		
+		msg.setServiceIdFrom(appConfig.getServiceId());		
 		String json = ObjectConverter.objectToJson(msg);				
-		msgChannel.send(MessageBuilder.withPayload( json ).setHeader(appConfig.LOG_HEADER_NAME, msg.getClass().getSimpleName()).build());
+		msgChannel.send(MessageBuilder.withPayload( json ).setHeader(appConfig.getServiceId(), msg.getClass().getSimpleName()).build());
 	}
 }

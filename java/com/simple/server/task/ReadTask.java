@@ -53,7 +53,7 @@ public class ReadTask extends ATask {
     	}     		
         for(IContract msg: list){
         	IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
-        	List<IContract> res = service.read(msg);
+        	List<IContract> res = service.read(msg.getEndPointId(), msg);
         	for(IContract r: res){
         		try{
         			AContract a = (AContract)r;        		

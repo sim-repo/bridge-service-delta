@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.simple.server.config.EndpointType;
 
 @JsonAutoDetect
 @JsonDeserialize(as = PubSuccessRouting.class)
@@ -31,12 +30,12 @@ public class PubSuccessRouting extends AContract{
 		this.id = id;
 	}
 	
-	public EndpointType getBodyContentType() {
-		return EndpointType.fromValue(bodyContentType);
+	public String getBodyContentType() {
+		return bodyContentType;
 	}
 	
-	public void setBodyContentType(EndpointType contentType) {
-		this.bodyContentType = contentType.toValue();
+	public void setBodyContentType(String contentType) {
+		this.bodyContentType = contentType;
 	}
 		
 }

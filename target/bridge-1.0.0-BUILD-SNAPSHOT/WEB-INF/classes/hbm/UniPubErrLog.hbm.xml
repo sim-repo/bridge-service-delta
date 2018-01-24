@@ -18,24 +18,9 @@
 		<property name="storeClass" column="[subscriber_store_class]" />
 		
 		
-		<property name="senderId" column="[publisher_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EndpointType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-
-		<property name="subscriberId" column="[subscriber_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EndpointType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-				
+		<property name="senderId" column="[publisher_id]" />		    
+		<property name="subscriberId" column="[subscriber_id]"/>
 		<property name="errorId" column="[error_id]"/>		    
-		
 		<property name="details" column="[details]" />
-		
-				
 	</class>
 </hibernate-mapping>

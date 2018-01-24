@@ -10,31 +10,15 @@
 			<generator class="native" />
 		</id>
 	
-		<property name="senderId" column="[publisher_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EndpointType</param>
-		         <param name="useNamed">true</param>
-		    </type>
-		</property>
+		<property name="senderId" column="[publisher_id]" />
 	
-		<property name="subscriberId" column="[subscriber_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EndpointType</param>
-		         <param name="useNamed">true</param>
-		    </type>
-		</property>
-		
-				
+		<property name="subscriberId" column="[subscriber_id]" />
 		<property name="eventId" column="[event_id]"/>	
 		<property name="subscriberHandler" column="[subscriber_handler]" />		
 		<property name="subscriberStoreClass" column="[subscriber_store_class]" />
-		
-			 
 				
 		<property name="isDirectInsert" column="[is_direct_insert]" />
-		
 		<property name="useAuth" column="[use_auth]" />
-		
 		<property name="bodyFldSeparator" column="[body_field_separator]"/>	
 		
 		<property name="bodyContentType" column="[body_content_type]" >

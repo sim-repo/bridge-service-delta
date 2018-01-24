@@ -1,6 +1,5 @@
 package com.simple.server.domain;
 
-import com.simple.server.config.EndpointType;
 
 public abstract class ARec implements IRec{
 	
@@ -9,12 +8,12 @@ public abstract class ARec implements IRec{
 	protected String eventId;
 	
 	@Override
-	public EndpointType getSenderId() {
-		return EndpointType.fromValue(senderId);
+	public String getSenderId() {
+		return senderId;
 	}
 
-	public void setSenderId(EndpointType senderId) {
-		this.senderId = senderId.toValue();
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
 	}	
 	
 	@Override

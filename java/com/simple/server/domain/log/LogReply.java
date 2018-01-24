@@ -1,7 +1,6 @@
 package com.simple.server.domain.log;
 
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
 
 public class LogReply extends ALogRec{
@@ -70,10 +69,5 @@ public class LogReply extends ALogRec{
 		
 	}
 
-	@Override
-	public EndpointType getEndpoint(){
-		return EndpointType.LOG;
-	}
-	
 	
 }

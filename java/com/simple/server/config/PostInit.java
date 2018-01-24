@@ -1,6 +1,5 @@
 package com.simple.server.config;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,10 @@ public class PostInit implements ApplicationListener<ContextRefreshedEvent> {
 	@Value("${queueSizeMon.int.property :1}")
 	private int queueSizeMon;
 	
+	@Value("${service.String.property}")
+	private String serviceId;
+	
+	
 	@Override
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
 		
@@ -53,8 +56,10 @@ public class PostInit implements ApplicationListener<ContextRefreshedEvent> {
 		  appConfig.initPub(queueSizePub);
 		  appConfig.initSub(queueSizeSub);
 		  appConfig.initLog(queueSizeLog);
-		  appConfig.initMon(queueSizeMon);
+		  appConfig.initMon(queueSizeMon);		  
+		  appConfig.initServiceId(serviceId);
 		  
+		  appConfig.setSessionFactories("LOG", appConfig.LOG_SESSION_FACTORY_BEAN_ID);
 		  taskRunner.initProcessing();		 
  
 	}

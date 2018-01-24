@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.simple.server.config.AppConfig;
-import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
 import com.simple.server.domain.contract.AContract;
 import com.simple.server.domain.contract.ErrDefMsg;
@@ -114,13 +113,14 @@ public class WriteTask extends ATask {
 				}
 				
 				IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
+				
 				if (service == null)
 					throw new Exception(
 							String.format("NullPointerException, check settings [routing pub success/error]. IService can't initilialized for %s", msg.getEndPointId()));
 	        	if(msg.getIsDirectInsert())
-	        		service.insertAsIs(msg);
+	        		service.insertAsIs(msg.getEndPointId(), msg);
 	        	else
-	        		service.insert(msg);       
+	        		service.insert(msg.getEndPointId(), msg);       
         	}
         	catch(Exception e){        	
         		switch(msg.getOperationType()){
@@ -155,11 +155,11 @@ public class WriteTask extends ATask {
 	
 	private void setPub(IContract msg, List<ErrPubMsg> errList, List<PubErrRouting> routes) throws Exception{
 		
-		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
+		IService service = getAppConfig().getServiceFactory().getService(appConfig.LOG_ENDPOINT_NAME);
 		
 		Map<String, Object> map = new HashMap();
 		map.put("eventId", msg.getEventId());
-		routes = service.<PubErrRouting>readbyCriteria(PubErrRouting.class, map, 1, null);
+		routes = service.<PubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubErrRouting.class, map, 1, null);
 		if (routes == null || routes.size() == 0)
 			putErr(ErrPubMsg.class,msg, errList,
 							new Exception(String.format("[routing Pub err] - no records found by filter %s: < %s > ",
@@ -171,11 +171,11 @@ public class WriteTask extends ATask {
 	
 	private void setSub(IContract msg, List<ErrSubMsg> errList, List<SubErrRouting> routes) throws Exception{
 		
-		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
+		IService service = getAppConfig().getServiceFactory().getService(appConfig.LOG_ENDPOINT_NAME);
 		
 		Map<String, Object> map = new HashMap();
 		map.put("eventId", msg.getEventId());
-		routes = service.<SubErrRouting>readbyCriteria(SubErrRouting.class, map, 1, null);
+		routes = service.<SubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, SubErrRouting.class, map, 1, null);
 		if (routes == null || routes.size() == 0)
 			putErr(ErrSubMsg.class, msg, errList,
 							new Exception(String.format("[routing Sub err] - no records found by filter %s: < %s > ",
@@ -270,9 +270,9 @@ public class WriteTask extends ATask {
 					newErr.setSenderId(err.getSenderId());
 					newErr.setEndPointId(err.getSenderId());
 					
-					if(!err.getSubscriberId().equals(EndpointType.UNKNOWN))
+					if(!err.getSubscriberId().equals(""))
 						newErr.setSubscriberId(err.getSubscriberId());
-					if(!err.getPublisherId().equals(EndpointType.UNKNOWN))
+					if(!err.getPublisherId().equals(""))
 						newErr.setPublisherId(err.getPublisherId());
 					
 					appConfig.getQueueLog().put(err);

@@ -1,28 +1,24 @@
-package com.simple.server.service.nav;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.simple.server.service.endpoint;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
 import com.simple.server.dao.IDao;
-import com.simple.server.domain.IRec;
-import com.simple.server.domain.contract.IContract;
 import com.simple.server.service.AService;
-import com.simple.server.util.ObjectConverter;
 
-@Service("navService")
+
+@Service("endpointService")
 @Scope("singleton")
-public class NavServiceImpl extends AService implements INavService{
+public class EndpointServiceImpl extends AService implements IEndpointService{
 
 	@Override
 	public IDao getDao() throws Exception {	
-		return getAppConfig().getNavDao();
+		return getAppConfig().getEndpointDao();
 	}
-
+	
+	
+	/*
 	@Override
-	public List<IContract> read(IContract msg) throws Exception {					
+	public List<IContract> read(String endpointId , IContract msg) throws Exception {					
 		IRec rec = getAppConfig().getContractRecFactory().newRec(msg);
 		List<IRec> list = getDao().read(rec);
 		if(list.size()==0)
@@ -37,7 +33,7 @@ public class NavServiceImpl extends AService implements INavService{
 		return res;
 	}
 	
-
+	
 	@Override
 	public <T extends IContract> List<T> read(String sql, Class<T> clazz) throws Exception {
 				
@@ -48,5 +44,5 @@ public class NavServiceImpl extends AService implements INavService{
 		res.add(t2);				
 		return res;
 	}
-	
+	*/
 }

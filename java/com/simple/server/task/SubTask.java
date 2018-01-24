@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.server.config.AppConfig;
-import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
 import com.simple.server.config.MiscType;
 import com.simple.server.config.OperationType;
@@ -95,11 +94,11 @@ public class SubTask extends ATask {
 				Map<String, Object> map = null;
 				String logDatetime = DateConvertHelper.getCurDate();
 
-				IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
+				IService service = getAppConfig().getServiceFactory().getService(appConfig.LOG_ENDPOINT_NAME);
 				map = new HashMap();
 				map.put("subscriberId", msg.getSenderId());
 				map.put("eventId", msg.getEventId());
-				subErrRoutesList = service.<SubErrRouting>readbyCriteria(SubErrRouting.class, map, 1, orderMap);
+				subErrRoutesList = service.<SubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, SubErrRouting.class, map, 1, orderMap);
 				map = null;
 				if (subErrRoutesList == null || subErrRoutesList.size() == 0) {
 					this.collectError(errList, msg, null,
@@ -115,7 +114,7 @@ public class SubTask extends ATask {
 
 				map = new HashMap();
 				map.put("juuid", msg.getJuuid());
-				List<HotPubMsg> hotPubList = service.<HotPubMsg>readbyCriteria(HotPubMsg.class, map, 1, orderMap);
+				List<HotPubMsg> hotPubList = service.<HotPubMsg>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, HotPubMsg.class, map, 1, orderMap);
 				if (hotPubList == null || hotPubList.size() == 0) {
 					this.collectError(errList, msg, subErrRouting, new Exception(String
 							.format("[hot pub] - no records found by filter %s: < %s >", "[guid]", msg.getJuuid())));
@@ -125,7 +124,7 @@ public class SubTask extends ATask {
 				map = new HashMap();
 				map.put("eventId", msg.getEventId());
 				List<RoutingPubConfirmMsg> confList = service
-						.<RoutingPubConfirmMsg>readbyCriteria(RoutingPubConfirmMsg.class, map, 1, orderMap);
+						.<RoutingPubConfirmMsg>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, RoutingPubConfirmMsg.class, map, 1, orderMap);
 
 				if (confList == null || confList.size() == 0) {
 					this.collectError(errList, msg, subErrRouting,

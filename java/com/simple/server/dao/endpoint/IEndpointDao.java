@@ -1,7 +1,7 @@
-package com.simple.server.dao.nav;
+package com.simple.server.dao.endpoint;
 
 import com.simple.server.dao.IDao;
 
-public interface INavDao extends IDao{
+public interface IEndpointDao extends IDao{
 
 }

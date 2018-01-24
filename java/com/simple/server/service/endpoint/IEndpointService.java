@@ -1,7 +1,7 @@
-package com.simple.server.service.nav;
+package com.simple.server.service.endpoint;
 
 import com.simple.server.service.IService;
 
-public interface INavService extends IService{
+public interface IEndpointService extends IService{
 
 }

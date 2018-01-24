@@ -6,7 +6,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.simple.server.config.AppConfig;
-import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.service.IService;
 
@@ -23,7 +22,7 @@ public class RemoteServiceImpl implements IRemoteService{
 	@Override
 	public void insert(IContract msg) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
-		service.insert(msg);
+		service.insert(msg.getEndPointId(), msg);
 	}
 
 	@Override
@@ -34,63 +33,63 @@ public class RemoteServiceImpl implements IRemoteService{
 	}
 
 	@Override
-	public void insert(String sql, EndpointType endpoint) throws Exception {
+	public void insert(String sql, String endpoint) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
-		service.insert(sql);		
+		service.insert(endpoint, sql);		
 	}
 	
 	@Override
 	public void delete(IContract msg) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
-		service.deleteAsIs(msg);
+		service.deleteAsIs(msg.getEndPointId(), msg);
 	}
 	
 	@Override
-	public String getFlatJson(String sql, EndpointType endpoint) throws Exception {	
+	public String getFlatJson(String sql, String endpoint) throws Exception {	
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
-		String res = service.readFlatJson(sql);
+		String res = service.readFlatJson(endpoint, sql);
 		return res;
 	}
 
 	@Override
-	public String getFlatJsonFirstObj(String sql, EndpointType endpoint) throws Exception {
+	public String getFlatJsonFirstObj(String sql, String endpoint) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
-		String res = service.getFlatJsonFirstObj(sql);
+		String res = service.getFlatJsonFirstObj(endpoint, sql);
 		return res;
 	}
 
 	@Override
-	public String getComplexJson(String sql, EndpointType endpoint) throws Exception {
+	public String getComplexJson(String sql, String endpoint) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
-		String res = service.readFlatJson(sql);
+		String res = service.readFlatJson(endpoint, sql);
 		return res;
 	}
 	
 	@Override
-	public String getFlatXml(String sql, EndpointType endpoint) throws Exception {
+	public String getFlatXml(String sql, String endpoint) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
-		String res = service.readFlatXml(sql);
+		String res = service.readFlatXml(endpoint, sql);
 		return res;
 	}
 
 	@Override
 	public List<IContract> getMsg(IContract msg) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
-		List<IContract> res = service.read(msg);
+		List<IContract> res = service.read(msg.getEndPointId(), msg);
 		return res;
 	}
 
 	@Override
 	public List<IContract> getAllMsg(IContract msg) throws Exception {		
 		IService service = getAppConfig().getServiceFactory().getService(msg.getEndPointId());
-		List<IContract> res = service.readAll(msg);
+		List<IContract> res = service.readAll(msg.getEndPointId(), msg);
 		return res;
 	}
 
 	@Override
-	public List<Map<String, Object>> getListMap(String sql, EndpointType endpoint) throws Exception {
+	public List<Map<String, Object>> getListMap(String sql, String endpoint) throws Exception {
 		IService service = getAppConfig().getServiceFactory().getService(endpoint);
-		return service.getListMap(sql);		
+		return service.getListMap(endpoint, sql);		
 	}
 
 	

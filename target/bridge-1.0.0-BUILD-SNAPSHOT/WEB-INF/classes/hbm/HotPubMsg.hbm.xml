@@ -12,17 +12,8 @@
 		
 		<property name="juuid" column="uuid" />
 		<property name="logDatetime" column="[log_datetime]"/>
-		
 		<property name="eventId" column="[event_id]"/>
-
-		<property name="senderId" column="[sender_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EndpointType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-		
-		<property name="messageBodyValue" column="[msg]"/>
-			
+		<property name="senderId" column="[sender_id]"/>
+		<property name="messageBodyValue" column="[msg]"/>			
 	</class>
 </hibernate-mapping>

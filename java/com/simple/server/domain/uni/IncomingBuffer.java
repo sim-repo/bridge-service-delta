@@ -1,7 +1,6 @@
 package com.simple.server.domain.uni;
 
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.domain.ARec;
 import com.simple.server.domain.IRec;
 import com.simple.server.domain.contract.IContract;
@@ -12,7 +11,7 @@ import com.simple.server.util.ObjectConverter;
 
 public class IncomingBuffer extends ARec implements IRec{
 
-	private int id;
+	public int id;
 	private String creationDatetime =DateConvertHelper.getCurDate(); 
 	private String juuid;
 	private String body;
@@ -88,7 +87,7 @@ public class IncomingBuffer extends ARec implements IRec{
 	}
 
 	@Override
-	public EndpointType getEndpoint() {
+	public String getEndpoint() {
 		// TODO Auto-generated method stub
 		return null;
 	}

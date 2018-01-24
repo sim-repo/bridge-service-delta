@@ -1,19 +1,25 @@
 package com.simple.server.config;
 
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
 
+import com.simple.server.dao.endpoint.IEndpointDao;
+import com.simple.server.dao.endpoint.EndpointDaoImpl;
 import com.simple.server.dao.log.ILogDao;
-import com.simple.server.dao.nav.INavDao;
-import com.simple.server.dao.nav.NavDaoImpl;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.factory.ContractRecFactory;
 import com.simple.server.factory.PhaserRunner;
@@ -22,6 +28,10 @@ import com.simple.server.factory.ServiceFactory;
 import com.simple.server.mediators.Mediator;
 import com.simple.server.service.IService;
 import com.simple.server.service.sender.Sender;
+
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.context.ApplicationContext;
 
 @Service("appConfig")
 @Scope("singleton")
@@ -33,9 +43,18 @@ public class AppConfig {
 	public final static String WORKSTATION = "MSK10WEBSVC2";
 	
 	public final static String DATEFORMAT = "dd.MM.yyyy HH:mm:ss";
-	public final static String SERVICE_ID = "bridge"; 
+	
 	public final static String ROLE_ID = "BRIDGE-SERVICE"; 
 	public final static String LOG_HEADER_NAME = "clazz";
+	
+	public final static String LOG_SESSION_FACTORY_BEAN_ID = "logSessionFactory";
+	public final static String LOG_ENDPOINT_NAME = "LOG";
+	
+	
+	private static Map<String, SessionFactory> sessionFactories = new HashMap();
+	private static Map<String, JdbcTemplate> jdbcTemplates = new HashMap();
+	
+	private String serviceId;
 	
 	@Autowired
     private MessageChannel channelBusLog;	
@@ -57,8 +76,10 @@ public class AppConfig {
 	
 	private Mediator mediator = new Mediator();   
 	
+	
 	@Autowired
-	private JdbcTemplate navJdbcTemplate;
+	private ApplicationContext ctx;
+	
 			
 	@Autowired
 	private JdbcTemplate logJdbcTemplate;
@@ -66,8 +87,6 @@ public class AppConfig {
 	@Autowired
 	private SessionFactory logSessionFactory;
 		
-	@Autowired
-	private SessionFactory navSessionFactory;
 
 	@Autowired
 	private ContractRecFactory contractRecFactory;
@@ -83,10 +102,10 @@ public class AppConfig {
 	private ILogDao logDao;	
 	
 	@Autowired
-	private NavDaoImpl navDao;
+	private EndpointDaoImpl endpointDao;
 	
 	@Autowired
-	private IService navService;
+	private IService endpointService;
 	
 	@Autowired
 	private IService logService;
@@ -102,10 +121,7 @@ public class AppConfig {
 		return sender;
 	}
 
-	public JdbcTemplate getNavJdbcTemplate() {
-		return navJdbcTemplate;
-	}
-
+	
 	public JdbcTemplate getLogJdbcTemplate() {
 		return logJdbcTemplate;
 	}
@@ -114,17 +130,12 @@ public class AppConfig {
 		return logSessionFactory;
 	}
 
-	public SessionFactory getNavSessionFactory() {
-		return navSessionFactory;
-	}	
-
-
 	public ILogDao getLogDao() {
 		return logDao;
 	}
 
-	public INavDao getNavDao() {
-		return navDao;
+	public IEndpointDao getEndpointDao() {
+		return endpointDao;
 	}
 	
 
@@ -135,10 +146,68 @@ public class AppConfig {
 	public ServiceFactory getServiceFactory() {
 		return serviceFactory;
 	}
+		
 	
+	public void createDynamicBean() {
+        AutowireCapableBeanFactory factory = null;        
+        factory = ctx.getAutowireCapableBeanFactory();
+        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) factory;
+        GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+        beanDefinition.setBeanClass(DriverManagerDataSource.class);
+        beanDefinition.setAutowireCandidate(true);
+        registry.registerBeanDefinition("mysDS", beanDefinition);
+        factory.autowireBeanProperties(this,
+                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+        
+        
+        DriverManagerDataSource ds = (DriverManagerDataSource)ctx.getBean("mysDS");
+        ds.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        ds.setUrl("jdbc:sqlserver://MSK10NAV52\\MIRROR;databaseName=SimpleERPCopyNAV");
+        ds.setUsername("jservice");
+        ds.setPassword("Larina123");
+        
+        
+        beanDefinition = new GenericBeanDefinition();
+        beanDefinition.setBeanClass(LocalSessionFactoryBean.class);
+        beanDefinition.setAutowireCandidate(true);
+        registry.registerBeanDefinition("mySessionFactory", beanDefinition);
+        factory.autowireBeanProperties(this,
+                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+                                               
+    }
+	
+	public SessionFactory getSessionFactoryByEndpointId(String endpointId) {
+		if(sessionFactories.containsKey(endpointId))		
+			return  sessionFactories.get(endpointId);
+		return null;
+	}
 
-	public IService getNavService() {
-		return navService;
+	public void setSessionFactories(String endpointId, String sessionFactoryBeanId) {
+		SessionFactory sf = (SessionFactory)ctx.getBean(sessionFactoryBeanId);		
+		sessionFactories.put(endpointId, sf);
+	}
+
+	public JdbcTemplate getJdbcTemplateByKey(String endpointId) {
+		System.out.println("check 1");
+		if(jdbcTemplates.containsKey(endpointId)) {		
+			System.out.println("check 2");
+			return  jdbcTemplates.get(endpointId);
+		}
+		return null;
+	}
+
+	public void setJdbcTemplates(String endpointId, String jdbcTemplateBeanId) {
+		JdbcTemplate template = (JdbcTemplate)ctx.getBean(jdbcTemplateBeanId);		
+		jdbcTemplates.put(endpointId, template);
+	}
+	
+	
+	public ApplicationContext getApplicationContext() {
+		return ctx;
+	}
+	
+	public IService getEndpointService() {
+		return endpointService;
 	}
 
 	public IService getLogService() {
@@ -228,4 +297,13 @@ public class AppConfig {
 	public void initMon(int size){
 		this.queueMon= new LinkedBlockingQueue<>(size);
 	}
+	
+	public void initServiceId(String serviceId) {
+		this.serviceId = serviceId;
+	}
+	
+	public String getServiceId() {
+		return this.serviceId;
+	}
+	
 }

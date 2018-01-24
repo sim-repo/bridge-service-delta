@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
 
 @JsonAutoDetect
@@ -22,10 +21,10 @@ public class LogEventSetting extends ALogRec{
 		this.id = id;
 	}
 	
-	public EndpointType getSubscriberId() {
-		return EndpointType.fromValue(subscriberId);
+	public String getSubscriberId() {
+		return subscriberId;
 	}
-	public void setSubscriberId(EndpointType subscriberId) {
+	public void setSubscriberId(String subscriberId) {
 		this.subscriberId = subscriberId.toString();
 	}
 	public String getSubscriberHandler() {

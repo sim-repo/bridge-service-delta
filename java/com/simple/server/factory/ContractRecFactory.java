@@ -3,9 +3,10 @@ package com.simple.server.factory;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.simple.server.config.EndpointType;
+import com.simple.server.config.AppConfig;
 import com.simple.server.domain.IRec;
 import com.simple.server.domain.UniRequest;
 import com.simple.server.domain.UniResult;
@@ -28,6 +29,9 @@ import com.simple.server.domain.uni.IncomingBuffer;
 public class ContractRecFactory {
 
 	
+	@Autowired
+	private AppConfig appConfig;
+	
 	/** Создание объекта IRec из IContract.
 	 * @param msg IContract 
 	 * @return res IRec
@@ -48,9 +52,9 @@ public class ContractRecFactory {
 			return res;
 		}
 
-		EndpointType endpoint = msg.getEndPointId();
+		String endpoint = msg.getEndPointId();
 
-		if (EndpointType.LOG.equals(endpoint)) {
+		if (appConfig.LOG_ENDPOINT_NAME.equals(endpoint)) {
 			if (msg instanceof SubRouting) {
 				res = new UniRequest();
 				res.copyFrom(msg);
@@ -82,7 +86,7 @@ public class ContractRecFactory {
 			return res;
 		}
 
-		EndpointType endpoint = rec.getEndpoint();
+		String endpoint = rec.getEndpoint();
 		/*
 		 * example: if(EndpointType.LOG.equals(endpoint)) {
 		 * 

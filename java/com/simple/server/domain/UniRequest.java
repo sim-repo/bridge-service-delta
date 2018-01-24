@@ -3,7 +3,6 @@ package com.simple.server.domain;
 import java.util.Map;
 
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.SubRouting;
 import com.simple.server.domain.contract.IContract;
 import com.simple.server.domain.contract.TagRequestMsg;
@@ -19,12 +18,12 @@ public class UniRequest extends ARec implements IRec{
 	protected String senderId;
 	
 	@Override
-	public EndpointType getSenderId() {
-		return EndpointType.fromValue(senderId);
+	public String getSenderId() {
+		return senderId;
 	}
 
-	public void setSenderId(EndpointType senderId) {
-		this.senderId = senderId.toValue();
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
 	}
 
 	public String getQuery() {
@@ -69,7 +68,7 @@ public class UniRequest extends ARec implements IRec{
 	}
 
 	@Override
-	public EndpointType getEndpoint() { 
+	public String getEndpoint() { 
 		return null;
 	}
 

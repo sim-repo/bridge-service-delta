@@ -11,24 +11,8 @@
 		</id>
 		
 		<property name="juuid" column="uuid" />
-		
-		<property name="eventId" column="[event_id]"/>
-										
-		<property name="senderId" column="[sender_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EndpointType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-		
-		
-		<property name="subscriberId" column="[subscriber_id]">
-		    <type name="org.hibernate.type.EnumType">
-		        <param name="enumClass">com.simple.server.config.EndpointType</param>
-		        <param name="useNamed">true</param>
-		    </type>
-		</property>
-		
-	
+		<property name="eventId" column="[event_id]"/>									
+		<property name="senderId" column="[sender_id]"/>
+		<property name="subscriberId" column="[subscriber_id]"/>		    			
 	</class>
 </hibernate-mapping>

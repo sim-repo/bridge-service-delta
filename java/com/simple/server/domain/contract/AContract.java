@@ -2,9 +2,9 @@ package com.simple.server.domain.contract;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.IRec;
@@ -16,8 +16,8 @@ public abstract class AContract implements IContract {
 
 	private static final long serialVersionUID = 1L;
 	
-	@Autowired
-	AppConfig appConfig;
+	@JsonIgnore 
+	private AppConfig appConfig;
 	
 	protected String clazz;
 	protected String juuid;
@@ -60,6 +60,10 @@ public abstract class AContract implements IContract {
 		return appConfig;
 	}
 	
+	public void setAppConfig(AppConfig appConfig) {
+		this.appConfig = appConfig;
+	}
+		
 	@Override
 	public String getJuuid() {
 		return juuid;
@@ -80,30 +84,30 @@ public abstract class AContract implements IContract {
 	}
 	
 	@Override
-	public EndpointType getSenderId() {
-		return EndpointType.fromValue(senderId);
+	public String getSenderId() {
+		return senderId;
 	}
 
-	public void setSenderId(EndpointType senderId) {
-		this.senderId = senderId.toValue();
-	}
-
-	@Override
-	public EndpointType getEndPointId() {
-		return EndpointType.fromValue(endPointId);
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
 	}
 
 	@Override
-	public void setEndPointId(EndpointType endPointId) {
-		this.endPointId = endPointId.toValue();
+	public String getEndPointId() {
+		return endPointId;
+	}
+
+	@Override
+	public void setEndPointId(String endPointId) {
+		this.endPointId = endPointId;
 	}
 	@Override
-	public EndpointType getSubscriberId() {
-		return EndpointType.fromValue(subscriberId);
+	public String getSubscriberId() {
+		return subscriberId;
 	}
 	@Override
-	public void setSubscriberId(EndpointType subscriberId) {
-		this.subscriberId = subscriberId.toValue();
+	public void setSubscriberId(String subscriberId) {
+		this.subscriberId = subscriberId;
 	}
 
 	public String getSubscriberHandler() {
@@ -122,12 +126,12 @@ public abstract class AContract implements IContract {
 		this.subscriberStoreClass = subscriberStoreClass;
 	}
 	@Override
-	public EndpointType getPublisherId() {
-		return EndpointType.fromValue(publisherId);
+	public String getPublisherId() {
+		return publisherId;
 	}
 	@Override
-	public void setPublisherId(EndpointType publisherId) {
-		this.publisherId = publisherId.toValue();
+	public void setPublisherId(String publisherId) {
+		this.publisherId = publisherId;
 	}
 
 	public String getPublisherHandler() {
@@ -327,16 +331,16 @@ public abstract class AContract implements IContract {
 		if(this.getJuuid() == null)
 			this.setJuuid(msg.getJuuid());		
 		
-		if(this.getEndPointId().equals(EndpointType.UNKNOWN))
+		if(this.getEndPointId() == null || this.getEndPointId().equals(""))
 			this.setEndPointId(msg.getEndPointId());
 		
-		if(this.getSenderId().equals(EndpointType.UNKNOWN))
+		if(this.getSenderId() == null || this.getSenderId().equals(""))
 			this.setSenderId(msg.getSenderId());
 		
-		if(this.getPublisherId().equals(EndpointType.UNKNOWN))
+		if(this.getPublisherId() == null || this.getPublisherId().equals(""))
 			this.setPublisherId(msg.getPublisherId());
 		
-		if(this.getSubscriberId().equals(EndpointType.UNKNOWN))
+		if(this.getSubscriberId() == null || this.getSubscriberId().equals(""))
 			this.setSubscriberId(msg.getSubscriberId());
 		
 		if(this.getEventId() == null || this.getEventId().equals(""))
@@ -361,7 +365,8 @@ public abstract class AContract implements IContract {
 			this.setLogDatetime(msg.getLogDatetime());
 		}		
 		this.setServiceRoleFrom(getAppConfig().ROLE_ID);
-		this.setServiceIdFrom(getAppConfig().SERVICE_ID);			
+		if(getAppConfig() != null)
+			this.setServiceIdFrom(getAppConfig().getServiceId());;			
 		this.setMessageHeaderValue(this.getClass().getSimpleName());					
 	}
 	

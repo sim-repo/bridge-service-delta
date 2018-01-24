@@ -1,7 +1,6 @@
 package com.simple.server.domain;
 
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.domain.contract.IContract;
 
 public class UniResult extends ARec implements IRec{
@@ -23,16 +22,16 @@ public class UniResult extends ARec implements IRec{
 	}
 	
 	@Override
-	public EndpointType getSenderId() {
-		return EndpointType.fromValue(senderId);
+	public String getSenderId() {
+		return senderId;
 	}
 
-	public void setSenderId(EndpointType senderId) {
-		this.senderId = senderId.toValue();
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
 	}
 
 	@Override
-	public EndpointType getEndpoint(){
+	public String getEndpoint(){
 		return null;
 	}
 	

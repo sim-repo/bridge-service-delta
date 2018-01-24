@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
+import org.hibernate.JDBCException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
-import com.simple.server.config.EndpointType;
 import com.simple.server.config.ErrorType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.contract.ErrPubMsg;
@@ -78,7 +78,8 @@ public class PubTask extends ATask {
 	        
 		
 
-		IService service = getAppConfig().getServiceFactory().getService(EndpointType.LOG);
+		IService service = getAppConfig().getServiceFactory().getService(appConfig.LOG_ENDPOINT_NAME);
+		
 		List<PubErrRouting> pubErrRoutes = null;
 		List<PubSuccessRouting> pubSuccessRoutes = null;
 		List<ErrPubMsg> errList = new ArrayList();
@@ -88,19 +89,31 @@ public class PubTask extends ATask {
 		try {
 			for (IContract msg : list) {
 				try {
-					if (msg.getPublisherId().equals(EndpointType.UNKNOWN)) {
+					if (msg.getPublisherId()==null || msg.getPublisherId().equals("")) {
 						msg.setPublisherId(msg.getSenderId());
 					}
 
-					HotPubMsg hotPubMsg = new HotPubMsg();
-					hotPubMsg.copyFrom(msg);
-					hotPubMsg.setLogDatetime(logDatetime);
-					service.insertAsIs(hotPubMsg);
-
 					Map<String, Object> map = new HashMap();
+					map = new HashMap();
+					map.put("eventId", msg.getEventId());
+					map.put("senderId", msg.getSenderId());
+					if (msg.getSubscriberId() != null && !msg.getSubscriberId().equals(""))
+						map.put("subscriberId", msg.getSubscriberId());
+					subRoutes = service.<SubRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, SubRouting.class, map, 0, null);
+					if (subRoutes == null || subRoutes.size() == 0) {
+						this.collectError(errList, msg, null,
+								new Exception(String.format(
+										"[routing SUB] - no records found by filters %s: < %s >, %s: < %s > ",
+										"eventId", msg.getEventId(), "senderId", msg.getSenderId())),
+								pubErrRoutes);
+						continue;
+					}
+					
+					
+					map = new HashMap();
 					map.put("eventId", msg.getEventId());
 					map.put("publisherId", msg.getSenderId());
-					pubErrRoutes = service.<PubErrRouting>readbyCriteria(PubErrRouting.class, map, 1, null);
+					pubErrRoutes = service.<PubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubErrRouting.class, map, 1, null);
 					if (pubErrRoutes == null || pubErrRoutes.size() == 0) {
 						this.collectError(errList, msg, null,
 								new Exception(String.format(
@@ -109,7 +122,7 @@ public class PubTask extends ATask {
 								null);
 					}
 
-					pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(PubSuccessRouting.class, map, 1, null);
+					pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubSuccessRouting.class, map, 1, null);
 					if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
 						this.collectError(errList, msg, null,
 								new Exception(String.format(
@@ -119,22 +132,45 @@ public class PubTask extends ATask {
 								)), null);
 					}
 
-					map = new HashMap();
-					map.put("eventId", msg.getEventId());
-					map.put("senderId", msg.getSenderId());
-					if (msg.getSubscriberId() != null && msg.getSubscriberId() != EndpointType.UNKNOWN)
-						map.put("subscriberId", msg.getSubscriberId());
-					subRoutes = service.<SubRouting>readbyCriteria(SubRouting.class, map, 0, null);
-					if (subRoutes == null || subRoutes.size() == 0) {
-						this.collectError(errList, msg, null,
-								new Exception(String.format(
-										"[routing SUB] - no records found by filters %s: < %s >, %s: < %s > ",
-										"eventId", msg.getEventId(), "senderId", msg.getSenderId())),
-								pubErrRoutes);
+				
+					
+					
+					try {
+						HotPubMsg hotPubMsg = new HotPubMsg();
+						hotPubMsg.setAppConfig(appConfig);
+						hotPubMsg.copyFrom(msg);
+						hotPubMsg.setLogDatetime(logDatetime);												
+						service.insertAsIs(appConfig.LOG_ENDPOINT_NAME, hotPubMsg);
+					}catch(JDBCException e) {
+						String detail = String.format("[hot pub] - %s",e.getSQLException());
+						if(subRoutes != null) {
+							for (SubRouting r : subRoutes) 							
+									this.collectError(errList, msg, r, new Exception(detail), pubErrRoutes);						
+						}
+						else		
+							this.collectError(errList, msg, null, new Exception(detail), pubErrRoutes);							
 						continue;
 					}
-
+					
+					
 					SubRouting subRoute = null;
+					for (IContract route : subRoutes) {
+						subRoute = (SubRouting) route;
+						BusPubMsg pubMsg = new BusPubMsg();
+						pubMsg.setAppConfig(appConfig);
+						if (subRoute.getSubscriberHandler() != null
+								&& !subRoute.getSubscriberHandler().equals("")) {
+							pubMsg.setResponseURI(subRoute.getSubscriberHandler());
+						}else if (subRoute.getSubscriberStoreClass() != null
+									&& !subRoute.getSubscriberStoreClass().equals("")) {
+							pubMsg.setResponseURI(subRoute.getSubscriberStoreClass());
+						}
+												
+						pubMsg.copyFrom(msg);
+						appConfig.getQueueLog().put(pubMsg);												
+					}
+					
+					
 					for (IContract r : subRoutes) {
 						try {
 							subRoute = (SubRouting) r;
@@ -188,17 +224,31 @@ public class PubTask extends ATask {
 								appConfig.getQueueWrite().put(instance);
 							}
 
-							this.collectSuccess(successList, msg, subRoute, pubSuccessRoutes);
-
-							BusPubMsg pubMsg = new BusPubMsg();
-							pubMsg.copyFrom(msg);
-							appConfig.getQueueLog().put(pubMsg);
-						} catch (Exception e) {
+							this.collectSuccess(successList, msg, subRoute, pubSuccessRoutes);														
+						} 
+						catch (JDBCException e) {
+							this.collectError(errList, msg, subRoute, new Exception(e.getSQLException()), pubErrRoutes);
+						}
+						catch (Exception e) {							
 							this.collectError(errList, msg, subRoute, new Exception(e.getMessage()), pubErrRoutes);
 						}
 					}
-				} catch (Exception e) {
-					this.collectError(errList, msg, null, new Exception(e.getMessage()), pubErrRoutes);
+				} 
+				catch (JDBCException e) {
+					if(subRoutes != null) {
+						for (SubRouting r : subRoutes) 							
+								this.collectError(errList, msg, r, new Exception(e.getSQLException()), pubErrRoutes);						
+					}
+					else		
+						this.collectError(errList, msg, null, new Exception(e.getSQLException()), pubErrRoutes);					
+				}
+				catch (Exception e) {
+					if(subRoutes != null) {
+						for (SubRouting r : subRoutes) 
+							this.collectError(errList, msg, r, new Exception(e.getMessage()), pubErrRoutes);						
+					}
+					else	
+						this.collectError(errList, msg, null, new Exception(e.getMessage()), pubErrRoutes);
 				}
 			}
 		} catch (Exception e) {
@@ -212,6 +262,8 @@ public class PubTask extends ATask {
 		}
 	}
 
+	
+	
 	private void sendErrors(List<ErrPubMsg> errList) {
 		for (ErrPubMsg err : errList) {
 			try {
@@ -315,7 +367,7 @@ public class PubTask extends ATask {
 		ErrPubMsg err = null;
 		String logDatetime = DateConvertHelper.getCurDate();
 
-		if (routings == null) {
+		if (routings == null || routings.size() == 0) {
 			err = new ErrPubMsg();
 			err.setErrorId(ErrorType.PubTask.toValue());
 			err.setOperationType(OperationType.PUB);
