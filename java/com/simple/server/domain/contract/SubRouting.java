@@ -18,6 +18,9 @@ public class SubRouting extends AContract{
 	protected String bodyContentType;
 	protected Boolean useAuth;
 	protected String bodyFldSeparator;	
+	protected Boolean removeXmlAttributes;	
+	protected Boolean useCharsetBase64;
+	protected Boolean useXmlDeclaration;
 	
 	@Override
 	public String getClazz() {
@@ -46,6 +49,27 @@ public class SubRouting extends AContract{
 	}
 	public void setBodyFldSeparator(String bodyFldSeparator) {
 		this.bodyFldSeparator = bodyFldSeparator;
+	}			
+	public Boolean getRemoveXmlAttributes() {
+		return removeXmlAttributes;
+	}
+	public void setRemoveXmlAttributes(Boolean removeXmlAttributes) {
+		this.removeXmlAttributes = removeXmlAttributes;
+	}
+	public Boolean getUseCharsetBase64() {
+		return useCharsetBase64;
+	}
+	public void setUseCharsetBase64(Boolean useCharsetBase64) {
+		this.useCharsetBase64 = useCharsetBase64;
+	}
+	public void setBodyContentType(String bodyContentType) {
+		this.bodyContentType = bodyContentType;
+	}	
+	public Boolean getUseXmlDeclaration() {
+		return useXmlDeclaration;
+	}
+	public void setUseXmlDeclaration(Boolean useXmlDeclaration) {
+		this.useXmlDeclaration = useXmlDeclaration;
 	}
 	@Override
 	public void copyFrom(IRec rec) throws Exception{

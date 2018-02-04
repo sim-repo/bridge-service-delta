@@ -1,11 +1,9 @@
 package com.simple.server.domain.contract;
 
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
-import com.simple.server.config.ErrorType;
 import com.simple.server.config.OperationType;
 import com.simple.server.domain.IRec;
 import com.simple.server.util.DateConvertHelper;
@@ -371,9 +369,9 @@ public abstract class AContract implements IContract {
 	}
 	
 	@Override
-	public void bodyTransform(ContentType contentType, String fldSeparator) throws Exception{
+	public void bodyTransform(ContentType contentType, String fldSeparator, Boolean removeXmlAttributes, Boolean useCharsetBase64, Boolean useXMLDeclaration) throws Exception{
 				
-		String temp = ObjectConverter.bodyTransform(this.messageBodyValue, contentType, fldSeparator);
+		String temp = ObjectConverter.bodyTransform(this.messageBodyValue, contentType, fldSeparator, removeXmlAttributes, useCharsetBase64, useXMLDeclaration);		
 		this.setMessageBodyValue(temp);
 	}
 	

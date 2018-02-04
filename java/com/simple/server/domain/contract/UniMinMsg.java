@@ -67,10 +67,16 @@ public class UniMinMsg {
 		}
 	}
 	
-	public void bodyTransform(ContentType contentType, String fldSeparator) throws Exception{
+	public void bodyTransform(ContentType contentType, String fldSeparator, Boolean removeXmlAttributes, Boolean useCharsetBase64, Boolean useXMLDeclaration) throws Exception{
 				
-		String temp = ObjectConverter.bodyTransform(this.body, contentType, fldSeparator);
+		String temp = ObjectConverter.bodyTransform(this.body, contentType, fldSeparator, removeXmlAttributes, useCharsetBase64, useXMLDeclaration);		
 		this.setBody(temp);		
 	}
+	@Override
+	public String toString() {
+		return "UniMinMsg [body=" + body + "]";
+	}
+	
+	
 	
 }

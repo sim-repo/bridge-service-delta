@@ -5,6 +5,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Base64;
+import java.io.StringReader;
+
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,6 +17,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -27,6 +33,21 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.simple.server.config.ContentType;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+
 
 public class ObjectConverter {
 	private ObjectConverter(){}
@@ -80,7 +101,7 @@ public class ObjectConverter {
 	public static String objectToXml(Object object, Boolean useDeclaration) throws Exception{
 		XmlMapper xmlMapper = new XmlMapper();
 		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, useDeclaration);
-		String xml = xmlMapper.writeValueAsString(object);		
+		String xml = xmlMapper.writer().withRootName("Message").writeValueAsString(object);		
 		return xml;
 }
 	
@@ -171,9 +192,10 @@ public class ObjectConverter {
 	}
 	
 	
-	public static String bodyTransform(String original, ContentType contentType, String fldSeparator) throws Exception{
+	public static String bodyTransform(String original, ContentType contentType, String fldSeparator, Boolean removeXmlAttributes, Boolean useCharsetBase64, Boolean useDeclaration) throws Exception{
 		
-		String converted = original;
+		String converted = "";
+		String res = original;
 		String temp = "";
 		
 		switch(contentType){		
@@ -183,18 +205,123 @@ public class ObjectConverter {
 		 			original = prepareJSON(original, fldSeparator);
 		 		boolean isJson = ObjectConverter.isValidJSON(original);
 		 		if(isJson){
-		 			converted = ObjectConverter.jsonToXml(original,false);
+		 			converted = ObjectConverter.jsonToXml(original,useDeclaration);
 		 		}
 		 		break;
 		 	case JsonPlainText:
 		 	case ApplicationJson:
 		 		boolean isXml = ObjectConverter.isValidXML(original);
-		 		if(isXml){		 			
-		 			converted = ObjectConverter.xmlToJson(original);
+		 		String initial = original;		 		
+		 		if(isXml){	
+		 			if(removeXmlAttributes){
+		 				org.w3c.dom.Document document = null;		 																 					
+							String xml = ObjectConverter.removeNameSpacesFromXmlString(original);
+							document = ObjectConverter.convertXmlStringToDocument(xml);
+							document = ObjectConverter.removeAllXmlAttributes(document);
+							initial = ObjectConverter.convertDocumentToXmlString(document);
+							 					 						 					
+		 			}	
+		 			converted = ObjectConverter.xmlToJson(initial);
+		 			if (useCharsetBase64)
+		 				converted = Base64.getEncoder().encodeToString(converted.getBytes());		 					 					 				 			
 		 		}		 		
 		 		break;
 		}
-		return converted;
+		if (converted != null && converted != "")
+			res = converted;		
+		return res;
 	}
+	
+
+	
+	public static Document convertXmlStringToDocument(String xmlStr) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
+        DocumentBuilder builder;  
+        try  
+        {  
+            builder = factory.newDocumentBuilder();  
+            Document doc = builder.parse( new InputSource( new StringReader( xmlStr ) ) ); 
+            return doc;
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        } 
+        return null;
+    }
+	
+	public static String convertDocumentToXmlString(Document doc) {
+	        TransformerFactory tf = TransformerFactory.newInstance();
+	        Transformer transformer;
+	        try {
+	            transformer = tf.newTransformer();
+	            // below code to remove XML declaration
+	            // transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+	            StringWriter writer = new StringWriter();
+	            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+	            String output = writer.getBuffer().toString();
+	            return output;
+	        } catch (TransformerException e) {
+	            e.printStackTrace();
+	        }
+	        
+	        return null;
+	  }
+	
+	public static String removeNameSpacesFromXmlString(String xml) {
+        try{
+            String xslStr = String.join("\n",
+                "<xsl:transform xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">",
+                "<xsl:output version=\"1.0\" encoding=\"UTF-8\" indent=\"no\"/>",
+                "<xsl:strip-space elements=\"*\"/>",                          
+                "  <xsl:template match=\"@*|node()\">",
+                "   <xsl:element name=\"{local-name()}\">",
+                "     <xsl:apply-templates select=\"@*|node()\"/>",
+                "  </xsl:element>",
+                "  </xsl:template>",  
+                "  <xsl:template match=\"text()\">",
+                "    <xsl:copy/>",
+                "  </xsl:template>",                                  
+                "</xsl:transform>");
+
+            // Parse XML and Build Document
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            InputSource is = new InputSource();
+            is.setCharacterStream(new StringReader(xml));
+            Document doc = db.parse (is);                      
+
+            // Parse XSLT and Configure Transformer
+            Source xslt = new StreamSource(new StringReader(xslStr));
+            Transformer tf = TransformerFactory.newInstance().newTransformer(xslt);
+
+            // Output Result to String
+            DOMSource source = new DOMSource(doc);
+            StringWriter outWriter = new StringWriter();
+            StreamResult strresult = new StreamResult( outWriter );        
+            tf.transform(source, strresult);
+            StringBuffer sb = outWriter.getBuffer(); 
+            String finalstring = sb.toString();
+
+            return(finalstring);
+
+        } catch (Exception e) {
+            System.out.println("Could not parse message as xml: " + e.getMessage());
+        }
+            return "";    
+    }
+	
+	
+	public static Document removeAllXmlAttributes(Document thisDoc) throws XPathExpressionException {
+	    XPathFactory factory = XPathFactory.newInstance();
+	    XPath xpath = factory.newXPath();
+	    XPathExpression expr = xpath.compile("//*[@*]");
+	    NodeList result =(NodeList) expr.evaluate(thisDoc, XPathConstants.NODESET);
+	    for (int i = 0; i < result.getLength(); i++) {
+	        NamedNodeMap map = result.item(i).getAttributes();
+	        for (int j = 0; j < map.getLength(); j++) {
+	            map.removeNamedItem(map.item(j--).getNodeName());
+	        }
+	    }
+	    return thisDoc;
+	}
+	
 	
 }

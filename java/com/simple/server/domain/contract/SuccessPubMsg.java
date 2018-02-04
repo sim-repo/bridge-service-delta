@@ -11,6 +11,7 @@ public class SuccessPubMsg extends AContract{
 	
 	private Integer id;
 	private String storeClass;	
+	private Boolean useAuth;
 	
 	@Override
 	public String getClazz() {
@@ -29,4 +30,11 @@ public class SuccessPubMsg extends AContract{
 	public void setStoreClass(String storeClass) {
 		this.storeClass = storeClass;
 	}
+	public Boolean getUseAuth() {
+		return useAuth;
+	}
+	public void setUseAuth(Boolean useAuth) {
+		this.useAuth = useAuth;
+	}
+	
 }

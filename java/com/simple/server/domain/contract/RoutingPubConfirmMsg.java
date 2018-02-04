@@ -12,6 +12,7 @@ public class RoutingPubConfirmMsg extends AContract {
 	
 	private static final long serialVersionUID = 1L;
 	protected int id;
+	private Boolean useAuth; 
 	
 	@Override
 	public String getClazz() {
@@ -26,6 +27,15 @@ public class RoutingPubConfirmMsg extends AContract {
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public Boolean getUseAuth() {
+		return useAuth;
+	}
+
+	public void setUseAuth(Boolean useAuth) {
+		this.useAuth = useAuth;
 	}	
+	
 	
 }

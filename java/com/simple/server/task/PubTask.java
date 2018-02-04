@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.ErrorType;
@@ -29,11 +28,11 @@ import com.simple.server.domain.contract.PubSuccessRouting;
 import com.simple.server.domain.contract.BusPubMsg;
 import com.simple.server.http.HttpImpl;
 import com.simple.server.http.IHttp;
-import com.simple.server.lifecycle.HqlStepsType;
 import com.simple.server.mediators.CommandType;
 import com.simple.server.service.IService;
 import com.simple.server.statistics.time.Timing;
 import com.simple.server.util.DateConvertHelper;
+import com.simple.server.util.HttpNotFoundException;
 
 @Service("PubTask")
 @Scope("prototype")
@@ -93,6 +92,7 @@ public class PubTask extends ATask {
 						msg.setPublisherId(msg.getSenderId());
 					}
 
+				
 					Map<String, Object> map = new HashMap();
 					map = new HashMap();
 					map.put("eventId", msg.getEventId());
@@ -105,7 +105,8 @@ public class PubTask extends ATask {
 								new Exception(String.format(
 										"[routing SUB] - no records found by filters %s: < %s >, %s: < %s > ",
 										"eventId", msg.getEventId(), "senderId", msg.getSenderId())),
-								pubErrRoutes);
+								pubErrRoutes,
+								false);
 						continue;
 					}
 					
@@ -119,9 +120,9 @@ public class PubTask extends ATask {
 								new Exception(String.format(
 										"[routing PUB err] - no records found by filters %s: < %s >, %s: < %s > ",
 										"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId())),
-								null);
+								null, false);
 					}
-
+				
 					pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubSuccessRouting.class, map, 1, null);
 					if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
 						this.collectError(errList, msg, null,
@@ -129,11 +130,10 @@ public class PubTask extends ATask {
 										"[routing PUB success] - no records by filters %s: < %s >, %s: < %s > ",
 										"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId()
 
-								)), null);
+								)), null, false);
 					}
-
 				
-					
+				
 					
 					try {
 						HotPubMsg hotPubMsg = new HotPubMsg();
@@ -145,14 +145,14 @@ public class PubTask extends ATask {
 						String detail = String.format("[hot pub] - %s",e.getSQLException());
 						if(subRoutes != null) {
 							for (SubRouting r : subRoutes) 							
-									this.collectError(errList, msg, r, new Exception(detail), pubErrRoutes);						
+									this.collectError(errList, msg, r, new Exception(detail), pubErrRoutes, false);						
 						}
 						else		
-							this.collectError(errList, msg, null, new Exception(detail), pubErrRoutes);							
+							this.collectError(errList, msg, null, new Exception(detail), pubErrRoutes, false);							
 						continue;
 					}
 					
-					
+				
 					SubRouting subRoute = null;
 					for (IContract route : subRoutes) {
 						subRoute = (SubRouting) route;
@@ -169,7 +169,7 @@ public class PubTask extends ATask {
 						pubMsg.copyFrom(msg);
 						appConfig.getQueueLog().put(pubMsg);												
 					}
-					
+				
 					
 					for (IContract r : subRoutes) {
 						try {
@@ -183,9 +183,12 @@ public class PubTask extends ATask {
 										new Exception(String.format(
 												"[routing SUB].[id]: %s,  [subscriber_handler] && [subscriber_store_class] both are empty or null",
 												subRoute.getId())),
-										pubErrRoutes);
+										pubErrRoutes, 
+										false);
 								continue;
 							}
+							
+						
 
 							if (subRoute.getSubscriberHandler() != null
 									&& !subRoute.getSubscriberHandler().equals("")) {
@@ -202,9 +205,11 @@ public class PubTask extends ATask {
 									uniMinMsg.setDatetime(oldMsg.getLogDatetime());
 									uniMinMsg.setContentType(subRoute.getResponseContentType());
 									uniMinMsg.setUrl(oldMsg.getResponseURI());
-									uniMinMsg.bodyTransform(subRoute.getBodyContentType(), subRoute.getBodyFldSeparator());
+									uniMinMsg.bodyTransform(subRoute.getBodyContentType(), subRoute.getBodyFldSeparator(), subRoute.getRemoveXmlAttributes(), subRoute.getUseCharsetBase64(), subRoute.getUseXmlDeclaration());									
+							
 									http.sendHttp(uniMinMsg, uniMinMsg.getUrl(), uniMinMsg.getContentType(),
 											subRoute.getUseAuth());
+							
 								} else {
 									newMsg = msg;
 									http.sendHttp(newMsg, newMsg.getResponseURI(), newMsg.getResponseContentType(),
@@ -220,35 +225,35 @@ public class PubTask extends ATask {
 								instance.setEndPointId(subRoute.getSubscriberId());
 								instance.setIsDirectInsert(subRoute.getIsDirectInsert());
 								instance.copyFrom(msg);
-								instance.bodyTransform(subRoute.getBodyContentType(), subRoute.getBodyFldSeparator());
+								instance.bodyTransform(subRoute.getBodyContentType(), subRoute.getBodyFldSeparator(), subRoute.getRemoveXmlAttributes(), subRoute.getUseCharsetBase64(), subRoute.getUseXmlDeclaration());
 								appConfig.getQueueWrite().put(instance);
 							}
 
 							this.collectSuccess(successList, msg, subRoute, pubSuccessRoutes);														
 						} 
-						catch (JDBCException e) {
-							this.collectError(errList, msg, subRoute, new Exception(e.getSQLException()), pubErrRoutes);
+						catch (HttpNotFoundException e){
+							this.collectError(errList, msg, subRoute, new Exception(e.getMessage()), pubErrRoutes, true);
 						}
 						catch (Exception e) {							
-							this.collectError(errList, msg, subRoute, new Exception(e.getMessage()), pubErrRoutes);
+							this.collectError(errList, msg, subRoute, new Exception(e.getMessage()), pubErrRoutes, false);
 						}
 					}
 				} 
 				catch (JDBCException e) {
 					if(subRoutes != null) {
 						for (SubRouting r : subRoutes) 							
-								this.collectError(errList, msg, r, new Exception(e.getSQLException()), pubErrRoutes);						
+								this.collectError(errList, msg, r, new Exception(e.getSQLException()), pubErrRoutes, false);						
 					}
 					else		
-						this.collectError(errList, msg, null, new Exception(e.getSQLException()), pubErrRoutes);					
+						this.collectError(errList, msg, null, new Exception(e.getSQLException()), pubErrRoutes, false);					
 				}
 				catch (Exception e) {
 					if(subRoutes != null) {
 						for (SubRouting r : subRoutes) 
-							this.collectError(errList, msg, r, new Exception(e.getMessage()), pubErrRoutes);						
+							this.collectError(errList, msg, r, new Exception(e.getMessage()), pubErrRoutes, false);						
 					}
 					else	
-						this.collectError(errList, msg, null, new Exception(e.getMessage()), pubErrRoutes);
+						this.collectError(errList, msg, null, new Exception(e.getMessage()), pubErrRoutes, false);
 				}
 			}
 		} catch (Exception e) {
@@ -261,20 +266,17 @@ public class PubTask extends ATask {
 			list.clear();
 		}
 	}
-
 	
 	
 	private void sendErrors(List<ErrPubMsg> errList) {
 		for (ErrPubMsg err : errList) {
 			try {
-				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {
-					err.setResponseContentType(ContentType.ApplicationJson);
-					http.sendHttp(err, err.getResponseURI(), err.getResponseContentType(), false);
+				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {					
+					http.sendHttp(err, err.getResponseURI(), err.getResponseContentType(), err.getUseAuth());
 				} else if (err.getStoreClass() != null && !err.getStoreClass().isEmpty()) {
 					IContract contract = null;
 					if (err.getClass().getName().equals(err.getStoreClass())) {
-						err.setIsDirectInsert(true);
-						err.setResponseContentType(ContentType.ApplicationJson);
+						err.setIsDirectInsert(true);						
 						contract = err;
 					} else {
 						Class<IContract> clazz = (Class<IContract>) Class.forName(err.getStoreClass());
@@ -282,14 +284,37 @@ public class PubTask extends ATask {
 						IContract instance = ctor.newInstance();
 						instance.setEndPointId(err.getSenderId());
 						instance.setIsDirectInsert(false);
-						instance.setResponseContentType(ContentType.ApplicationJson);
+						instance.setResponseContentType(err.getResponseContentType());
 						instance.copyFrom(err);
 						contract = instance;
 					}
 					appConfig.getQueueWrite().put(contract);
 				}
-				appConfig.getQueueLog().put(err);
-			} catch (Exception e) {
+				appConfig.getQueueLog().put(err);	
+			} 			
+			catch (HttpNotFoundException e){	// catch external errors caused by some problems at endpoint
+				try {
+					ErrPubMsg newErr = new ErrPubMsg();
+					newErr.setErrorId(ErrorType.PubTask.toValue());
+					newErr.setOperationType(OperationType.PUB);
+					newErr.setResponseContentType(ContentType.ApplicationJson);
+					if (e.getCause() != null)
+						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					else
+						newErr.setDetails(String.format("%s", e.getMessage()));
+					newErr.setEventId(err.getEventId());
+					newErr.setJuuid(err.getJuuid());
+					newErr.setSenderId(err.getSenderId());
+					newErr.setEndPointId(err.getSenderId());
+					newErr.setSubscriberId(err.getSubscriberId());
+					newErr.setExternalError(true);	// external error attibute
+					appConfig.getQueueLog().put(err);
+					appConfig.getQueueLog().put(newErr);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+			catch (Exception e) {
 				try {
 					ErrPubMsg newErr = new ErrPubMsg();
 					newErr.setErrorId(ErrorType.PubTask.toValue());
@@ -318,13 +343,11 @@ public class PubTask extends ATask {
 		for (SuccessPubMsg success : successList) {
 			try {
 				if (success.getResponseURI() != null && !success.getResponseURI().isEmpty()) {
-					success.setResponseContentType(ContentType.ApplicationJson);
-					http.sendHttp(success, success.getResponseURI(), success.getResponseContentType(), false);
+					http.sendHttp(success, success.getResponseURI(), success.getResponseContentType(), success.getUseAuth());
 				} else if (success.getStoreClass() != null && !success.getStoreClass().isEmpty()) {
 					IContract contract = null;
 					if (success.getClass().getName().equals(success.getStoreClass())) {
-						success.setIsDirectInsert(true);
-						success.setResponseContentType(ContentType.ApplicationJson);
+						success.setIsDirectInsert(true);					
 						contract = success;
 					} else {
 						Class<IContract> clazz = (Class<IContract>) Class.forName(success.getStoreClass());
@@ -332,14 +355,35 @@ public class PubTask extends ATask {
 						IContract instance = ctor.newInstance();
 						instance.setEndPointId(success.getSenderId());
 						instance.setIsDirectInsert(false);
-						instance.setResponseContentType(ContentType.ApplicationJson);
+						instance.setResponseContentType(success.getResponseContentType());
 						instance.copyFrom(success);
 						contract = instance;
 					}
 					appConfig.getQueueWrite().put(contract);
 				}
 				appConfig.getQueueLog().put(success);
-			} catch (Exception e) {
+			} 			
+			catch (HttpNotFoundException e){	// catch external errors caused by some problems at endpoint 
+				try {
+					ErrPubMsg newErr = new ErrPubMsg();
+					newErr.setErrorId(ErrorType.PubTask.toString());
+					if (e.getCause() != null)
+						newErr.setDetails(String.format("%s: %s", e.getMessage(), e.getCause()));
+					else
+						newErr.setDetails(String.format("%s", e.getMessage()));
+					newErr.setEventId(success.getEventId());
+					newErr.setJuuid(success.getJuuid());
+					newErr.setSenderId(success.getSenderId());
+					newErr.setEndPointId(success.getSenderId());
+					newErr.setSubscriberId(success.getSubscriberId());
+					newErr.setExternalError(true);	// external error attibute					
+					appConfig.getQueueLog().put(success);
+					appConfig.getQueueLog().put(newErr);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+			catch (Exception e) {
 				try {
 					ErrPubMsg newErr = new ErrPubMsg();
 					newErr.setErrorId(ErrorType.PubTask.toString());
@@ -363,11 +407,11 @@ public class PubTask extends ATask {
 	}
 
 	private void collectError(List<ErrPubMsg> list, IContract msg, SubRouting subRouting, Exception e,
-			List<PubErrRouting> routings) {
+			List<PubErrRouting> routings, Boolean isExternal) {
 		ErrPubMsg err = null;
 		String logDatetime = DateConvertHelper.getCurDate();
 
-		if (routings == null || routings.size() == 0) {
+		if (routings == null || routings.size() == 0) {	// for internal logs 
 			err = new ErrPubMsg();
 			err.setErrorId(ErrorType.PubTask.toValue());
 			err.setOperationType(OperationType.PUB);
@@ -379,16 +423,18 @@ public class PubTask extends ATask {
 			err.setJuuid(msg.getJuuid());
 			err.setSenderId(msg.getSenderId());
 			err.setEndPointId(msg.getSenderId());
+			err.setExternalError(isExternal);
 			//err.setPublisherId(msg.getSenderId());
 			
 			if (subRouting != null) {
+				err.setUseAuth(subRouting.getUseAuth());	// use domain-auth
 				err.setSubscriberId(subRouting.getSubscriberId());
 			}
 			err.setLogDatetime(logDatetime);
 			list.add(err);
 
 		} else {
-			for (PubErrRouting routing : routings) {
+			for (PubErrRouting routing : routings) {	// for internal logs and send feedback to endpoint-senders
 				err = new ErrPubMsg();
 				err.setErrorId(ErrorType.PubTask.toValue());
 				err.setOperationType(OperationType.PUB);
@@ -400,7 +446,10 @@ public class PubTask extends ATask {
 				err.setJuuid(msg.getJuuid());
 				err.setSenderId(msg.getSenderId());
 				//err.setPublisherId(msg.getSenderId());
+				err.setResponseContentType(routing.getResponseContentType());
+				
 				err.setEndPointId(msg.getSenderId());
+				err.setExternalError(isExternal);
 				
 				if (routing.getPublisherHandler() != null && routing.getPublisherHandler() != "")
 					err.setResponseURI(routing.getPublisherHandler());
@@ -408,6 +457,7 @@ public class PubTask extends ATask {
 					err.setStoreClass(routing.getPublisherStoreClass());
 
 				if (subRouting != null) {
+					err.setUseAuth(subRouting.getUseAuth());	// use domain-auth
 					err.setSubscriberId(subRouting.getSubscriberId());
 					err.setSubscriberHandler(subRouting.getSubscriberHandler());
 				}
@@ -423,16 +473,18 @@ public class PubTask extends ATask {
 		SuccessPubMsg success = null;
 		String logDatetime = DateConvertHelper.getCurDate();
 
-		if (routings == null || routings.size() == 0) {
+		if (routings == null || routings.size() == 0) {	// for internal logs 
 			success = new SuccessPubMsg();
 			success.setEventId(msg.getEventId());
 			success.setJuuid(msg.getJuuid());
 			success.setSenderId(msg.getSenderId());
 			success.setEndPointId(msg.getSenderId());
 			success.setOperationType(OperationType.PUB);
+			
 			//success.setPublisherId(msg.getSenderId());
 			success.setResponseContentType(ContentType.ApplicationJson);
 			if (subRouting != null) {
+				success.setUseAuth(subRouting.getUseAuth());	// use domain-auth
 				success.setSubscriberHandler(subRouting.getSubscriberHandler());
 				success.setSubscriberStoreClass(subRouting.getSubscriberStoreClass());
 				success.setSubscriberId(subRouting.getSubscriberId());
@@ -440,9 +492,9 @@ public class PubTask extends ATask {
 			success.setLogDatetime(logDatetime);
 			list.add(success);
 		} else {
-			for (PubSuccessRouting routing : routings) {
+			for (PubSuccessRouting routing : routings) {	// for internal logs and send feedback to endpoint-senders	
 				success = new SuccessPubMsg();
-				success.setResponseContentType(ContentType.ApplicationJson);
+				success.setResponseContentType(routing.getResponseContentType());
 				success.setEventId(msg.getEventId());
 				success.setJuuid(msg.getJuuid());
 				success.setOperationType(OperationType.PUB);
@@ -453,6 +505,7 @@ public class PubTask extends ATask {
 				success.setStoreClass(routing.getPublisherStoreClass());
 				success.setLogDatetime(logDatetime);
 				if (subRouting != null) {
+					success.setUseAuth(subRouting.getUseAuth());	// use domain-auth
 					success.setSubscriberId(subRouting.getSubscriberId());
 					success.setSubscriberHandler(subRouting.getSubscriberHandler());
 					success.setSubscriberStoreClass(subRouting.getSubscriberStoreClass());

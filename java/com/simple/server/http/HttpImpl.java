@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
+import com.simple.server.util.HttpNotFoundException;
 import com.simple.server.util.ObjectConverter;
 
 import java.io.IOException;
@@ -72,19 +73,25 @@ public class HttpImpl implements IHttp {
 			converted = ObjectConverter.objectToJson(msg);
 			sContentType = "text/plain;charset=utf-8";
 		}
-		post(converted, url, sContentType, useAuth);
+		post(converted, url, sContentType, contentType,  useAuth);
 	}
 
-	public void post(String body, String url, String contentType, Boolean useAuth) throws Exception {
+	public void post(String body, String url, String sContentType, ContentType contentType, Boolean useAuth) throws Exception {
 		
 		if (useAuth) {
-			postNTLM(body, url, contentType);
+			postNTLM(body, url, sContentType);
 		} else {
+			ResponseEntity<String> response = null;
 			URI uri = new URI(url);
 			RestTemplate restTemplate = new RestTemplate();			
 			HttpEntity<String> entity = null;
-			entity = new HttpEntity<String>(body, createHeaders());
-			restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+			entity = new HttpEntity<String>(body, createHeaders(contentType));
+			try{
+				 response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+				 checkHttpResonseStatusCode(url, response.getStatusCode().value());
+			}catch(RestClientException e){
+				throw new HttpNotFoundException(String.format("HttpImpl, url: < %s >, %s",e.getMessage(), url));
+			}
 		}
 	}
 
@@ -99,7 +106,7 @@ public class HttpImpl implements IHttp {
 					request.addHeader("Accept-Encoding", "gzip, deflate");
 					request.addHeader("Accept", "*/*");
 					request.addHeader("Accept-Language", " ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3");
-					request.addHeader("Content-Type", contentType);
+					request.addHeader("Content-Type", contentType);					
 				}
 			});
 
@@ -125,26 +132,42 @@ public class HttpImpl implements IHttp {
 			localContext.setAttribute(ClientContext.CREDS_PROVIDER, credsProvider);
 			HttpResponse response = httpclient.execute(httpPost, localContext);
 
+			checkHttpResonseStatusCode(url, response.getStatusLine().getStatusCode());
+						
 			if (response.getEntity() != null) {
 				response.getEntity().consumeContent();
 
 			}
+		} catch (HttpNotFoundException e) {
+			throw new HttpNotFoundException(String.format("HttpImpl NTLM: %s",e.getMessage()));
 		} catch (Exception e) {
-			throw new Exception(String.format("HttpImpl: %s",e.getMessage()));
+			throw new Exception(String.format("HttpImpl NTLM: %s",e.getMessage()));
 		} finally {
 			httpclient.getConnectionManager().shutdown();
 		}
 	}
 
-	public static HttpHeaders createHeaders() {
+	
+	private void checkHttpResonseStatusCode(String url, int statusCode) throws HttpNotFoundException{
+		if (statusCode < 200 || statusCode > 300) 
+			throw new HttpNotFoundException(String.format("HTTP Error, url: < %s >, status code: %s", url, statusCode));
+	}
+	
+	
+	public static HttpHeaders createHeaders(ContentType contentType) {
 		return new HttpHeaders() {
 			{
-				setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+				if (ContentType.XmlPlainText.equals(contentType) || ContentType.ApplicationXml.equals(contentType)) {
+					setContentType(new MediaType("application", "xml", Charset.forName("UTF-8")));
+				} else if (ContentType.ApplicationJson.equals(contentType)) {
+					setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));					
+				}				
 			}
 		};
 	}
-
-	public static HttpHeaders createHeaders(String username, String password) {
+	
+	/*
+	public static HttpHeaders createHeaders(String username, String password, ContentType contentType) {
 		return new HttpHeaders() {
 			{
 				String auth = username + ":" + password;
@@ -155,6 +178,7 @@ public class HttpImpl implements IHttp {
 			}
 		};
 	}
+	*/
 }
 
 

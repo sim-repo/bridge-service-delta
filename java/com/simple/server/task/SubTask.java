@@ -134,6 +134,7 @@ public class SubTask extends ATask {
 
 				RoutingPubConfirmMsg confirm = confList.get(0);
 
+				
 				if ((confirm.getPublisherHandler() == null || confirm.getPublisherHandler().equals(""))
 						&& (confirm.getPublisherStoreClass() == null || confirm.getPublisherStoreClass().equals(""))) {
 					this.collectError(errList, msg, subErrRouting,
@@ -151,7 +152,7 @@ public class SubTask extends ATask {
 						msg.setOperationType(OperationType.SUB);
 						msg.setResponseContentType(confirm.getResponseContentType());
 						msg.setResponseURI(confirm.getPublisherHandler());
-						http.sendHttp(msg, msg.getResponseURI(), msg.getResponseContentType(), false);
+						http.sendHttp(msg, msg.getResponseURI(), msg.getResponseContentType(), confirm.getUseAuth());
 					} else if (confirm.getPublisherStoreClass() != null
 							&& !confirm.getPublisherStoreClass().equals("")) {
 						Class<IContract> clazz = (Class<IContract>) Class.forName(confirm.getPublisherStoreClass());

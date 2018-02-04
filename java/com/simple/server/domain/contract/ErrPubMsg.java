@@ -12,6 +12,9 @@ public class ErrPubMsg extends AContract{
 	
 	private Integer id;
 	private String storeClass;	
+	private Boolean useAuth;
+	private Boolean externalError;
+	
 	
 	@Override
 	public String getClazz() {
@@ -29,4 +32,16 @@ public class ErrPubMsg extends AContract{
 	public void setStoreClass(String storeClass) {
 		this.storeClass = storeClass;
 	}
+	public Boolean getUseAuth() {
+		return useAuth;
+	}
+	public void setUseAuth(Boolean useAuth) {
+		this.useAuth = useAuth;
+	}
+	public Boolean getExternalError() {
+		return externalError;
+	}
+	public void setExternalError(Boolean externalError) {
+		this.externalError = externalError;
+	}	
 }

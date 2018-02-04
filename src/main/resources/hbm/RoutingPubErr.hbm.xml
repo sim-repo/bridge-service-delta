@@ -13,6 +13,16 @@
 		<property name="publisherId" column="[publisher_id]"/>
 		<property name="eventId" column="[event_id]"/>
 		<property name="publisherHandler" column="[publisher_handler]" />
-		<property name="publisherStoreClass" column="[publisher_store_class]" />									
+		<property name="publisherStoreClass" column="[publisher_store_class]" />	
+		
+		
+		<property name="responseContentType" column="[content_type]" >
+		  <type name="org.hibernate.type.EnumType">
+		        <param name="enumClass">com.simple.server.config.ContentType</param>
+		         <param name="useNamed">true</param>
+		    </type>
+		</property>
+		
+										
 	</class>
 </hibernate-mapping>
