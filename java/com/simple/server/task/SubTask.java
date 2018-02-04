@@ -123,7 +123,6 @@ public class SubTask extends ATask {
 				map.put("eventId", msg.getEventId());
 				List<RoutingPubConfirmMsg> confList = service
 						.<RoutingPubConfirmMsg>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, RoutingPubConfirmMsg.class, map, 1, orderMap);
-
 				if (confList == null || confList.size() == 0) {
 					this.collectError(errList, msg, subErrRouting,
 							new Exception(
