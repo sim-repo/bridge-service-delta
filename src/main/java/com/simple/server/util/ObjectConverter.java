@@ -231,11 +231,12 @@ public class ObjectConverter {
 							document = ObjectConverter.removeAllXmlAttributes(document);
 							initial = ObjectConverter.convertDocumentToXmlString(document);							 					 						 				
 		 			}	
-		 			converted = ObjectConverter.xmlToJson(initial);
-		 			if (useCharsetBase64) {
-		 				converted = Base64.getEncoder().encodeToString(converted.getBytes());
-		 			}
-		 		}		 		
+				}
+		 		converted = ObjectConverter.xmlToJson(initial);
+	 			if (useCharsetBase64) {
+	 				converted = Base64.getEncoder().encodeToString(converted.getBytes());
+	 			}
+		 			 		
 		 		break;
 		}
 		if (converted != null && converted != "")

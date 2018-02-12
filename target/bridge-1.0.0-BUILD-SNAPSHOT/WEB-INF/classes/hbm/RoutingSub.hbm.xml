@@ -20,6 +20,9 @@
 		<property name="isDirectInsert" column="[is_direct_insert]" />
 		<property name="useAuth" column="[use_auth]" />
 		<property name="bodyFldSeparator" column="[body_field_separator]"/>	
+		<property name="useCharsetBase64" column="[use_charset_base64]" />
+		<property name="removeXmlAttributes" column="[use_body_remove_xml_attributes]" />
+		<property name="useXmlDeclaration" column="[use_xml_declaration]" />		
 		
 		<property name="bodyContentType" column="[body_content_type]" >
 		  <type name="org.hibernate.type.EnumType">
