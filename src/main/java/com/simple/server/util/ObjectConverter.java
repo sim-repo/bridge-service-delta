@@ -196,16 +196,16 @@ public class ObjectConverter {
 		
 		String converted = "";
 		String res = original;
-		String temp = "";
-		System.out.println("bodyTransform ");
+		String temp = "";	
+		boolean isJson = false;
+		
 		switch(contentType){		
 		 	case XmlPlainText:
 		 	case ApplicationXml: 
-		 		
-		 		System.out.println("bodyTransform ApplicationXml");
+		 				 		
 		 		if(fldSeparator != null)
 		 			original = prepareJSON(original, fldSeparator);
-		 		boolean isJson = ObjectConverter.isValidJSON(original);
+		 		isJson = ObjectConverter.isValidJSON(original);
 		 		if(isJson){
 		 			converted = ObjectConverter.jsonToXml(original,useDeclaration);
 		 		}
@@ -213,26 +213,32 @@ public class ObjectConverter {
 		 	case JsonPlainText:
 		 	case ApplicationJson:
 		 		
-		 				 			 		
-	 			if (original.contains("&lt;")) { 
-	 				original = original.replaceAll("&lt;", "<");		 			
-	 				original = original.replaceAll("&gt;", ">");		 		
-	 			}
+		 			
+		 		if(fldSeparator != null)
+		 			original = prepareJSON(original, fldSeparator);
 		 		
-		 		boolean isXml = ObjectConverter.isValidXML(original);
-		 					
-		 		String initial = original;		 		
-		 		if(isXml){			 		
-		 			if(removeXmlAttributes){
-		 				
-		 				org.w3c.dom.Document document = null;		 																 					
-							String xml = ObjectConverter.removeNameSpacesFromXmlString(original);
-							document = ObjectConverter.convertXmlStringToDocument(xml);
-							document = ObjectConverter.removeAllXmlAttributes(document);
-							initial = ObjectConverter.convertDocumentToXmlString(document);							 					 						 				
-		 			}	
-				}
-		 		converted = ObjectConverter.xmlToJson(initial);
+		 		isJson = ObjectConverter.isValidJSON(original);
+		 		if(!isJson) {		 		
+		 			if (original.contains("&lt;")) { 
+		 				original = original.replaceAll("&lt;", "<");		 			
+		 				original = original.replaceAll("&gt;", ">");		 		
+		 			}
+			 		
+			 		boolean isValidXml = ObjectConverter.isValidXML(original);
+			 					
+			 		String initial = original;		 		
+			 		if(isValidXml){			 		
+			 			if(removeXmlAttributes){
+			 				
+			 				org.w3c.dom.Document document = null;		 																 					
+								String xml = ObjectConverter.removeNameSpacesFromXmlString(original);
+								document = ObjectConverter.convertXmlStringToDocument(xml);
+								document = ObjectConverter.removeAllXmlAttributes(document);
+								initial = ObjectConverter.convertDocumentToXmlString(document);							 					 						 				
+			 			}	
+					} 		 		
+					converted = ObjectConverter.xmlToJson(initial);					
+		 		}
 	 			if (useCharsetBase64) {
 	 				converted = Base64.getEncoder().encodeToString(converted.getBytes());
 	 			}

@@ -72,11 +72,10 @@ public class UniMinMsg {
 		String temp = ObjectConverter.bodyTransform(this.body, contentType, fldSeparator, removeXmlAttributes, useCharsetBase64, useXMLDeclaration);		
 		this.setBody(temp);		
 	}
+	
 	@Override
 	public String toString() {
 		return "UniMinMsg [body=" + body + "]";
 	}
-	
-	
 	
 }

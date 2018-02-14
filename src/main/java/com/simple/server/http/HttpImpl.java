@@ -43,7 +43,7 @@ public class HttpImpl implements IHttp {
 	@Override
 	public void sendHttp(Object msg, String url, ContentType contentType, Boolean useAuth) throws Exception {
 		
-		System.out.println(url);
+	
 		try {
 			prepareAndSend(msg, url, contentType, useAuth);
 		} catch (RestClientException ex) {
