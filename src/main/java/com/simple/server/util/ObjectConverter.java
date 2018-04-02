@@ -195,9 +195,10 @@ public class ObjectConverter {
 	public static String bodyTransform(String original, ContentType contentType, String fldSeparator, Boolean removeXmlAttributes, Boolean useCharsetBase64, Boolean useDeclaration) throws Exception{
 		
 		String converted = "";
-		String res = original;
-		String temp = "";	
+		String res = original;	
 		boolean isJson = false;
+		
+		
 		
 		switch(contentType){		
 		 	case XmlPlainText:
@@ -212,37 +213,36 @@ public class ObjectConverter {
 		 		break;
 		 	case JsonPlainText:
 		 	case ApplicationJson:
-		 		
-		 			
+		 				 			
 		 		if(fldSeparator != null)
 		 			original = prepareJSON(original, fldSeparator);
 		 		
 		 		isJson = ObjectConverter.isValidJSON(original);
+		 		
 		 		if(!isJson) {		 		
+		 			
 		 			if (original.contains("&lt;")) { 
 		 				original = original.replaceAll("&lt;", "<");		 			
 		 				original = original.replaceAll("&gt;", ">");		 		
-		 			}
-			 		
-			 		boolean isValidXml = ObjectConverter.isValidXML(original);
+		 			}			 			
 			 					
 			 		String initial = original;		 		
-			 		if(isValidXml){			 		
-			 			if(removeXmlAttributes){
-			 				
-			 				org.w3c.dom.Document document = null;		 																 					
-								String xml = ObjectConverter.removeNameSpacesFromXmlString(original);
-								document = ObjectConverter.convertXmlStringToDocument(xml);
-								document = ObjectConverter.removeAllXmlAttributes(document);
-								initial = ObjectConverter.convertDocumentToXmlString(document);							 					 						 				
-			 			}	
-					} 		 		
-					converted = ObjectConverter.xmlToJson(initial);					
+			 					 		
+		 			if(removeXmlAttributes){		 				
+		 					org.w3c.dom.Document document = null;		 																 					
+							String xml = ObjectConverter.removeNameSpacesFromXmlString(original);
+							document = ObjectConverter.convertXmlStringToDocument(xml);
+							document = ObjectConverter.removeAllXmlAttributes(document);
+							initial = ObjectConverter.convertDocumentToXmlString(document);							 					 						 				
+		 			}	
+					 	
+			 	    converted = ObjectConverter.xmlToJson(initial);	
 		 		}
 	 			if (useCharsetBase64) {
 	 				converted = Base64.getEncoder().encodeToString(converted.getBytes());
 	 			}
-		 			 		
+		 			 
+	 			System.out.println(converted);
 		 		break;
 		}
 		if (converted != null && converted != "")

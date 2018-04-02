@@ -188,9 +188,7 @@ public class AppConfig {
 	}
 
 	public JdbcTemplate getJdbcTemplateByKey(String endpointId) {
-		System.out.println("check 1");
 		if(jdbcTemplates.containsKey(endpointId)) {		
-			System.out.println("check 2");
 			return  jdbcTemplates.get(endpointId);
 		}
 		return null;
