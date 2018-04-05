@@ -48,6 +48,8 @@ public abstract class AContract implements IContract {
 	protected String responseContentType; 	
 	protected String responseContractClass;
 	protected Boolean isDirectInsert; 
+	protected Boolean saveBodyToHots;
+	
 	
 	protected String errorId;
 	protected String details;
@@ -318,6 +320,14 @@ public abstract class AContract implements IContract {
 		this.details = details;
 	}
 	
+	@Override
+	public Boolean getSaveBodyToHots() {
+		return saveBodyToHots;
+	}
+	@Override
+	public void setSaveBodyToHots(Boolean saveBodyToHots) {
+		this.saveBodyToHots = saveBodyToHots;
+	}
 	
 	
 
@@ -355,9 +365,9 @@ public abstract class AContract implements IContract {
 		
 		if(this.getMethodHandler() == null)
 			this.setMethodHandler(msg.getMethodHandler());
-		
+							
 		if(this.getMessageBodyValue() == null)
-			this.setMessageBodyValue(msg.toString());
+			this.setMessageBodyValue(msg.toString());		
 		
 		if(this.getLogDatetime() == null){
 			this.setLogDatetime(msg.getLogDatetime());

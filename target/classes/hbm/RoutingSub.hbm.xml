@@ -23,6 +23,10 @@
 		<property name="useCharsetBase64" column="[use_charset_base64]" />
 		<property name="removeXmlAttributes" column="[use_body_remove_xml_attributes]" />
 		<property name="useXmlDeclaration" column="[use_xml_declaration]" />		
+		<property name="saveBodyToHots" column="[save_body_to_hots]" />
+		<property name="disableRoutingPubErrSuccess" column="[disable_routing_pub_err_success]" />
+		
+		
 		
 		<property name="bodyContentType" column="[body_content_type]" >
 		  <type name="org.hibernate.type.EnumType">

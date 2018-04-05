@@ -75,8 +75,6 @@ public class PubTask extends ATask {
 		Thread.currentThread().sleep(Timing.getTimeMaxSleep());
 	    getAppConfig().getQueuePub().drainTo(list, MAX_NUM_ELEMENTS);
 	        
-		
-
 		IService service = getAppConfig().getServiceFactory().getService(appConfig.LOG_ENDPOINT_NAME);
 		
 		List<PubErrRouting> pubErrRoutes = null;
@@ -111,48 +109,67 @@ public class PubTask extends ATask {
 					}
 					
 					
-					map = new HashMap();
-					map.put("eventId", msg.getEventId());
-					map.put("publisherId", msg.getSenderId());
-					pubErrRoutes = service.<PubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubErrRouting.class, map, 1, null);
-					if (pubErrRoutes == null || pubErrRoutes.size() == 0) {
-						this.collectError(errList, msg, null,
-								new Exception(String.format(
-										"[routing PUB err] - no records found by filters %s: < %s >, %s: < %s > ",
-										"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId())),
-								null, false);
-					}
-				
-					pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubSuccessRouting.class, map, 1, null);
-					if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
-						this.collectError(errList, msg, null,
-								new Exception(String.format(
-										"[routing PUB success] - no records by filters %s: < %s >, %s: < %s > ",
-										"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId()
-
-								)), null, false);
-					}
-				
-				
+					Boolean saveToHots = false;
+					Boolean disableRoutePubErrSuccess = false;
 					
-					try {
-						HotPubMsg hotPubMsg = new HotPubMsg();
-						hotPubMsg.setAppConfig(appConfig);
-						hotPubMsg.copyFrom(msg);
-						hotPubMsg.setLogDatetime(logDatetime);												
-						service.insertAsIs(appConfig.LOG_ENDPOINT_NAME, hotPubMsg);
-					}catch(JDBCException e) {
-						String detail = String.format("[hot pub] - %s",e.getSQLException());
-						if(subRoutes != null) {
-							for (SubRouting r : subRoutes) 							
-									this.collectError(errList, msg, r, new Exception(detail), pubErrRoutes, false);						
+					
+					for (SubRouting route : subRoutes) {
+						if (route.getSaveBodyToHots() != null && route.getSaveBodyToHots() == true) {
+							saveToHots = true;
 						}
-						else		
-							this.collectError(errList, msg, null, new Exception(detail), pubErrRoutes, false);							
-						continue;
+						
+						if (route.getDisableRoutingPubErrSuccess() != null && route.getDisableRoutingPubErrSuccess() == true) {
+							disableRoutePubErrSuccess = true;
+						}
 					}
 					
+					
+					if (disableRoutePubErrSuccess == false) {
+						map = new HashMap();
+						map.put("eventId", msg.getEventId());
+						map.put("publisherId", msg.getSenderId());
+						pubErrRoutes = service.<PubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubErrRouting.class, map, 1, null);
+						if (pubErrRoutes == null || pubErrRoutes.size() == 0) {
+							this.collectError(errList, msg, null,
+									new Exception(String.format(
+											"[routing PUB err] - no records found by filters %s: < %s >, %s: < %s > ",
+											"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId())),
+									null, false);
+						}
+					
+						pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubSuccessRouting.class, map, 1, null);
+						if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
+							this.collectError(errList, msg, null,
+									new Exception(String.format(
+											"[routing PUB success] - no records by filters %s: < %s >, %s: < %s > ",
+											"[event_id]", msg.getEventId(), "[publisher_id]", msg.getSenderId()
+	
+									)), null, false);
+						}
+					}
+					
+					
 				
+					
+					try {							
+							msg.setSaveBodyToHots(saveToHots);
+							HotPubMsg hotPubMsg = new HotPubMsg();
+							hotPubMsg.setAppConfig(appConfig);
+							hotPubMsg.copyFrom(msg);
+							hotPubMsg.setLogDatetime(logDatetime);												
+							service.insertAsIs(appConfig.LOG_ENDPOINT_NAME, hotPubMsg);
+						}catch(JDBCException e) {
+							String detail = String.format("[hot pub] - %s",e.getSQLException());
+							if(subRoutes != null) {
+								for (SubRouting r : subRoutes) 							
+										this.collectError(errList, msg, r, new Exception(detail), pubErrRoutes, false);						
+							}
+							else		
+								this.collectError(errList, msg, null, new Exception(detail), pubErrRoutes, false);							
+							continue;
+					}					
+				
+					
 					SubRouting subRoute = null;
 					for (IContract route : subRoutes) {
 						subRoute = (SubRouting) route;

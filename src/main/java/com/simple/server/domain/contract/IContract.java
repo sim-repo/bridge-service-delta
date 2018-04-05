@@ -65,4 +65,7 @@ public interface IContract extends Serializable {
 	void setServiceOutDatetime(String string);
 	void setServiceIdFrom(String serviceId);
 	
+	Boolean getSaveBodyToHots();
+	void setSaveBodyToHots(Boolean saveBodyToHots);
+	
 }

@@ -21,6 +21,7 @@ public class SubRouting extends AContract{
 	protected Boolean removeXmlAttributes;	
 	protected Boolean useCharsetBase64;
 	protected Boolean useXmlDeclaration;
+	protected Boolean disableRoutingPubErrSuccess;
 	
 	@Override
 	public String getClazz() {
@@ -70,6 +71,12 @@ public class SubRouting extends AContract{
 	}
 	public void setUseXmlDeclaration(Boolean useXmlDeclaration) {
 		this.useXmlDeclaration = useXmlDeclaration;
+	}
+	public Boolean getDisableRoutingPubErrSuccess() {
+		return disableRoutingPubErrSuccess;
+	}
+	public void setDisableRoutingPubErrSuccess(Boolean disableRoutingPubErrSuccess) {
+		this.disableRoutingPubErrSuccess = disableRoutingPubErrSuccess;
 	}
 	@Override
 	public void copyFrom(IRec rec) throws Exception{
