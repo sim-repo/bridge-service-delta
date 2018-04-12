@@ -149,8 +149,6 @@ public class PubTask extends ATask {
 					}
 					
 					
-				
-					
 					try {							
 							msg.setSaveBodyToHots(saveToHots);
 							HotPubMsg hotPubMsg = new HotPubMsg();

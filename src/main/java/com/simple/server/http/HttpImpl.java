@@ -120,7 +120,10 @@ public class HttpImpl implements IHttp {
 			final RequestConfig params = RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(5000).build();
 			httpPost.setConfig(params);
 
-			StringEntity entity = new StringEntity(body);
+			//StringEntity entity = new StringEntity(body);
+			
+			
+			StringEntity entity = new StringEntity(body,  "utf-8");
 
 			httpPost.setEntity(entity);
 			CredentialsProvider credsProvider = new BasicCredentialsProvider();

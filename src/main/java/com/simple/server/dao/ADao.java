@@ -83,8 +83,7 @@ public abstract class ADao implements IDao{
 	}
 	
 	@Override
-	public String readFlatJsonArray(JdbcTemplate currentJDBCTemplate, String sql) throws Exception {
-		System.out.println("check 3 "+currentJDBCTemplate);
+	public String readFlatJsonArray(JdbcTemplate currentJDBCTemplate, String sql) throws Exception {		
 		List<Map<String,Object>> list =  currentJDBCTemplate.queryForList(sql);			
 		return ObjectConverter.listMapToJson(list);
 	}

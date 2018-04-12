@@ -160,7 +160,7 @@ public class WriteTask extends ATask {
 		Map<String, Object> map = new HashMap();
 		map.put("eventId", msg.getEventId());
 		routes = service.<PubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubErrRouting.class, map, 1, null);
-		if (routes == null || routes.size() == 0) {
+//		if (routes == null || routes.size() == 0)
 //			putErr(ErrPubMsg.class,msg, errList,
 //							new Exception(String.format("[routing Pub err] - no records found by filter %s: < %s > ",
 //								 		"eventId", msg.getEventId())),
@@ -177,7 +177,7 @@ public class WriteTask extends ATask {
 		Map<String, Object> map = new HashMap();
 		map.put("eventId", msg.getEventId());
 		routes = service.<SubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, SubErrRouting.class, map, 1, null);
-		if (routes == null || routes.size() == 0)
+	//	if (routes == null || routes.size() == 0) {}
 //			putErr(ErrSubMsg.class, msg, errList,
 //							new Exception(String.format("[routing Sub err] - no records found by filter %s: < %s > ",
 //								 		"eventId", msg.getEventId())),

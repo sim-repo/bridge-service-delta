@@ -242,7 +242,6 @@ public class ObjectConverter {
 	 				converted = Base64.getEncoder().encodeToString(converted.getBytes());
 	 			}
 		 			 
-	 			System.out.println(converted);
 		 		break;
 		}
 		if (converted != null && converted != "")
