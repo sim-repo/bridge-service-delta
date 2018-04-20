@@ -8,6 +8,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
@@ -85,7 +86,15 @@ public class HttpImpl implements IHttp {
 		} else {
 			ResponseEntity<String> response = null;
 			URI uri = new URI(url);
-			RestTemplate restTemplate = new RestTemplate();			
+			
+			
+			 HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+		        httpRequestFactory.setConnectionRequestTimeout(2000);
+		        httpRequestFactory.setConnectTimeout(2000);
+		        httpRequestFactory.setReadTimeout(2000);
+			
+		    RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
+		        
 			HttpEntity<String> entity = null;
 			entity = new HttpEntity<String>(body, createHeaders(contentType));
 			try{

@@ -244,7 +244,7 @@ public class ObjectConverter {
 		 			 
 		 		break;
 		}
-		if (converted != null && converted != "")
+		if (converted != null && converted != "" && !converted.equals("{}")) 
 			res = converted;		
 		return res;
 	}

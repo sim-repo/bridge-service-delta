@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.simple.server.config.AppConfig;
 import com.simple.server.domain.IRec;
 import com.simple.server.domain.log.LogPub;
+import com.simple.server.util.DateConvertHelper;
 
 @JsonAutoDetect
 @JsonDeserialize(as = BusPubMsg.class)
@@ -57,6 +58,51 @@ public class BusPubMsg extends AContract {
 			msg.setServiceIdTo(r.getServiceIdTo());						
 			return;
 		}					
+	}
+	
+	@Override
+	public void copyFrom(IContract _msg) throws Exception{
+		AContract msg = (AContract)_msg;
+		
+		this.setServiceOutDatetime(DateConvertHelper.getCurDate());		
+		if(this.getJuuid() == null)
+			this.setJuuid(msg.getJuuid());		
+		
+		if(this.getEndPointId() == null || this.getEndPointId().equals(""))
+			this.setEndPointId(msg.getEndPointId());
+		
+		if(this.getSenderId() == null || this.getSenderId().equals(""))
+			this.setSenderId(msg.getSenderId());
+		
+		if(this.getPublisherId() == null || this.getPublisherId().equals(""))
+			this.setPublisherId(msg.getPublisherId());
+		
+		if(this.getSubscriberId() == null || this.getSubscriberId().equals(""))
+			this.setSubscriberId(msg.getSubscriberId());
+		
+		if(this.getEventId() == null || this.getEventId().equals(""))
+			this.setEventId(msg.getEventId());
+		
+		if(this.getResponseURI() == null)
+			this.setResponseURI(msg.getResponseURI());
+		
+		if(this.getResponseContentType() == null)
+			this.setResponseContentType(msg.getResponseContentType());
+		
+		if(this.getResponseContractClass() == null)
+			this.setResponseContractClass(msg.getResponseContractClass());	
+		
+		if(this.getMethodHandler() == null)
+			this.setMethodHandler(msg.getMethodHandler());
+							
+		
+		if(this.getLogDatetime() == null){
+			this.setLogDatetime(msg.getLogDatetime());
+		}		
+		this.setServiceRoleFrom(getAppConfig().ROLE_ID);
+		if(getAppConfig() != null)
+			this.setServiceIdFrom(getAppConfig().getServiceId());;			
+		this.setMessageHeaderValue(this.getClass().getSimpleName());					
 	}
 
 }
