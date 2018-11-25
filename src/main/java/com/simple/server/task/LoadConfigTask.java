@@ -86,7 +86,6 @@ public class LoadConfigTask  extends ATask {
 			e.printStackTrace();
 		}		      			
        
-    }
-   	
+    }	
   
 }

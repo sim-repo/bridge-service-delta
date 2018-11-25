@@ -7,8 +7,10 @@ import javax.transaction.Transactional;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.MiscType;
 import com.simple.server.dao.IDao;

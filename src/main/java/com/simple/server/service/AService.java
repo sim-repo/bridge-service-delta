@@ -7,8 +7,10 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.MiscType;
 import com.simple.server.domain.IRec;
@@ -27,7 +29,13 @@ public abstract class AService implements IService {
 	@Override
 	public Session getSession(String endpointId) throws Exception{		
 		SessionFactory sf = appConfig.getSessionFactoryByEndpointId(endpointId);		
-		if (sf == null) throw new Exception(String.format("class AService, method: getSession(..) - can't find SessionFactory by endpointId %s", endpointId));
+		if (sf == null) { 
+			Thread.currentThread().sleep(20000);	
+			sf = appConfig.getSessionFactoryByEndpointId(endpointId);
+			if (sf == null) { 
+				throw new Exception(String.format("class AService, method: getSession(..) - can't find SessionFactory by endpointId %s", endpointId));
+			}
+		}
 		return sf.getCurrentSession();
 	}
 	

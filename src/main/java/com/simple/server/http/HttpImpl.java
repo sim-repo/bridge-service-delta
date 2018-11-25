@@ -18,7 +18,10 @@ import com.simple.server.util.ObjectConverter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.net.util.Base64;
@@ -38,15 +41,17 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.*;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 public class HttpImpl implements IHttp {
 
-	@Override
-	public void sendHttp(Object msg, String url, ContentType contentType, Boolean useAuth) throws Exception {
-		
+	private static final Logger logger = LogManager.getLogger(HttpImpl.class);
 	
+	@Override
+	public void sendHttp(Object msg, String url, ContentType contentType, Boolean useAuth, String msgId) throws Exception {
 		try {
-			prepareAndSend(msg, url, contentType, useAuth);
+			prepareAndSend(msg, url, contentType, useAuth, msgId);
 		} catch (RestClientException ex) {
 			if (ex.getCause() == null) {
 				throw new Exception(String.format("HttpImpl(UniMinMsg) url: < %s >, content-type: < %s >, < %s >", url,
@@ -58,11 +63,9 @@ public class HttpImpl implements IHttp {
 		}
 	}
 
-	public void prepareAndSend(Object msg, String url, ContentType contentType, Boolean useAuth) throws Exception {
-
+	public void prepareAndSend(Object msg, String url, ContentType contentType, Boolean useAuth, String msgId) throws Exception {
 		String converted = null;
 		String sContentType = null;
-
 		if (ContentType.XmlPlainText.equals(contentType)) {
 			converted = ObjectConverter.objectToXml(msg, false);
 			sContentType = "text/plain;charset=utf-8";
@@ -76,38 +79,39 @@ public class HttpImpl implements IHttp {
 			converted = ObjectConverter.objectToJson(msg);
 			sContentType = "text/plain;charset=utf-8";
 		}
-		post(converted, url, sContentType, contentType,  useAuth);
+		post(converted, url, sContentType, contentType,  useAuth, msgId);
 	}
 
-	public void post(String body, String url, String sContentType, ContentType contentType, Boolean useAuth) throws Exception {
+	public void post(String body, String url, String sContentType, ContentType contentType, Boolean useAuth, String msgId) throws Exception {
 		
+		logger.debug(String.format("[HttpImpl] [PRE] %s %s , thread id: %s , thread name:  %s", url, msgId, Thread.currentThread().getId(), Thread.currentThread().getName()));
 		if (useAuth) {
-			postNTLM(body, url, sContentType);
+			postNTLM(body, url, sContentType, msgId);
 		} else {
 			ResponseEntity<String> response = null;
-			URI uri = new URI(url);
+			URI uri = new URI(url);			
+												
+			HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+		    // httpRequestFactory.setConnectionRequestTimeout(5000);
+			httpRequestFactory.setConnectTimeout(5000);
+			httpRequestFactory.setReadTimeout(20000);
 			
-			
-			 HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-		        httpRequestFactory.setConnectionRequestTimeout(2000);
-		        httpRequestFactory.setConnectTimeout(2000);
-		        httpRequestFactory.setReadTimeout(2000);
-			
-		    RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
-		        
+		    RestTemplate restTemplate = new RestTemplate(httpRequestFactory);		        
 			HttpEntity<String> entity = null;
 			entity = new HttpEntity<String>(body, createHeaders(contentType));
 			try{
-				 response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-				 checkHttpResonseStatusCode(url, response.getStatusCode().value());
+				response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+				checkHttpResonseStatusCode(url, response.getStatusCode().value());				
 			}catch(RestClientException e){
+				logger.debug(String.format("[HttpImpl] [ERR] %s %s %s, thread id: %s , thread name:  %s", url, msgId, e.getMessage(), Thread.currentThread().getId(), Thread.currentThread().getName()));
 				throw new HttpNotFoundException(String.format("HttpImpl, url: < %s >, %s",e.getMessage(), url));
-			}
+			}			
 		}
+		logger.debug(String.format("[HttpImpl] [OK] %s %s , thread id: %s , thread name:  %s", url, msgId, Thread.currentThread().getId(), Thread.currentThread().getName()));
 	}
 
 	@SuppressWarnings("all")
-	public void postNTLM(String body, String url, String contentType) throws Exception {
+	public void postNTLM(String body, String url, String contentType, String msgId) throws Exception {
 
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		try {
@@ -126,7 +130,7 @@ public class HttpImpl implements IHttp {
 
 			httpPost.addHeader("Content-Type", contentType);
 
-			final RequestConfig params = RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(5000).build();
+			final RequestConfig params = RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(20000).build();
 			httpPost.setConfig(params);
 
 			//StringEntity entity = new StringEntity(body);
@@ -143,7 +147,7 @@ public class HttpImpl implements IHttp {
 			authtypes.add(AuthPolicy.NTLM);
 			httpclient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, authtypes);
 
-			localContext.setAttribute(ClientContext.CREDS_PROVIDER, credsProvider);
+			localContext.setAttribute(ClientContext.CREDS_PROVIDER, credsProvider);			
 			HttpResponse response = httpclient.execute(httpPost, localContext);
 
 			checkHttpResonseStatusCode(url, response.getStatusLine().getStatusCode());
@@ -153,8 +157,10 @@ public class HttpImpl implements IHttp {
 
 			}
 		} catch (HttpNotFoundException e) {
+			logger.debug(String.format("[HttpImpl] [ERR] NTLM %s %s %s, thread id: %s , thread name:  %s", url, msgId, e.getMessage(), Thread.currentThread().getId(), Thread.currentThread().getName()));
 			throw new HttpNotFoundException(String.format("HttpImpl NTLM: %s",e.getMessage()));
 		} catch (Exception e) {
+			logger.debug(String.format("[HttpImpl] [ERR] NTLM %s %s %s, thread id: %s , thread name:  %s", url, msgId, e.getMessage(), Thread.currentThread().getId(), Thread.currentThread().getName()));
 			throw new Exception(String.format("HttpImpl NTLM: %s",e.getMessage()));
 		} finally {
 			httpclient.getConnectionManager().shutdown();

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.JDBCException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -45,7 +47,9 @@ public class PubTask extends ATask {
 	private List<IContract> list = new ArrayList<IContract>();
 
 	private IHttp http = new HttpImpl();
-
+	
+	private static final Logger logger = LogManager.getLogger(PubTask.class);
+	
 	@Override
 	public void update(Observable o, Object arg) {
 		if (arg != null && arg.getClass() == CommandType.class) {
@@ -99,6 +103,10 @@ public class PubTask extends ATask {
 						map.put("subscriberId", msg.getSubscriberId());
 					subRoutes = service.<SubRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, SubRouting.class, map, 0, null);
 					if (subRoutes == null || subRoutes.size() == 0) {
+						logger.error(
+								String.format("[PubTask] [sub routes] - no records found by filters < %s >, < %s > , "
+								+ "thread id: %s , thread name:  %s", msg.getEventId(), msg.getSenderId(), Thread.currentThread().getId(), Thread.currentThread().getName()));
+						
 						this.collectError(errList, msg, null,
 								new Exception(String.format(
 										"[routing SUB] - no records found by filters %s: < %s >, %s: < %s > ",
@@ -130,6 +138,12 @@ public class PubTask extends ATask {
 						map.put("publisherId", msg.getSenderId());
 						pubErrRoutes = service.<PubErrRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubErrRouting.class, map, 1, null);
 						if (pubErrRoutes == null || pubErrRoutes.size() == 0) {
+							
+							logger.error(
+									String.format("[PubTask] [routing PUB err] - no records found by filters < %s >, < %s > , "
+									+ "thread id: %s , thread name:  %s", msg.getEventId(), msg.getSenderId(), Thread.currentThread().getId(), Thread.currentThread().getName()));
+							
+							
 							this.collectError(errList, msg, null,
 									new Exception(String.format(
 											"[routing PUB err] - no records found by filters %s: < %s >, %s: < %s > ",
@@ -139,6 +153,12 @@ public class PubTask extends ATask {
 					
 						pubSuccessRoutes = service.<PubSuccessRouting>readbyCriteria(appConfig.LOG_ENDPOINT_NAME, PubSuccessRouting.class, map, 1, null);
 						if (pubSuccessRoutes == null || pubSuccessRoutes.size() == 0) {
+							
+							logger.error(
+									String.format("[PubTask] [routing PUB success] - no records found by filters < %s >, < %s > , "
+									+ "thread id: %s , thread name:  %s", msg.getEventId(), msg.getSenderId(), Thread.currentThread().getId(), Thread.currentThread().getName()));
+							
+							
 							this.collectError(errList, msg, null,
 									new Exception(String.format(
 											"[routing PUB success] - no records by filters %s: < %s >, %s: < %s > ",
@@ -222,13 +242,21 @@ public class PubTask extends ATask {
 									uniMinMsg.setUrl(oldMsg.getResponseURI());
 									uniMinMsg.bodyTransform(subRoute.getBodyContentType(), subRoute.getBodyFldSeparator(), subRoute.getRemoveXmlAttributes(), subRoute.getUseCharsetBase64(), subRoute.getUseXmlDeclaration());									
 							
-									http.sendHttp(uniMinMsg, uniMinMsg.getUrl(), uniMinMsg.getContentType(),
-											subRoute.getUseAuth());
+									http.sendHttp(uniMinMsg, 
+												  uniMinMsg.getUrl(), 
+												  uniMinMsg.getContentType(),
+												  subRoute.getUseAuth(),
+												  uniMinMsg.getJuuid()
+												  );
 							
 								} else {
 									newMsg = msg;
-									http.sendHttp(newMsg, newMsg.getResponseURI(), newMsg.getResponseContentType(),
-											subRoute.getUseAuth());
+									http.sendHttp(newMsg, 
+												  newMsg.getResponseURI(), 
+												  newMsg.getResponseContentType(),
+												  subRoute.getUseAuth(),
+												  newMsg.getJuuid()
+												  );
 								}
 
 							} else if (subRoute.getSubscriberStoreClass() != null
@@ -287,7 +315,11 @@ public class PubTask extends ATask {
 		for (ErrPubMsg err : errList) {
 			try {
 				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {					
-					http.sendHttp(err, err.getResponseURI(), err.getResponseContentType(), err.getUseAuth());
+					http.sendHttp(err, 
+								  err.getResponseURI(), 
+								  err.getResponseContentType(), 
+								  err.getUseAuth(), 
+								  err.getJuuid());
 				} else if (err.getStoreClass() != null && !err.getStoreClass().isEmpty()) {
 					IContract contract = null;
 					if (err.getClass().getName().equals(err.getStoreClass())) {
@@ -358,7 +390,12 @@ public class PubTask extends ATask {
 		for (SuccessPubMsg success : successList) {
 			try {
 				if (success.getResponseURI() != null && !success.getResponseURI().isEmpty()) {
-					http.sendHttp(success, success.getResponseURI(), success.getResponseContentType(), success.getUseAuth());
+					http.sendHttp(success, 
+								  success.getResponseURI(), 
+								  success.getResponseContentType(), 
+								  success.getUseAuth(),
+								  success.getJuuid() 
+								 );
 				} else if (success.getStoreClass() != null && !success.getStoreClass().isEmpty()) {
 					IContract contract = null;
 					if (success.getClass().getName().equals(success.getStoreClass())) {
@@ -446,7 +483,19 @@ public class PubTask extends ATask {
 				err.setSubscriberId(subRouting.getSubscriberId());
 			}
 			err.setLogDatetime(logDatetime);
-			list.add(err);
+			list.add(err);			
+			logger.info(
+					String.format("[PubTask] [log pub err] - %s %s , event: %s , sender: %s , subscriber: %s, auth: %s, sub handler: %s,  thread id: %s , thread name:  %s", 
+						logDatetime, 
+						msg.getJuuid(), 
+						msg.getEventId(), 
+						msg.getSenderId(), 
+						subRouting != null ? subRouting.getSubscriberId() : "xxxxxx",
+						subRouting.getUseAuth(),
+						subRouting.getSubscriberHandler() != null ? subRouting.getSubscriberHandler() : subRouting.getSubscriberStoreClass(),
+						Thread.currentThread().getId(), 
+						Thread.currentThread().getName()									
+					));		
 
 		} else {
 			for (PubErrRouting routing : routings) {	// for internal logs and send feedback to endpoint-senders
@@ -479,6 +528,19 @@ public class PubTask extends ATask {
 				err.setLogDatetime(logDatetime);
 
 				list.add(err);
+				
+				logger.info(
+						String.format("[PubTask] [log pub err] - %s %s , event: %s , sender: %s , subscriber: %s, auth: %s, sub handler: %s,  thread id: %s , thread name:  %s", 
+							logDatetime, 
+							msg.getJuuid(), 
+							msg.getEventId(), 
+							msg.getSenderId(), 
+							subRouting != null ? subRouting.getSubscriberId() : "xxxxxx",
+							subRouting.getUseAuth(),
+							routing.getSubscriberHandler() != null ? routing.getSubscriberHandler() : routing.getSubscriberStoreClass(),
+							Thread.currentThread().getId(), 
+							Thread.currentThread().getName()									
+						));		
 			}
 		}
 	}
@@ -506,6 +568,19 @@ public class PubTask extends ATask {
 			}
 			success.setLogDatetime(logDatetime);
 			list.add(success);
+			logger.info(
+					String.format("[PubTask] [log pub success] - %s %s , event: %s , sender: %s , subscriber: %s, auth: %s, sub handler: %s,  thread id: %s , thread name:  %s", 
+						logDatetime, 
+						msg.getJuuid(), 
+						msg.getEventId(), 
+						msg.getSenderId(), 
+						subRouting != null ? subRouting.getSubscriberId() : "xxxxxx",
+						subRouting.getUseAuth(),
+						subRouting.getSubscriberHandler() != null ? subRouting.getSubscriberHandler() : subRouting.getSubscriberStoreClass(),
+						Thread.currentThread().getId(), 
+						Thread.currentThread().getName()									
+					));										
+			
 		} else {
 			for (PubSuccessRouting routing : routings) {	// for internal logs and send feedback to endpoint-senders	
 				success = new SuccessPubMsg();
@@ -526,6 +601,19 @@ public class PubTask extends ATask {
 					success.setSubscriberStoreClass(subRouting.getSubscriberStoreClass());
 				}
 				list.add(success);
+				
+				logger.info(
+						String.format("[PubTask] [log pub success] - %s %s , event: %s , sender: %s , subscriber: %s, auth: %s, sub handler: %s,  thread id: %s , thread name:  %s", 
+							logDatetime, 
+							msg.getJuuid(), 
+							msg.getEventId(), 
+							msg.getSenderId(), 
+							subRouting != null ? subRouting.getSubscriberId() : "xxxxxx",
+							subRouting.getUseAuth(),
+							subRouting.getSubscriberHandler() != null ? subRouting.getSubscriberHandler() : subRouting.getSubscriberStoreClass(),
+							Thread.currentThread().getId(), 
+							Thread.currentThread().getName()									
+						));				
 			}
 		}
 	}

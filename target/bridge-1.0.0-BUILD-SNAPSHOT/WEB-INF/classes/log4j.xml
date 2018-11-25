@@ -6,11 +6,12 @@
 
 	
 	<appender name="file" class="org.apache.log4j.RollingFileAppender">
-	   <param name="append" value="false" />
-	   <param name="maxFileSize" value="3000KB" />
-	   <param name="maxBackupIndex" value="5" />
-	   <!-- For Tomcat -->
-	   <param name="file" value="${catalina.home}/logs/bridge-errors.txt" />
+	   <param name="append" value="true" />
+	   <param name="encoding" value="UTF-8" />	 
+	   <param name="MaxFileSize" value="10MB"/> 
+	   <param name="MaxBackupIndex" value="10"/>
+	   <param name="file" value="${catalina.home}/logs/bridge-log4.log" />	   
+	  
 	   <layout class="org.apache.log4j.PatternLayout">
 		<param name="ConversionPattern"
 			value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
@@ -20,7 +21,7 @@
 	
 	<!-- Application Loggers -->
 	<logger name="com.simple.server">
-		<level value="info" />
+		<level value="debug" />
 	</logger>
 	
 	<!-- 3rdparty Loggers -->

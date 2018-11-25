@@ -240,7 +240,12 @@ public class WriteTask extends ATask {
 			err.getResponseURI();
 			try {
 				if (err.getResponseURI() != null && !err.getResponseURI().isEmpty()) {
-					http.sendHttp(err, err.getResponseURI(), err.getResponseContentType(), false);
+					http.sendHttp(err, 
+								  err.getResponseURI(), 
+								  err.getResponseContentType(), 
+								  false,
+								  err.getJuuid()
+								  );
 				} else if (err.getResponseContractClass() != null && !err.getResponseContractClass().isEmpty()) {
 					IContract contract = null;
 					if (err.getClass().getName().equals(err.getResponseContractClass())) {

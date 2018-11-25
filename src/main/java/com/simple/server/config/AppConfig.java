@@ -3,6 +3,7 @@ package com.simple.server.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.LogManager;
@@ -53,6 +54,8 @@ public class AppConfig {
 	
 	private static Map<String, SessionFactory> sessionFactories = new HashMap();
 	private static Map<String, JdbcTemplate> jdbcTemplates = new HashMap();
+	ConcurrentHashMap<String, String> sessionFactoriesString= new ConcurrentHashMap<String, String>();
+	
 	
 	private String serviceId;
 	
@@ -117,6 +120,11 @@ public class AppConfig {
 	@Autowired 
 	private Sender sender;
 		
+	
+
+	
+	
+	
 	public Sender getSender() {
 		return sender;
 	}
@@ -175,6 +183,16 @@ public class AppConfig {
                 AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
                                                
     }
+	
+	public String getDefaultEndpointByGroupId(String endpointGroupId) {
+		if(sessionFactoriesString.containsKey(endpointGroupId))		
+			return  sessionFactoriesString.get(endpointGroupId);
+		return null;
+	}
+	
+	public void setGroupSessionFactories(String endpointGroupId, String defaultEndpointId) {
+		sessionFactoriesString.put(endpointGroupId, defaultEndpointId);
+	}
 	
 	public SessionFactory getSessionFactoryByEndpointId(String endpointId) {
 		if(sessionFactories.containsKey(endpointId))		

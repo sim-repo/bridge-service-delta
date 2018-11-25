@@ -109,14 +109,16 @@ public class TaskRunner  {
   
     public void initProcessing() {        
         	try {		        		 
+        		newRunTask(appConfig.getMediator(), LoadConfigTask.class, 1);
+        		Thread.currentThread().sleep(20000);
         		newRunTask(appConfig.getMediator(), DispatcherTask.class, 1);
         		newRunTask(appConfig.getMediator(), ReadTask.class, 1);
-        		newRunTask(appConfig.getMediator(), WriteTask.class, 4);
-        		newRunTask(appConfig.getMediator(), PubTask.class, 4);
+        		newRunTask(appConfig.getMediator(), WriteTask.class, 1);
+        		newRunTask(appConfig.getMediator(), PubTask.class, 1);
         		newRunTask(appConfig.getMediator(), SubTask.class, 1);
         		newRunTask(appConfig.getMediator(), LogSenderTask.class, 1);
-        		newRunTask(appConfig.getMediator(), StatTask.class, 1);        	        		
-        		newRunTask(appConfig.getMediator(), LoadConfigTask.class, 1);
+        		//newRunTask(appConfig.getMediator(), StatTask.class, 1);        	        		
+        		
         		
         		for(Map.Entry<Class<ATask>, Integer> pair: classToRun.entrySet()){
         			Class<ATask> clazz = pair.getKey();

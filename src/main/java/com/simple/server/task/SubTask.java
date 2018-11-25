@@ -151,7 +151,12 @@ public class SubTask extends ATask {
 						msg.setOperationType(OperationType.SUB);
 						msg.setResponseContentType(confirm.getResponseContentType());
 						msg.setResponseURI(confirm.getPublisherHandler());
-						http.sendHttp(msg, msg.getResponseURI(), msg.getResponseContentType(), confirm.getUseAuth());
+						http.sendHttp(msg, 
+									  msg.getResponseURI(), 
+									  msg.getResponseContentType(), 
+									  confirm.getUseAuth(),
+									  msg.getJuuid()
+									  );
 					} else if (confirm.getPublisherStoreClass() != null
 							&& !confirm.getPublisherStoreClass().equals("")) {
 						Class<IContract> clazz = (Class<IContract>) Class.forName(confirm.getPublisherStoreClass());
@@ -182,7 +187,12 @@ public class SubTask extends ATask {
 		for (ErrSubMsg err : errList) {
 			try {
 				if (err.getResponseURI() != null && err.getResponseURI() != "") {
-					http.sendHttp(err, err.getResponseURI(), err.getResponseContentType(), false);
+					http.sendHttp(err, 
+								  err.getResponseURI(), 
+								  err.getResponseContentType(), 
+								  false,
+								  err.getJuuid()
+								  );
 				} else if (err.getStoreClass() != null && err.getStoreClass() != "") {
 					IContract contract = null;
 					if (err.getClass().getName().equals(err.getStoreClass())) {

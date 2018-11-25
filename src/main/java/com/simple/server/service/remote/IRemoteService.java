@@ -3,6 +3,8 @@ package com.simple.server.service.remote;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.dao.DataAccessException;
+
 import com.simple.server.config.AppConfig;
 import com.simple.server.domain.contract.IContract;
 

@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.simple.server.config.MiscType;
 import com.simple.server.domain.IRec;
 import com.simple.server.domain.contract.IContract;

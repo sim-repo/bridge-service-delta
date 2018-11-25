@@ -61,7 +61,12 @@ public class ReadTask extends ATask {
 		        		throw new Exception("TODO");
 		        	
 		        	IHttp http = new HttpImpl();
-        			http.sendHttp(r, r.getResponseURI(), r.getResponseContentType(), false);
+        			http.sendHttp(r, 
+        						  r.getResponseURI(), 
+        						  r.getResponseContentType(), 
+        						  false,
+        						  r.getJuuid()
+        						  );
         			http = null;        		
         		}catch(Exception e){        			
         		}

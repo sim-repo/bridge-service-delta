@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -14,9 +16,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.simple.server.config.AppConfig;
 import com.simple.server.config.ContentType;
 import com.simple.server.config.MiscType;
@@ -34,7 +39,7 @@ public abstract class ADao implements IDao{
 	@Autowired
 	protected AppConfig appConfig;
 	
-
+	private static final Logger logger = LogManager.getLogger(ADao.class);
 	
 	@Override
 	public void insert(Session currentSession, List<IRec> list) throws Exception {
@@ -83,8 +88,10 @@ public abstract class ADao implements IDao{
 	}
 	
 	@Override
-	public String readFlatJsonArray(JdbcTemplate currentJDBCTemplate, String sql) throws Exception {		
-		List<Map<String,Object>> list =  currentJDBCTemplate.queryForList(sql);			
+	public String readFlatJsonArray(JdbcTemplate currentJDBCTemplate, String sql) throws  Exception {		
+		System.out.println( System.currentTimeMillis());
+		List<Map<String,Object>> list =  currentJDBCTemplate.queryForList(sql);		
+		System.out.println( System.currentTimeMillis());
 		return ObjectConverter.listMapToJson(list);
 	}
 	
@@ -126,7 +133,8 @@ public abstract class ADao implements IDao{
 			for(Map.Entry<String, Object> pair: map.entrySet()){				
 				result.append(pair.getValue());
 			}		
-		}			
+		}	
+		System.out.println(result.toString());
 		JSONObject jObject = XML.toJSONObject(result.toString());
 	    ObjectMapper mapper = new ObjectMapper();	   
 	    Object json = mapper.readValue(jObject.toString(), Object.class);
